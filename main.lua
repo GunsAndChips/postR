@@ -2,25 +2,33 @@ require "map"
 
 PIXEL_WIDTH = 640
 PIXEL_HEIGHT = 360
+PIXEL_CELL_SIZE = 32
 SCALE_FACTOR = 2
 SCREEN_WIDTH = PIXEL_WIDTH * SCALE_FACTOR
 SCREEN_HEIGHT = PIXEL_HEIGHT * SCALE_FACTOR
 
 local tiles = {
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,1,0,
-    0,0,0,0,0,0,0,0
+    0,1,0,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,
+    1,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,1,
 }
 
-local map1 = Map:New(tiles,8,4)
+local map1 = Map:New(tiles,18,5)
+
+tileSprites = {}
+
+function LoadTileSprites()
+
+end
 
 function love.load()
     Player = {}
-    Player.width = 14 * SCALE_FACTOR
-    Player.height = 28 * SCALE_FACTOR
-    Player.x = PIXEL_WIDTH/2 - Player.width/2
-    Player.y = PIXEL_HEIGHT/2 - Player.height/2
+    Player.width = 28 * SCALE_FACTOR
+    Player.height = 56 * SCALE_FACTOR
+    Player.x = SCREEN_WIDTH/2 - Player.width/2
+    Player.y = SCREEN_HEIGHT/2 - Player.height/2
 
     _Key = {}
     _Key.up = "w"
@@ -28,6 +36,8 @@ function love.load()
     _Key.left = "a"
     _Key.right = "d"
     _Key.sprint = "lshift"
+
+    LoadTileSprites()
 
     love.window.setMode(PIXEL_WIDTH * SCALE_FACTOR,PIXEL_HEIGHT * SCALE_FACTOR,{fullscreen=false,vsync=false})
 end
@@ -58,7 +68,7 @@ function playerMove()
     if love.keyboard.isDown(_Key.sprint) then
         speed.multiplier = speed.multiplier * 0.25
     elseif love.keyboard.isDown(_Key.up, _Key.down, _Key.left, _Key.right) then
-        speed.multiplier = speed.multiplier * 0.125
+        speed.multiplier = speed.multiplier * 0.15
     else
         return
     end
