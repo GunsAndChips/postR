@@ -17,11 +17,15 @@ The works of Simon Stalenhag, particularly of decrepid & rotting futuristic mach
 A world of hope and timid happiness, with scars of a devastating past - not a depressing deadline of annihilation.
 
 ### Platform
-//
+Windows PC
 ### Development Software
-//
+Visual Studio Code for code
+- Using the Love2d framework for Lua
+Aseprite for Graphics & UI
 ### Genre
 Farming RPG
+Singleplayer
+Relaxing
 ### Target Audience
 Me
  
