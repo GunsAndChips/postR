@@ -1,34 +1,41 @@
 require "map"
 
-PIXEL_WIDTH = 640
-PIXEL_HEIGHT = 360
-PIXEL_CELL_SIZE = 32
-SCALE_FACTOR = 2
-SCREEN_WIDTH = PIXEL_WIDTH * SCALE_FACTOR
-SCREEN_HEIGHT = PIXEL_HEIGHT * SCALE_FACTOR
+-- Push to scale up graphics
+local push = require("push")
+local gameWidth, gameHeight = 320, 180 --fixed game resolution
+local windowWidth, windowHeight = love.window.getDesktopDimensions()
+windowWidth, windowHeight = windowWidth*.7, windowHeight*.7 --make the window a bit smaller than the screen itself
+
+push:setupScreen(gameWidth, gameHeight, windowWidth, windowHeight, {fullscreen = false, pixelperfect = true})
+
+PIXEL_WIDTH = 320
+PIXEL_HEIGHT = 180
 
 local tiles = {
-    0,1,0,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,
-    1,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,1,
+     1, 1, 1, 1, 1, 1,
+     1, 1, 1, 1, 1, 1,
+     1, 1, 1, 1, 1, 1,
+     2, 2, 2, 2, 2, 2,
 }
 
-local map1 = Map:New(tiles,18,5)
+local map1 = Map:New(tiles, 6, 4)
 
 tileSprites = {}
-
 function LoadTileSprites()
-
+    for i=1, 2 do
+        --local fileName = string.format("textures/tile_%d.png",i)
+        local fileName = string.format("textures/pg%d.png",i)
+        local newTile = love.graphics.newImage(fileName)
+        table.insert(tileSprites, newTile)
+    end
 end
 
 function love.load()
     Player = {}
-    Player.width = 28 * SCALE_FACTOR
-    Player.height = 56 * SCALE_FACTOR
-    Player.x = SCREEN_WIDTH/2 - Player.width/2
-    Player.y = SCREEN_HEIGHT/2 - Player.height/2
+    Player.width = 14
+    Player.height = 28
+    Player.x = PIXEL_WIDTH/2 - Player.width/2
+    Player.y = PIXEL_HEIGHT/2 - Player.height/2
 
     _Key = {}
     _Key.up = "w"
@@ -39,7 +46,7 @@ function love.load()
 
     LoadTileSprites()
 
-    love.window.setMode(PIXEL_WIDTH * SCALE_FACTOR,PIXEL_HEIGHT * SCALE_FACTOR,{fullscreen=false,vsync=false})
+    --love.window.setMode(PIXEL_WIDTH * SCALE_FACTOR, PIXEL_HEIGHT * SCALE_FACTOR, {fullscreen=false,vsync=false})
 end
 
 function love.update(dt)
@@ -47,28 +54,26 @@ function love.update(dt)
 end
 
 function love.draw()
+    push:start()
+
     map1:Render()
     love.graphics.setColor(0, 0.4, 0.4)
     love.graphics.rectangle("fill", Player.x, Player.y, Player.width, Player.height)
+
+    push:finish()
 end
 
 function playerMove()
     local speed = {}
-    speed.multiplier = 0
+    speed.multiplier = 0.45
     speed.x = 0
     speed.y = 0
 
-    if SCALE_FACTOR < 1 then
-        return
-    else
-        speed.multiplier = SCALE_FACTOR
-    end
-
     -- Sprint or walk
     if love.keyboard.isDown(_Key.sprint) then
-        speed.multiplier = speed.multiplier * 0.25
+        speed.multiplier = speed.multiplier * 1.6
     elseif love.keyboard.isDown(_Key.up, _Key.down, _Key.left, _Key.right) then
-        speed.multiplier = speed.multiplier * 0.15
+        speed.multiplier = speed.multiplier
     else
         return
     end

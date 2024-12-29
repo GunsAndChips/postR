@@ -10,15 +10,16 @@ function Map:New(data,width,height)
         tiles = data,
         widthInTiles = width,
         heightInTiles = height,
-        screenCellSize = PIXEL_CELL_SIZE * SCALE_FACTOR
+        screenCellHeight = 12,
+        screenCellWidth = 16
     }
     setmetatable(this,self)
 
-    this.screenWidth = (this.widthInTiles) * this.screenCellSize
-    this.screenHeight = (this.heightInTiles) * this.screenCellSize
+    this.screenWidth = (this.widthInTiles) * this.screenCellWidth
+    this.screenHeight = (this.heightInTiles) * this.screenCellHeight
 
-    this.offsetX = SCREEN_WIDTH / 2 - this.screenWidth / 2
-    this.offsetY = SCREEN_HEIGHT / 2 - this.screenHeight / 2
+    this.offsetX = 20 --SCREEN_WIDTH / 2 - this.screenWidth / 2
+    this.offsetY = 20 --SCREEN_HEIGHT / 2 - this.screenHeight / 2
 
     return this
 end
@@ -28,15 +29,17 @@ function Map:Render()
     love.graphics.newFont(40)
     for row=1,self.heightInTiles do
         for col=1, self.widthInTiles do
-            local tileX = (col-1)*self.screenCellSize + self.offsetX
-            local tileY = (row-1) * self.screenCellSize + self.offsetY
+            local staggerX = 4 * (row-1) --Stagger each row 4 pixels left for parallelogram tiling
+            local tileX = (col-1) * self.screenCellWidth + self.offsetX - staggerX
+            local tileY = (row-1) * self.screenCellHeight + self.offsetY
             local tile = self:GetTile(col,row)
 
-            if tile == 0 then
-                love.graphics.rectangle("line",tileX,tileY,self.screenCellSize,self.screenCellSize)
-            elseif tile == 1 then
-                love.graphics.rectangle("fill",tileX,tileY,self.screenCellSize,self.screenCellSize)
+            if tile > 0 then
+                local tileScaleFactor = self.screenCellWidth / 16
+                love.graphics.draw(tileSprites[tile],tileX,tileY,0,tileScaleFactor)
             end
+
+            --love.graphics.rectangle("line",tileX,tileY,self.screenCellSize,self.screenCellSize)
         end
     end
 end
