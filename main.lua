@@ -26,14 +26,19 @@ function LoadTileSprites()
 end
 
 local tiles = {
-     1, 1, 1, 1, 1, 1, 2, 2, 1, 1,
-     1, 1, 1, 1, 1, 1, 2, 2, 1, 1,
-     1, 1, 1, 1, 1, 1, 2, 2, 1, 1,
-     2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-     2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+     1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1,
+     1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1,
+     1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1,
+     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 }
 
-local map1 = Map:New(tiles, 10, 5)
+local map1 = Map:New(tiles, 12, 10)
 
 function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
@@ -64,8 +69,9 @@ end
 function love.draw()
     TLfres.beginRendering(PIXEL_WIDTH, PIXEL_HEIGHT)
 
-    love.graphics.setColor(1,0,0)
-    love.graphics.rectangle("line", 0, 0, PIXEL_WIDTH, PIXEL_HEIGHT)
+    -- Renders red box at screen borders for debugging
+    --love.graphics.setColor(1,0,0)
+    --love.graphics.rectangle("line", 0, 0, PIXEL_WIDTH, PIXEL_HEIGHT)
 
     map1:Render()
     love.graphics.setColor(0, 0.4, 0.4)
@@ -75,6 +81,14 @@ function love.draw()
 end
 
 function playerMove()
+    local deadzone = {}
+    deadzone.width = 80
+    deadzone.height = 60
+    deadzone.xMin = PIXEL_WIDTH / 2 - deadzone.width / 2
+    deadzone.xMax = PIXEL_WIDTH / 2 + deadzone.width / 2
+    deadzone.yMin = PIXEL_HEIGHT / 2 - deadzone.height / 2
+    deadzone.yMax = PIXEL_HEIGHT / 2 + deadzone.height / 2
+
     local speed = {}
     speed.multiplier = 0.07*1.6
     speed.x = 0
@@ -111,8 +125,19 @@ function playerMove()
     if math.abs(speed.y) + math.abs(speed.x) == 2 then
         speed.multiplier = speed.multiplier / math.sqrt(2)
     end
-    --love.graphics.draw(player.img, math.floor(player.xPos+0.5), math.floor(player.yPos+0.5)
+
     -- Move player
     Player.x = Player.x + speed.multiplier * speed.x
+    if Player.x > deadzone.xMax then
+        Player.x = deadzone.xMax
+    elseif Player.x < deadzone.xMin then
+        Player.x = deadzone.xMin
+    end
+    
     Player.y = Player.y + speed.multiplier * speed.y
+    if Player.y > deadzone.yMax then
+        Player.y = deadzone.yMax
+    elseif Player.y < deadzone.yMin then
+        Player.y = deadzone.yMin
+    end
 end
