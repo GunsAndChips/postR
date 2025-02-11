@@ -1,36 +1,46 @@
 require "map"
 
--- Push to scale up graphics
-local push = require("push")
-local gameWidth, gameHeight = 320, 180 --fixed game resolution
-local windowWidth, windowHeight = love.window.getDesktopDimensions()
-windowWidth, windowHeight = windowWidth*.7, windowHeight*.7 --make the window a bit smaller than the screen itself
+-- TLfres for scaling
+local TLfres = require "libraries/tlfres"
 
-push:setupScreen(gameWidth, gameHeight, windowWidth, windowHeight, {fullscreen = false, pixelperfect = true})
+function love.mouse.getPosition() -- Override the standard function with TLFres helper function
+    return TLfres.getMousePosition(PIXEL_WIDTH, PIXEL_HEIGHT)
+ end
 
 PIXEL_WIDTH = 320
 PIXEL_HEIGHT = 180
 
-local tiles = {
-     1, 1, 1, 1, 1, 1,
-     1, 1, 1, 1, 1, 1,
-     1, 1, 1, 1, 1, 1,
-     2, 2, 2, 2, 2, 2,
-}
-
-local map1 = Map:New(tiles, 6, 4)
-
-tileSprites = {}
+TileSprites = {}
 function LoadTileSprites()
+    local tileFileNames = {}
+    
     for i=1, 2 do
         --local fileName = string.format("textures/tile_%d.png",i)
-        local fileName = string.format("textures/pg%d.png",i)
-        local newTile = love.graphics.newImage(fileName)
-        table.insert(tileSprites, newTile)
+        table.insert(tileFileNames, string.format("textures/pg%d.png",i))
     end
+
+    TileSprites = love.graphics.newArrayImage(tileFileNames)
+
+    TileSprites:setFilter("nearest", "nearest")
+    TileSprites:setMipmapFilter( )
 end
 
+local tiles = {
+     1, 1, 1, 1, 1, 1, 2, 2, 1, 1,
+     1, 1, 1, 1, 1, 1, 2, 2, 1, 1,
+     1, 1, 1, 1, 1, 1, 2, 2, 1, 1,
+     2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+     2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+}
+
+local map1 = Map:New(tiles, 10, 5)
+
 function love.load()
+    love.graphics.setDefaultFilter("nearest", "nearest")
+
+    -- don't know if size matters here if fullscreen anyway
+    love.window.setMode(1920, 1080, {vsync = true, msaa = 0, highdpi = true, fullscreen = true})
+
     Player = {}
     Player.width = 14
     Player.height = 28
@@ -45,8 +55,6 @@ function love.load()
     _Key.sprint = "lshift"
 
     LoadTileSprites()
-
-    --love.window.setMode(PIXEL_WIDTH * SCALE_FACTOR, PIXEL_HEIGHT * SCALE_FACTOR, {fullscreen=false,vsync=false})
 end
 
 function love.update(dt)
@@ -54,18 +62,21 @@ function love.update(dt)
 end
 
 function love.draw()
-    push:start()
+    TLfres.beginRendering(PIXEL_WIDTH, PIXEL_HEIGHT)
+
+    love.graphics.setColor(1,0,0)
+    love.graphics.rectangle("line", 0, 0, PIXEL_WIDTH, PIXEL_HEIGHT)
 
     map1:Render()
     love.graphics.setColor(0, 0.4, 0.4)
-    love.graphics.rectangle("fill", Player.x, Player.y, Player.width, Player.height)
+    love.graphics.rectangle("fill", math.floor(Player.x+0.5), math.floor(Player.y+0.5), Player.width, Player.height)
 
-    push:finish()
+    TLfres.endRendering()
 end
 
 function playerMove()
     local speed = {}
-    speed.multiplier = 0.45
+    speed.multiplier = 0.07*1.6
     speed.x = 0
     speed.y = 0
 
@@ -100,7 +111,7 @@ function playerMove()
     if math.abs(speed.y) + math.abs(speed.x) == 2 then
         speed.multiplier = speed.multiplier / math.sqrt(2)
     end
-
+    --love.graphics.draw(player.img, math.floor(player.xPos+0.5), math.floor(player.yPos+0.5)
     -- Move player
     Player.x = Player.x + speed.multiplier * speed.x
     Player.y = Player.y + speed.multiplier * speed.y
