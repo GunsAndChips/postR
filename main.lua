@@ -2,7 +2,6 @@ require "map"
 
 -- TLfres for scaling
 local TLfres = require "libraries/tlfres"
-
 function love.mouse.getPosition() -- Override the standard function with TLFres helper function
     return TLfres.getMousePosition(PIXEL_WIDTH, PIXEL_HEIGHT)
  end
@@ -20,9 +19,6 @@ function LoadTileSprites()
     end
 
     TileSprites = love.graphics.newArrayImage(tileFileNames)
-
-    TileSprites:setFilter("nearest", "nearest")
-    TileSprites:setMipmapFilter( )
 end
 
 local tiles = {
@@ -82,8 +78,9 @@ end
 
 function playerMove()
     local deadzone = {}
-    deadzone.width = 80
-    deadzone.height = 60
+    deadzone.enabled = false;
+    deadzone.width = 80 * 100
+    deadzone.height = 60 * 100
     deadzone.xMin = PIXEL_WIDTH / 2 - deadzone.width / 2
     deadzone.xMax = PIXEL_WIDTH / 2 + deadzone.width / 2
     deadzone.yMin = PIXEL_HEIGHT / 2 - deadzone.height / 2
@@ -128,16 +125,19 @@ function playerMove()
 
     -- Move player
     Player.x = Player.x + speed.multiplier * speed.x
-    if Player.x > deadzone.xMax then
-        Player.x = deadzone.xMax
-    elseif Player.x < deadzone.xMin then
-        Player.x = deadzone.xMin
-    end
-    
     Player.y = Player.y + speed.multiplier * speed.y
-    if Player.y > deadzone.yMax then
-        Player.y = deadzone.yMax
-    elseif Player.y < deadzone.yMin then
-        Player.y = deadzone.yMin
+
+    if deadzone.enabled then
+        if Player.x > deadzone.xMax then
+            Player.x = deadzone.xMax
+        elseif Player.x < deadzone.xMin then
+            Player.x = deadzone.xMin
+        end
+        
+        if Player.y > deadzone.yMax then
+            Player.y = deadzone.yMax
+        elseif Player.y < deadzone.yMin then
+            Player.y = deadzone.yMin
+        end
     end
 end
