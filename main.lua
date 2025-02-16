@@ -71,7 +71,13 @@ function love.draw()
 
     map1:Render()
     love.graphics.setColor(0, 0.4, 0.4)
-    love.graphics.rectangle("fill", math.floor(Player.x+0.5), math.floor(Player.y+0.5), Player.width, Player.height)
+    
+    -- Smooth movement
+    love.graphics.rectangle("fill", Player.x, Player.y, Player.width, Player.height)
+    -- Movement locked to pixel grid
+    --love.graphics.rectangle("fill", math.floor(Player.x+0.5), math.floor(Player.y+0.5), Player.width, Player.height)
+
+
 
     TLfres.endRendering()
 end
@@ -124,7 +130,7 @@ function playerMove()
     end
 
     -- Move player
-    Player.x = Player.x + speed.multiplier * speed.x
+    Player.x = Player.x + speed.multiplier * speed.x - (speed.multiplier * speed.y)/3
     Player.y = Player.y + speed.multiplier * speed.y
 
     if deadzone.enabled then
