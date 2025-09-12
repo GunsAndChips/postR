@@ -1,4 +1,5 @@
 require "map"
+require "settings"
 
 -- TLfres for scaling
 local TLfres = require "libraries/tlfres"
@@ -21,20 +22,9 @@ function LoadTileSprites()
     TileSprites = love.graphics.newArrayImage(tileFileNames)
 end
 
-local tiles = {
-     1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1,
-     1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1,
-     1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1,
-     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-}
+local mapDefinition = require "tiled/maptest1"
 
-local map1 = Map:New(tiles, 12, 10)
+local map1 = Map:New(mapDefinition)
 
 function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
@@ -48,12 +38,11 @@ function love.load()
     Player.x = PIXEL_WIDTH/2 - Player.width/2
     Player.y = PIXEL_HEIGHT/2 - Player.height/2
 
-    _Key = {}
-    _Key.up = "w"
-    _Key.down = "s"
-    _Key.left = "a"
-    _Key.right = "d"
-    _Key.sprint = "lshift"
+    CameraOffset = {}
+    CameraOffset.x = PIXEL_WIDTH/2
+    CameraOffset.y = PIXEL_HEIGHT/2
+
+    _Key = Settings.Keybinds
 
     LoadTileSprites()
 end
@@ -69,31 +58,37 @@ function love.draw()
     --love.graphics.setColor(1,0,0)
     --love.graphics.rectangle("line", 0, 0, PIXEL_WIDTH, PIXEL_HEIGHT)
 
-    map1:Render()
+    map1:Render(CameraOffset)
+    
     love.graphics.setColor(0, 0.4, 0.4)
     
-    -- Smooth movement
     love.graphics.rectangle("fill", Player.x, Player.y, Player.width, Player.height)
-    -- Movement locked to pixel grid
-    --love.graphics.rectangle("fill", math.floor(Player.x+0.5), math.floor(Player.y+0.5), Player.width, Player.height)
 
-
+    love.graphics.setColor(1, 0, 0)
+    love.graphics.rectangle("fill", CameraOffset.x, CameraOffset.y, 1, 1)
 
     TLfres.endRendering()
 end
 
 function playerMove()
-    local deadzone = {}
-    deadzone.enabled = false;
-    deadzone.width = 80 * 100
-    deadzone.height = 60 * 100
-    deadzone.xMin = PIXEL_WIDTH / 2 - deadzone.width / 2
-    deadzone.xMax = PIXEL_WIDTH / 2 + deadzone.width / 2
-    deadzone.yMin = PIXEL_HEIGHT / 2 - deadzone.height / 2
-    deadzone.yMax = PIXEL_HEIGHT / 2 + deadzone.height / 2
+    local function move(x, y, speed, invert)
+        local sign = 1
+        if invert then
+            sign = -1
+        end
+
+        x = x + sign * (speed.multiplier * speed.x)
+        y = y + sign * (speed.multiplier * speed.y)
+
+        if Settings.movement.useRotatedY then
+            x = x - sign * ((speed.multiplier * speed.y)/3)
+        end
+
+        return x, y
+    end
 
     local speed = {}
-    speed.multiplier = 0.07*1.6
+    speed.multiplier = Config.movement.moveSpeed
     speed.x = 0
     speed.y = 0
 
@@ -125,25 +120,25 @@ function playerMove()
         return
     end
 
+    -- Make diagonal movespeed same as straightline
     if math.abs(speed.y) + math.abs(speed.x) == 2 then
         speed.multiplier = speed.multiplier / math.sqrt(2)
     end
 
-    -- Move player
-    Player.x = Player.x + speed.multiplier * speed.x - (speed.multiplier * speed.y)/3
-    Player.y = Player.y + speed.multiplier * speed.y
+    CameraOffset.x, CameraOffset.y = move(CameraOffset.x, CameraOffset.y, speed, true)
 
-    if deadzone.enabled then
-        if Player.x > deadzone.xMax then
-            Player.x = deadzone.xMax
-        elseif Player.x < deadzone.xMin then
-            Player.x = deadzone.xMin
-        end
-        
-        if Player.y > deadzone.yMax then
-            Player.y = deadzone.yMax
-        elseif Player.y < deadzone.yMin then
-            Player.y = deadzone.yMin
-        end
-    end
+    -- OLD DEADZONE CODE FROM WHEN THE PLAYER WAS MOVING, NOT THE BACKGROUND
+    --if deadzone.enabled then
+    --    if Player.x > deadzone.xMax then
+    --        Player.x = deadzone.xMax
+    --    elseif Player.x < deadzone.xMin then
+    --        Player.x = deadzone.xMin
+    --    end
+    --    
+    --    if Player.y > deadzone.yMax then
+    --        Player.y = deadzone.yMax
+    --    elseif Player.y < deadzone.yMin then
+    --        Player.y = deadzone.yMin
+    --    end
+    --end
 end
