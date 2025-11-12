@@ -24,23 +24,13 @@ end
 function Map:Render(cameraOffset)
     love.graphics.setColor(1, 1, 1)
 
-    local pixelPerfectOffset = {}
-    pixelPerfectOffset.x = 0
-    pixelPerfectOffset.y = 0
-
-    -- DONT LIKE THIS METHOD OF PIXEL PERFECTNESS, IT MAKES THE WHOLE BACKGROUND JITTERY. todo: TRY MAKING PLAYER JITTER AND BG SMOOTH
-    if Config.movement.pixelPerfect then
-        pixelPerfectOffset.x = math.floor(cameraOffset.x+0.5)-cameraOffset.x
-        pixelPerfectOffset.y = math.floor(cameraOffset.y+0.5)-cameraOffset.y
-    end
-
     for row=1,self.heightInTiles do
         for col=1, self.widthInTiles do
              --Stagger each row 'screenCellStaggerX' pixels right for parallelogram tiling
             local staggerX = -self.tileStaggerX * row + self.tileStaggerX * self.heightInTiles
 
-            local tileX = (col-1) * self.tileWidth + self.offsetX + staggerX + cameraOffset.x + pixelPerfectOffset.x
-            local tileY = (row-1) * self.tileHeight + self.offsetY + cameraOffset.y + pixelPerfectOffset.y
+            local tileX = (col-1) * self.tileWidth + self.offsetX + staggerX + cameraOffset.x
+            local tileY = (row-1) * self.tileHeight + self.offsetY + cameraOffset.y
             local tile = self:GetTile(col,row)
 
             if tile >= 0 then

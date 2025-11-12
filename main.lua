@@ -49,6 +49,7 @@ end
 
 function love.update(dt)
     playerMove()
+    playerInteract()
 end
 
 function love.draw()
@@ -59,13 +60,25 @@ function love.draw()
     --love.graphics.rectangle("line", 0, 0, PIXEL_WIDTH, PIXEL_HEIGHT)
 
     map1:Render(CameraOffset)
-    
+
+    local pixelPerfectOffset = {}
+    pixelPerfectOffset.x = 0
+    pixelPerfectOffset.y = 0
+
+    if Config.movement.pixelPerfect then
+        pixelPerfectOffset.x = CameraOffset.x - math.floor(CameraOffset.x+0.5)
+        pixelPerfectOffset.y = CameraOffset.y - math.floor(CameraOffset.y+0.5)
+    end
+
     love.graphics.setColor(0, 0.4, 0.4)
-    
-    love.graphics.rectangle("fill", Player.x, Player.y, Player.width, Player.height)
+    love.graphics.rectangle("fill", Player.x + pixelPerfectOffset.x, Player.y + pixelPerfectOffset.y, Player.width, Player.height)
 
     love.graphics.setColor(1, 0, 0)
     love.graphics.rectangle("fill", CameraOffset.x, CameraOffset.y, 1, 1)
+
+    if Config.renderers.debug.playerTargeting then
+        -- show where player is targeting
+    end
 
     TLfres.endRendering()
 end
@@ -77,29 +90,24 @@ function playerMove()
             sign = -1
         end
 
-        x = x + sign * (speed.multiplier * speed.x)
-        y = y + sign * (speed.multiplier * speed.y)
+        x = x + sign * (speed.magnitude * speed.x)
+        y = y + sign * (speed.magnitude * speed.y)
 
         if Settings.movement.useRotatedY then
-            x = x - sign * ((speed.multiplier * speed.y)/3)
+            x = x - sign * ((speed.magnitude * speed.y)/3)
         end
 
         return x, y
     end
 
-    local speed = {}
-    speed.multiplier = Config.movement.moveSpeed
-    speed.x = 0
-    speed.y = 0
-
-    -- Sprint or walk
-    if love.keyboard.isDown(_Key.sprint) then
-        speed.multiplier = speed.multiplier * 1.6
-    elseif love.keyboard.isDown(_Key.up, _Key.down, _Key.left, _Key.right) then
-        speed.multiplier = speed.multiplier
-    else
+    if not love.keyboard.isDown(_Key.up, _Key.down, _Key.left, _Key.right) then
         return
     end
+
+    local speed = {}
+    speed.x = 0
+    speed.y = 0
+    speed.magnitude = Config.movement.moveSpeed
 
     -- Set direction for x/y movement
     if love.keyboard.isDown(_Key.right) then
@@ -120,9 +128,14 @@ function playerMove()
         return
     end
 
+    -- Movespeed modifiers
+    -- Sprint
+    if love.keyboard.isDown(_Key.sprint) then
+        speed.magnitude = Config.movement.moveSpeed * Config.movement.sprintMultiplier
+    end
     -- Make diagonal movespeed same as straightline
     if math.abs(speed.y) + math.abs(speed.x) == 2 then
-        speed.multiplier = speed.multiplier / math.sqrt(2)
+        speed.magnitude = speed.magnitude / math.sqrt(2)
     end
 
     CameraOffset.x, CameraOffset.y = move(CameraOffset.x, CameraOffset.y, speed, true)
@@ -141,4 +154,8 @@ function playerMove()
     --        Player.y = deadzone.yMin
     --    end
     --end
+end
+
+function playerInteract()
+    -- hi
 end
