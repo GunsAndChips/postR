@@ -32,11 +32,10 @@ function love.load()
     -- don't know if size matters here if fullscreen anyway
     love.window.setMode(1920, 1080, {vsync = true, msaa = 0, highdpi = true, fullscreen = true})
 
-    Player = {}
-    Player.width = 14
-    Player.height = 28
+    Player = Config.player
     Player.x = PIXEL_WIDTH/2 - Player.width/2
     Player.y = PIXEL_HEIGHT/2 - Player.height/2
+    Player.facing = 1
 
     CameraOffset = {}
     CameraOffset.x = PIXEL_WIDTH/2
@@ -48,8 +47,8 @@ function love.load()
 end
 
 function love.update(dt)
-    playerMove()
-    playerInteract()
+    PlayerMove()
+    PlayerInteract()
 end
 
 function love.draw()
@@ -65,6 +64,11 @@ function love.draw()
     pixelPerfectOffset.x = 0
     pixelPerfectOffset.y = 0
 
+    local facingOffset = 0
+        if Player.facing == 1 then
+            facingOffset = Player.width - 1
+        end
+
     if Config.movement.pixelPerfect then
         pixelPerfectOffset.x = CameraOffset.x - math.floor(CameraOffset.x+0.5)
         pixelPerfectOffset.y = CameraOffset.y - math.floor(CameraOffset.y+0.5)
@@ -73,17 +77,26 @@ function love.draw()
     love.graphics.setColor(0, 0.4, 0.4)
     love.graphics.rectangle("fill", Player.x + pixelPerfectOffset.x, Player.y + pixelPerfectOffset.y, Player.width, Player.height)
 
-    love.graphics.setColor(1, 0, 0)
-    love.graphics.rectangle("fill", CameraOffset.x, CameraOffset.y, 1, 1)
-
-    if Config.renderers.debug.playerTargeting then
-        -- show where player is targeting
+    --debug renderers
+    if Config.renderers.debug.cameraOffset then
+        love.graphics.setColor(1, 0, 0)
+        love.graphics.rectangle("fill", CameraOffset.x, CameraOffset.y, 1, 1)
+        love.graphics.setColor(0, 1, 1)
+        love.graphics.rectangle("fill", CameraOffset.x + math.fmod(Player.x, Config.tile.width), CameraOffset.y, 1, 1) --this doesn't work yet
+    end
+    if Config.renderers.debug.player.targeting then
+        love.graphics.setColor(1, 0, 0)
+        love.graphics.rectangle("fill", Player.x + facingOffset + (Player.reachLength * Player.facing), Player.y + Player.reachHeight, 1, 1)
+    end
+    if Config.renderers.debug.player.facing then
+        love.graphics.setColor(1, 0, 0)
+        love.graphics.rectangle("fill", Player.x + facingOffset, Player.y, 1, 1)
     end
 
     TLfres.endRendering()
 end
 
-function playerMove()
+function PlayerMove()
     local function move(x, y, speed, invert)
         local sign = 1
         if invert then
@@ -126,6 +139,10 @@ function playerMove()
     -- Return if no movement
     if speed.y == 0 and speed.x == 0 then
         return
+    elseif speed.x > 0 then
+        Player.facing = 1
+    elseif speed.x < 0 then
+        Player.facing = -1
     end
 
     -- Movespeed modifiers
@@ -156,6 +173,6 @@ function playerMove()
     --end
 end
 
-function playerInteract()
+function PlayerInteract()
     -- hi
 end

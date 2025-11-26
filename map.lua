@@ -7,8 +7,8 @@ function Map:New(mapDefinition)
         widthInTiles = mapDefinition.width,
         heightInTiles = mapDefinition.height,
         tileHeight = mapDefinition.tileheight,
-        tileWidth = 16,
-        tileStaggerX = 3
+        tileWidth = Config.tile.width,
+        tileStaggerX = Config.tile.staggerX
     }
     setmetatable(this,self)
 
