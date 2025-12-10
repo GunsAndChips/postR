@@ -13,7 +13,7 @@ PIXEL_HEIGHT = 180
 TileSprites = {}
 function LoadTileSprites()
     local tileFileNames = {}
-    
+
     for i=1, 2 do
         --local fileName = string.format("textures/tile_%d.png",i)
         table.insert(tileFileNames, string.format("textures/pg%d.png",i))
@@ -32,14 +32,15 @@ function love.load()
     -- don't know if size matters here if fullscreen anyway
     love.window.setMode(1920, 1080, {vsync = true, msaa = 0, highdpi = true, fullscreen = true})
 
-    Player = Config.player
-    Player.x = PIXEL_WIDTH/2 - Player.width/2
-    Player.y = PIXEL_HEIGHT/2 - Player.height/2
-    Player.facing = 1
-
     CameraOffset = {}
-    CameraOffset.x = PIXEL_WIDTH/2
-    CameraOffset.y = PIXEL_HEIGHT/2
+    CameraOffset.x = 0
+    CameraOffset.y = 0
+
+    Player = Config.player
+    Player.x = PIXEL_WIDTH/2
+    Player.y = PIXEL_HEIGHT/2
+    CalculatePlayerTileCoords()
+    Player.facing = "right"
 
     _Key = Settings.Keybinds
 
@@ -64,37 +65,66 @@ function love.draw()
     pixelPerfectOffset.x = 0
     pixelPerfectOffset.y = 0
 
-    local facingOffset = 0
-        if Player.facing == 1 then
-            facingOffset = Player.width - 1
-        end
-
     if Config.movement.pixelPerfect then
         pixelPerfectOffset.x = CameraOffset.x - math.floor(CameraOffset.x+0.5)
         pixelPerfectOffset.y = CameraOffset.y - math.floor(CameraOffset.y+0.5)
     end
 
     love.graphics.setColor(0, 0.4, 0.4)
-    love.graphics.rectangle("fill", Player.x + pixelPerfectOffset.x, Player.y + pixelPerfectOffset.y, Player.width, Player.height)
+    love.graphics.rectangle("fill", Player.x + pixelPerfectOffset.x - Player.width/2, Player.y + pixelPerfectOffset.y - Player.height/2, Player.width, Player.height)
 
-    --debug renderers
-    if Config.renderers.debug.cameraOffset then
-        love.graphics.setColor(1, 0, 0)
-        love.graphics.rectangle("fill", CameraOffset.x, CameraOffset.y, 1, 1)
-        love.graphics.setColor(0, 1, 1)
-        love.graphics.rectangle("fill", CameraOffset.x + math.fmod(Player.x, Config.tile.width), CameraOffset.y, 1, 1) --this doesn't work yet
-    end
-    if Config.renderers.debug.player.targeting then
-        love.graphics.setColor(1, 0, 0)
-        love.graphics.rectangle("fill", Player.x + facingOffset + (Player.reachLength * Player.facing), Player.y + Player.reachHeight, 1, 1)
-    end
-    if Config.renderers.debug.player.facing then
-        love.graphics.setColor(1, 0, 0)
-        love.graphics.rectangle("fill", Player.x + facingOffset, Player.y, 1, 1)
-    end
+    DebugRenderers()
 
     TLfres.endRendering()
 end
+
+function DebugRenderers()
+    local debugText = {}
+
+    local facingX = -1
+    if Player.facing == "right" then
+        facingX = 1
+    end
+
+    if Config.renderers.debug.cameraOffset then
+        love.graphics.setColor(1, 0, 0)
+        love.graphics.rectangle("fill", CameraOffset.x, CameraOffset.y, 1, 1)
+    end
+    if Config.renderers.debug.player.facing then
+        love.graphics.setColor(1, 0, 0)
+        love.graphics.rectangle("fill", Player.x + Player.width/2*facingX, Player.y - Player.height/2, 1, 1)
+        table.insert(debugText,"Facing: " .. Player.facing)
+    end
+    if Config.renderers.debug.player.targeting then
+        local target = {}
+        target.fixedX = Player.x + facingX * (Player.width/2 + Player.reachLength)
+        target.y = Player.y + Player.reachHeight
+        love.graphics.setColor(1, 0, 0)
+        love.graphics.rectangle("fill", target.fixedX, target.y, 1, 1)
+    end
+    if Config.renderers.debug.player.coords then
+        table.insert(debugText,"Player.x: " .. Player.x .. " Player.y: " .. Player.y)
+        table.insert(debugText,"CameraOffset.x: " .. CameraOffset.x .. " CameraOffset.y: " .. CameraOffset.y)
+        table.insert(debugText, "Player.tileX: " .. Player.tileX .. " Player.tileY: " .. Player.tileY)
+    end
+
+    love.graphics.setColor(1,1,0)
+    love.graphics.rectangle("fill", Player.x, Player.y, 1, 1)
+
+    if #debugText > 0 then
+        local debugTextString = ""
+        for i = 1, #debugText do
+            debugTextString = debugTextString .. "\n" .. debugText[i]
+        end
+        print(debugTextString)
+    end
+end
+
+--function ArrayAppend(array,newElement)
+--    local length = #array
+--    array[length+1] = newElement
+--    return array
+--end
 
 function PlayerMove()
     local function move(x, y, speed, invert)
@@ -140,9 +170,9 @@ function PlayerMove()
     if speed.y == 0 and speed.x == 0 then
         return
     elseif speed.x > 0 then
-        Player.facing = 1
+        Player.facing = "right"
     elseif speed.x < 0 then
-        Player.facing = -1
+        Player.facing = "left"
     end
 
     -- Movespeed modifiers
@@ -156,21 +186,12 @@ function PlayerMove()
     end
 
     CameraOffset.x, CameraOffset.y = move(CameraOffset.x, CameraOffset.y, speed, true)
+    CalculatePlayerTileCoords()
+end
 
-    -- OLD DEADZONE CODE FROM WHEN THE PLAYER WAS MOVING, NOT THE BACKGROUND
-    --if deadzone.enabled then
-    --    if Player.x > deadzone.xMax then
-    --        Player.x = deadzone.xMax
-    --    elseif Player.x < deadzone.xMin then
-    --        Player.x = deadzone.xMin
-    --    end
-    --    
-    --    if Player.y > deadzone.yMax then
-    --        Player.y = deadzone.yMax
-    --    elseif Player.y < deadzone.yMin then
-    --        Player.y = deadzone.yMin
-    --    end
-    --end
+function CalculatePlayerTileCoords()
+    Player.tileY = math.floor((Player.y - CameraOffset.y)/Config.tile.height)
+    Player.tileX = math.floor((Player.x - CameraOffset.x + (Player.y - CameraOffset.y)/3)/Config.tile.width)
 end
 
 function PlayerInteract()

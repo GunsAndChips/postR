@@ -2,11 +2,14 @@ Map = {}
 Map.__index = Map
 
 function Map:New(mapDefinition)
+    Config.tile.height = mapDefinition.tileheight
+    Config.tile.width = mapDefinition.tilewidth - (Config.tile.staggerX - 1)
+
     local this = {
         tiles = {mapDefinition.layers[1].data},
         widthInTiles = mapDefinition.width,
         heightInTiles = mapDefinition.height,
-        tileHeight = mapDefinition.tileheight,
+        tileHeight = Config.tile.height,
         tileWidth = Config.tile.width,
         tileStaggerX = Config.tile.staggerX
     }
@@ -15,8 +18,8 @@ function Map:New(mapDefinition)
     this.screenWidth = (this.widthInTiles) * this.tileWidth
     this.screenHeight = (this.heightInTiles) * this.tileHeight
 
-    this.offsetX = -this.screenWidth / 2
-    this.offsetY = -this.screenHeight / 2
+    this.offsetX = 0-- -this.screenWidth / 2
+    this.offsetY = 0-- -this.screenHeight / 2
 
     return this
 end
@@ -26,8 +29,8 @@ function Map:Render(cameraOffset)
 
     for row=1,self.heightInTiles do
         for col=1, self.widthInTiles do
-             --Stagger each row 'screenCellStaggerX' pixels right for parallelogram tiling
-            local staggerX = -self.tileStaggerX * row + self.tileStaggerX * self.heightInTiles
+            --Stagger each row to the left? for parallelogram tiling
+            local staggerX = -self.tileStaggerX * row+1
 
             local tileX = (col-1) * self.tileWidth + self.offsetX + staggerX + cameraOffset.x
             local tileY = (row-1) * self.tileHeight + self.offsetY + cameraOffset.y

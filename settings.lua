@@ -12,6 +12,7 @@ Settings.Keybinds.sprint = "lshift"
 Config = {}
 Config.tile = {}
 Config.tile.width = 16
+Config.tile.height = 9
 Config.tile.staggerX = 3
 
 Config.movement = {}
@@ -23,10 +24,10 @@ Config.movement.pixelPerfect = false
 --Config.movement.deadzone.size = 1/3 -- How much of the screen is deadzone
 
 Config.player = {}
-Config.player.width = 14
+Config.player.width = 15
 Config.player.height = 28
-Config.player.reachLength = Config.tile.width*0.85
-Config.player.reachHeight = Config.player.height*2/3
+Config.player.reachLength = Config.tile.width*1
+Config.player.reachHeight = -Config.player.height/2 + Config.player.height*4/7
 
 Config.renderers = {}
 Config.renderers.debug = {}
@@ -34,3 +35,4 @@ Config.renderers.debug.cameraOffset = true
 Config.renderers.debug.player = {}
 Config.renderers.debug.player.targeting = true
 Config.renderers.debug.player.facing = true
+Config.renderers.debug.player.coords = true
