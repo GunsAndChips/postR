@@ -1,11 +1,12 @@
 require "map"
 require "settings"
+require "menus"
 
 -- TLfres for scaling
 local TLfres = require "libraries/tlfres"
 function love.mouse.getPosition() -- Override the standard function with TLFres helper function
     return TLfres.getMousePosition(PIXEL_WIDTH, PIXEL_HEIGHT)
- end
+end
 
 PIXEL_WIDTH = 320
 PIXEL_HEIGHT = 180
@@ -14,9 +15,9 @@ TileSprites = {}
 function LoadTileSprites()
     local tileFileNames = {}
 
-    for i=1, 2 do
+    for i = 1, 2 do
         --local fileName = string.format("textures/tile_%d.png",i)
-        table.insert(tileFileNames, string.format("textures/pg%d.png",i))
+        table.insert(tileFileNames, string.format("textures/pg%d.png", i))
     end
 
     TileSprites = love.graphics.newArrayImage(tileFileNames)
@@ -30,21 +31,22 @@ function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
 
     -- don't know if size matters here if fullscreen anyway
-    love.window.setMode(1920, 1080, {vsync = true, msaa = 0, highdpi = true, fullscreen = true})
+    love.window.setMode(1920, 1080, { vsync = true, msaa = 0, highdpi = true, fullscreen = true })
 
     CameraOffset = {}
     CameraOffset.x = 0
     CameraOffset.y = 0
 
     Player = Config.player
-    Player.x = PIXEL_WIDTH/2
-    Player.y = PIXEL_HEIGHT/2
+    Player.x = PIXEL_WIDTH / 2
+    Player.y = PIXEL_HEIGHT / 2
     CalculatePlayerTileCoords()
     Player.facing = "right"
 
     _Key = Settings.Keybinds
 
     GameState = "play"
+    Hovering = nil
 
     LoadTileSprites()
 
@@ -62,6 +64,45 @@ function love.keypressed(key, scancode, isrepeat)
     if key == _Key.pause then
         SetGameState()
     end
+end
+
+-- function love.mousepressed(x, y, button, istouch, presses)
+--     local x, y = love.mouse.getPosition()
+-- end
+
+function love.mousemoved(x, y, dx, dy, istouch)
+    local pixelX, pixelY = love.mouse.getPosition()
+
+    if GameState == "paused" then
+        local menu = Menus.pause
+        local newHovering = GetMenuItem(pixelX, pixelY, menu)
+        if Hovering == newHovering then
+            return
+        end
+        if Hovering ~= nil then
+            Hovering.text:setf({ menu.textColour, Hovering.textString }, menu.textWidth, "left")
+        else
+            if newHovering ~= nil then
+                newHovering.text:setf({ menu.textColourHover, newHovering.textString }, menu.textWidth, "left")
+            end
+        end
+        Hovering = newHovering
+    end
+end
+
+function love.mousereleased(x, y, button, istouch, presses)
+    if GameState == "paused" and button == 1 and Hovering ~= nil then
+        print(Hovering.textString)
+        Hovering.onClick()
+    end
+end
+
+function love.resize(w, h)
+    -- Unload menus to force recalculation of positions etc.
+    Menus.pause.loaded = false
+
+    -- debug
+    print(("Window resized to width: %d and height: %d."):format(w, h))
 end
 
 function love.mousefocus(focus)
@@ -98,10 +139,6 @@ end
 function love.draw()
     TLfres.beginRendering(PIXEL_WIDTH, PIXEL_HEIGHT)
 
-    -- Renders red box at screen borders for debugging
-    --love.graphics.setColor(1,0,0)
-    --love.graphics.rectangle("line", 0, 0, PIXEL_WIDTH, PIXEL_HEIGHT)
-
     map1:Render(CameraOffset)
 
     local pixelPerfectOffset = {}
@@ -109,15 +146,16 @@ function love.draw()
     pixelPerfectOffset.y = 0
 
     if Config.movement.pixelPerfect then
-        pixelPerfectOffset.x = CameraOffset.x - math.floor(CameraOffset.x+0.5)
-        pixelPerfectOffset.y = CameraOffset.y - math.floor(CameraOffset.y+0.5)
+        pixelPerfectOffset.x = CameraOffset.x - math.floor(CameraOffset.x + 0.5)
+        pixelPerfectOffset.y = CameraOffset.y - math.floor(CameraOffset.y + 0.5)
     end
 
     love.graphics.setColor(0, 0.4, 0.4)
-    love.graphics.rectangle("fill", Player.x + pixelPerfectOffset.x - Player.width/2, Player.y + pixelPerfectOffset.y - Player.height/2, Player.width, Player.height)
+    love.graphics.rectangle("fill", Player.x + pixelPerfectOffset.x - Player.width / 2,
+        Player.y + pixelPerfectOffset.y - Player.height / 2, Player.width, Player.height)
 
     DrawDebugRenderers()
-    
+
     if GameState == "paused" then
         if (Menus.pause.loaded == false) then
             Menus.pause = LoadMenuItems(Menus.pause)
@@ -142,23 +180,23 @@ function DrawDebugRenderers()
     end
     if Config.renderers.debug.player.facing then
         love.graphics.setColor(1, 0, 0)
-        love.graphics.rectangle("fill", Player.x + Player.width/2*facingX, Player.y - Player.height/2, 1, 1)
-        table.insert(debugText,"Facing: " .. Player.facing)
+        love.graphics.rectangle("fill", Player.x + Player.width / 2 * facingX, Player.y - Player.height / 2, 1, 1)
+        table.insert(debugText, "Facing: " .. Player.facing)
     end
     if Config.renderers.debug.player.targeting then
         local target = {}
-        target.fixedX = Player.x + facingX * (Player.width/2 + Player.reachLength)
+        target.fixedX = Player.x + facingX * (Player.width / 2 + Player.reachLength)
         target.y = Player.y + Player.reachHeight
         love.graphics.setColor(1, 0, 0)
         love.graphics.rectangle("fill", target.fixedX, target.y, 1, 1)
     end
     if Config.renderers.debug.player.coords then
-        table.insert(debugText,"Player.x: " .. Player.x .. " Player.y: " .. Player.y)
-        table.insert(debugText,"CameraOffset.x: " .. CameraOffset.x .. " CameraOffset.y: " .. CameraOffset.y)
+        table.insert(debugText, "Player.x: " .. Player.x .. " Player.y: " .. Player.y)
+        table.insert(debugText, "CameraOffset.x: " .. CameraOffset.x .. " CameraOffset.y: " .. CameraOffset.y)
         table.insert(debugText, "Player.tileX: " .. Player.tileX .. " Player.tileY: " .. Player.tileY)
     end
 
-    love.graphics.setColor(1,1,0)
+    love.graphics.setColor(1, 1, 0)
     love.graphics.rectangle("fill", Player.x, Player.y, 1, 1)
 
     if #debugText > 0 and GameState ~= "paused" then
@@ -168,33 +206,6 @@ function DrawDebugRenderers()
         end
         print(debugTextString)
     end
-end
-
-function DrawMenu(menu)
-    if (not menu.loaded) then
-        error("cannot draw menu that is not loaded")
-    end
-
-    love.graphics.push()
-    -- centre
-    love.graphics.translate(PIXEL_WIDTH/2,PIXEL_HEIGHT/2)
-    -- move origin to topleft of pause menu
-    love.graphics.translate(-menu.width/2, -menu.height/2)
-
-    -- background
-    love.graphics.setColor(menu.backgroundColour)
-    love.graphics.rectangle("fill", 0, 0, menu.width, menu.height)
-
-    -- title
-    love.graphics.setColor(menu.textColour)
-    love.graphics.draw(menu.title,menu.width/2-menu.title:getWidth()/2,menu.textLineSpacing)
-
-    -- items
-    for i = 1, #menu.items do
-        love.graphics.draw(menu.items[i][1],menu.marginSize,i*(menu.title:getHeight()+menu.textLineSpacing)+menu.textLineSpacing)
-    end
-
-    love.graphics.pop()
 end
 
 function PlayerMove()
@@ -208,7 +219,7 @@ function PlayerMove()
         y = y + sign * (speed.magnitude * speed.y)
 
         if Settings.movement.useRotatedY then
-            x = x - sign * ((speed.magnitude * speed.y)/3)
+            x = x - sign * ((speed.magnitude * speed.y) / 3)
         end
 
         return x, y
@@ -225,16 +236,16 @@ function PlayerMove()
 
     -- Set direction for x/y movement
     if love.keyboard.isDown(_Key.right) then
-        speed.x = speed.x+1
+        speed.x = speed.x + 1
     end
     if love.keyboard.isDown(_Key.left) then
-        speed.x = speed.x-1
+        speed.x = speed.x - 1
     end
     if love.keyboard.isDown(_Key.down) then
-        speed.y = speed.y+1
+        speed.y = speed.y + 1
     end
     if love.keyboard.isDown(_Key.up) then
-        speed.y = speed.y-1
+        speed.y = speed.y - 1
     end
 
     -- Return if no movement
@@ -261,14 +272,10 @@ function PlayerMove()
 end
 
 function CalculatePlayerTileCoords()
-    Player.tileY = math.floor((Player.y - CameraOffset.y)/Config.tile.height)
-    Player.tileX = math.floor((Player.x - CameraOffset.x + (Player.y - CameraOffset.y)/3)/Config.tile.width)
+    Player.tileY = math.floor((Player.y - CameraOffset.y) / Config.tile.height)
+    Player.tileX = math.floor((Player.x - CameraOffset.x + (Player.y - CameraOffset.y) / 3) / Config.tile.width)
 end
 
 function PlayerInteract()
     -- hi
-end
-
-function Quit()
-    love.event.quit()
 end
