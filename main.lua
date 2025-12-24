@@ -144,7 +144,7 @@ function DrawDebugRenderers()
 end
 
 function DrawMenu(menu)
-    if (menu.loaded == false) then
+    if (not menu.loaded) then
         error("cannot draw menu that is not loaded")
     end
 
