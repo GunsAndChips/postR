@@ -61,7 +61,7 @@ Menus.default.marginSize = 6
 Menus.pause = Menus.default
 Menus.pause.title = "Paused"
 Menus.pause.items = {
-    { textString = "Quit", onClick = function() Quit() end }
+    { textString = "Quit the game with this button with a really long label that would go off the edge of the screen", onClick = function() Quit() end }
 }
 
 function Quit()
