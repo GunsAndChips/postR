@@ -8,6 +8,7 @@ Settings.Keybinds.down = "s"
 Settings.Keybinds.left = "a"
 Settings.Keybinds.right = "d"
 Settings.Keybinds.sprint = "lshift"
+Settings.Keybinds.pause = "escape"
 
 Config = {}
 Config.tile = {}
@@ -36,3 +37,41 @@ Config.renderers.debug.player = {}
 Config.renderers.debug.player.targeting = true
 Config.renderers.debug.player.facing = true
 Config.renderers.debug.player.coords = true
+
+Config.fonts = {}
+
+function LoadFonts()
+    Config.fonts.ui = love.graphics.newImageFont("/fonts/font_example.png", " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
+end
+
+Menus = {}
+Menus.default = {}
+Menus.default.loaded = false
+Menus.default.height = 120
+Menus.default.width = 100
+Menus.default.backgroundColour = { 0, 0, 0 }
+Menus.default.textColour = { 1, 1, 1 }
+Menus.default.textLineSpacing = 8
+Menus.default.marginSize = 6
+
+Menus.pause = Menus.default
+Menus.pause.backgroundColour = { 0.6, 0.6, 0.6 }
+Menus.pause.textColour = { 0.2, 0.2, 0.2 }
+Menus.pause.title = "Paused"
+Menus.pause.items = { { "Quit", Quit } }
+
+function LoadMenuItems(menu)
+    menu.title = love.graphics.newText(Config.fonts.ui,menu.title)
+    local maxItemWidth = menu.title:getWidth()
+
+    for i = 1, #menu.items do
+        menu.items[i][1] = love.graphics.newText(Config.fonts.ui,menu.items[i][1])
+        maxItemWidth = math.max(maxItemWidth, menu.items[i][1]:getWidth())
+    end
+
+    menu.width = math.max(maxItemWidth + 2*menu.marginSize, menu.width)
+    menu.width = math.min(menu.width, PIXEL_WIDTH - 2*menu.marginSize)
+
+    menu.loaded = true
+    return menu
+end

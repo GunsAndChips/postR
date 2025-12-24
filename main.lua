@@ -44,12 +44,28 @@ function love.load()
 
     _Key = Settings.Keybinds
 
+    GameState = "play"
+
     LoadTileSprites()
+
+    LoadFonts()
 end
 
 function love.update(dt)
-    PlayerMove()
-    PlayerInteract()
+    if GameState == "play" then
+        PlayerMove()
+        PlayerInteract()
+    end
+end
+
+function love.keypressed(key, scancode, isrepeat)
+    if key == _Key.pause then
+        if GameState == "play" then
+            GameState = "paused"
+        elseif GameState == "paused" then
+            GameState = "play"
+        end
+    end
 end
 
 function love.draw()
@@ -73,12 +89,19 @@ function love.draw()
     love.graphics.setColor(0, 0.4, 0.4)
     love.graphics.rectangle("fill", Player.x + pixelPerfectOffset.x - Player.width/2, Player.y + pixelPerfectOffset.y - Player.height/2, Player.width, Player.height)
 
-    DebugRenderers()
+    DrawDebugRenderers()
+    
+    if GameState == "paused" then
+        if (Menus.pause.loaded == false) then
+            Menus.pause = LoadMenuItems(Menus.pause)
+        end
+        DrawMenu(Menus.pause)
+    end
 
     TLfres.endRendering()
 end
 
-function DebugRenderers()
+function DrawDebugRenderers()
     local debugText = {}
 
     local facingX = -1
@@ -118,6 +141,33 @@ function DebugRenderers()
         end
         print(debugTextString)
     end
+end
+
+function DrawMenu(menu)
+    if (menu.loaded == false) then
+        error("cannot draw menu that is not loaded")
+    end
+
+    love.graphics.push()
+    -- centre
+    love.graphics.translate(PIXEL_WIDTH/2,PIXEL_HEIGHT/2)
+    -- move origin to topleft of pause menu
+    love.graphics.translate(-menu.width/2, -menu.height/2)
+
+    -- background
+    love.graphics.setColor(menu.backgroundColour)
+    love.graphics.rectangle("fill", 0, 0, menu.width, menu.height)
+
+    -- title
+    love.graphics.setColor(menu.textColour)
+    love.graphics.draw(menu.title,menu.width/2-menu.title:getWidth()/2,menu.textLineSpacing)
+
+    -- items
+    for i = 1, #menu.items do
+        love.graphics.draw(menu.items[i][1],menu.marginSize,i*(menu.title:getHeight()+menu.textLineSpacing)+menu.textLineSpacing)
+    end
+
+    love.graphics.pop()
 end
 
 --function ArrayAppend(array,newElement)
@@ -196,4 +246,8 @@ end
 
 function PlayerInteract()
     -- hi
+end
+
+function Quit()
+    love.event.quit()
 end
