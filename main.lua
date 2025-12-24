@@ -197,12 +197,6 @@ function DrawMenu(menu)
     love.graphics.pop()
 end
 
---function ArrayAppend(array,newElement)
---    local length = #array
---    array[length+1] = newElement
---    return array
---end
-
 function PlayerMove()
     local function move(x, y, speed, invert)
         local sign = 1
