@@ -60,12 +60,39 @@ end
 
 function love.keypressed(key, scancode, isrepeat)
     if key == _Key.pause then
-        if GameState == "play" then
-            GameState = "paused"
-        elseif GameState == "paused" then
-            GameState = "play"
+        SetGameState()
+    end
+end
+
+function love.mousefocus(focus)
+    if focus then
+        SetGameState(GameState)
+    end
+end
+
+function love.focus(focus)
+    if not focus then
+        SetGameState("paused")
+    end
+end
+
+function SetGameState(state)
+    if state == nil then
+        if GameState == "paused" then
+            state = "play"
+        else
+            state = "paused"
         end
     end
+
+    if state == "play" then
+        love.mouse.setVisible(false)
+        love.mouse.setGrabbed(true)
+    elseif state == "paused" then
+        love.mouse.setVisible(true)
+        love.mouse.setGrabbed(false)
+    end
+    GameState = state
 end
 
 function love.draw()
@@ -134,7 +161,7 @@ function DrawDebugRenderers()
     love.graphics.setColor(1,1,0)
     love.graphics.rectangle("fill", Player.x, Player.y, 1, 1)
 
-    if #debugText > 0 then
+    if #debugText > 0 and GameState ~= "paused" then
         local debugTextString = ""
         for i = 1, #debugText do
             debugTextString = debugTextString .. "\n" .. debugText[i]
