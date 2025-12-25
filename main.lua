@@ -45,7 +45,10 @@ function love.load()
 
     _Key = Settings.Keybinds
 
-    GameState = "play"
+    Game = {
+        state = "play",
+        visibleMenus = {}
+    }
     Hovering = nil
 
     LoadTileSprites()
@@ -54,7 +57,7 @@ function love.load()
 end
 
 function love.update(dt)
-    if GameState == "play" then
+    if Game.state == "play" then
         PlayerMove()
         PlayerInteract()
     end
@@ -62,7 +65,12 @@ end
 
 function love.keypressed(key, scancode, isrepeat)
     if key == _Key.pause then
-        SetGameState()
+        -- If the top menu isn't the pause menu, remove it
+        if #Game.visibleMenus > 0 and Game.visibleMenus[#Game.visibleMenus].id ~= "pause" then
+            MenuBack()
+        else
+            SetGameState()
+        end
     end
 end
 
@@ -71,10 +79,13 @@ end
 -- end
 
 function love.mousemoved(x, y, dx, dy, istouch)
-    local pixelX, pixelY = love.mouse.getPosition()
+    ShowHoverText()
+end
 
-    if GameState == "paused" then
-        local menu = Menus.pause
+function ShowHoverText()
+    if #Game.visibleMenus > 0 then
+        local pixelX, pixelY = love.mouse.getPosition()
+        local menu = Game.visibleMenus[#Game.visibleMenus]
         local newHovering = GetMenuItem(pixelX, pixelY, menu)
         if Hovering == newHovering then
             return
@@ -83,7 +94,7 @@ function love.mousemoved(x, y, dx, dy, istouch)
             Hovering.text:setf({ menu.textColour, Hovering.textString }, PIXEL_WIDTH - 4 * menu.marginSize, "left")
         else
             if newHovering ~= nil then
-                newHovering.text:setf({ menu.textColourHover, newHovering.textString }, PIXEL_WIDTH - 4 * menu.marginSize, "left")
+                newHovering.text:setf({ menu.textColourHover, " " .. newHovering.textString }, PIXEL_WIDTH - 4 * menu.marginSize, "left")
             end
         end
         Hovering = newHovering
@@ -91,8 +102,7 @@ function love.mousemoved(x, y, dx, dy, istouch)
 end
 
 function love.mousereleased(x, y, button, istouch, presses)
-    if GameState == "paused" and button == 1 and Hovering ~= nil then
-        print(Hovering.textString)
+    if #Game.visibleMenus > 0 and button == 1 and Hovering ~= nil then
         Hovering.onClick()
     end
 end
@@ -105,35 +115,42 @@ function love.resize(w, h)
     print(("Window resized to width: %d and height: %d."):format(w, h))
 end
 
-function love.mousefocus(focus)
-    if focus then
-        SetGameState(GameState)
-    end
-end
+-- function love.mousefocus(focus)
+--     if focus then
+--         SetGameState(Game.state)
+--     end
+-- end
 
 function love.focus(focus)
     if not focus then
-        SetGameState("paused")
+        if Game.state ~= "paused" then
+            SetGameState("paused")
+        end
     end
 end
 
-function SetGameState(state)
-    if state == nil then
-        if GameState == "paused" then
-            state = "play"
+function SetGameState(newState)
+    if newState == nil then
+        if Game.state == "paused" then
+            newState = "play"
         else
-            state = "paused"
+            newState = "paused"
         end
     end
 
-    if state == "play" then
-        love.mouse.setVisible(false)
-        love.mouse.setGrabbed(true)
-    elseif state == "paused" then
+    if newState == "play" then
+        table.remove(Game.visibleMenus) -- remove the last item from visibleMenus, which should be the pause menu
+        -- only get rid of the cursor if there are no menus still open
+        if #Game.visibleMenus == 0 then
+            love.mouse.setVisible(false)
+            love.mouse.setGrabbed(true)
+        end
+    elseif newState == "paused" then
         love.mouse.setVisible(true)
         love.mouse.setGrabbed(false)
+        table.insert(Game.visibleMenus, Menus.pause)
     end
-    GameState = state
+    Game.state = newState
 end
 
 function love.draw()
@@ -156,11 +173,10 @@ function love.draw()
 
     DrawDebugRenderers()
 
-    if GameState == "paused" then
-        if (Menus.pause.loaded == false) then
-            Menus.pause = LoadMenuItems(Menus.pause)
+    if #Game.visibleMenus > 0 then
+        for i = 1, #Game.visibleMenus do
+            DrawMenu(Game.visibleMenus[i])
         end
-        DrawMenu(Menus.pause)
     end
 
     TLfres.endRendering()
@@ -199,7 +215,7 @@ function DrawDebugRenderers()
     love.graphics.setColor(1, 1, 0)
     love.graphics.rectangle("fill", Player.x, Player.y, 1, 1)
 
-    if #debugText > 0 and GameState ~= "paused" then
+    if #debugText > 0 and Game.state ~= "paused" then
         local debugTextString = ""
         for i = 1, #debugText do
             debugTextString = debugTextString .. "\n" .. debugText[i]

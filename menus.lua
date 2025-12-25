@@ -1,5 +1,38 @@
+require "helpers"
+
+Menus = {}
+Menus.default = {
+    title = "Menu Title",
+    loaded = false,
+    minHeight = 120,
+    minWidth = 100,
+    backgroundColour = { 0.6, 0.6, 0.6 },
+    textColour = { 1, 1, 1 },
+    textColourHover = { 0.1, 0.3, 0.1 },
+    textLineSpacing = 3,
+    marginSize = 6
+}
+
+Menus.pause = ShallowClone(Menus.default)
+Menus.pause.id = "pause"
+Menus.pause.titleString = "Paused"
+Menus.pause.items = {
+    { textString = "Resume", onClick = function() SetGameState() end },
+    { textString = "Options", onClick = function() table.insert(Game.visibleMenus, Menus.options) end },
+    { textString = "Quit", onClick = function() Quit() end }
+}
+
+Menus.options = ShallowClone(Menus.default)
+Menus.options.id = "options"
+Menus.options.titleString = "Options"
+Menus.options.items = {
+    { textString = "Back", onClick = function() MenuBack() end }
+}
+
+-- Converts simple menu defined objects from above into fleshed out object
+-- e.g. sets fonts and x/y positions for items, so we don't have to do it every time we render them)
 function LoadMenuItems(menu)
-    menu.title = love.graphics.newText(Config.fonts.ui, menu.title)
+    menu.title = love.graphics.newText(Config.fonts.ui, menu.titleString)
     local maxItemWidth = menu.title:getWidth()
 
     for i = 1, #menu.items do
@@ -23,12 +56,11 @@ function LoadMenuItems(menu)
     menu.transform:translate(PIXEL_WIDTH / 2 - menu.width / 2, PIXEL_HEIGHT / 2 - menu.height / 2)
 
     menu.loaded = true
-    return menu
 end
 
 function DrawMenu(menu)
     if (not menu.loaded) then
-        error("cannot draw menu that is not loaded")
+        LoadMenuItems(menu)
     end
 
     love.graphics.push()
@@ -66,4 +98,10 @@ function GetMenuItem(x, y, menu)
             return item
         end
     end
+end
+
+function MenuBack()
+    table.remove(Game.visibleMenus)
+    Hovering = nil
+    ShowHoverText()
 end

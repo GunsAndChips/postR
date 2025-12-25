@@ -1,13 +1,5 @@
 local TLfres = require "libraries/tlfres"
 
-local function shallowClone(table)
-    local copy = {}
-    for key, value in pairs(table) do
-        copy[key] = value
-    end
-    return copy
-end
-
 Settings = {}
 Settings.movement = {}
 Settings.movement.useRotatedY = true -- Whether the Y axis for player movement is rotated to match the tilt of the parallelogram tiles
@@ -54,30 +46,3 @@ function LoadFonts()
     --Config.fonts.ui = love.graphics.newImageFont("/fonts/font_example.png", " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
     Config.fonts.ui = love.graphics.newFont("/fonts/m6x11.ttf", 16, "normal", love.graphics.getDPIScale())
 end
-
-Menus = {}
-Menus.default = {
-    title = "Menu Title",
-    loaded = false,
-    minHeight = 120,
-    minWidth = 100,
-    backgroundColour = { 0.6, 0.6, 0.6 },
-    textColour = { 1, 1, 1 },
-    textColourHover = { 0.1, 0.3, 0.1 },
-    textLineSpacing = 3,
-    marginSize = 6
-}
-
-Menus.pause = shallowClone(Menus.default)
-Menus.pause.title = "Paused"
-Menus.pause.items = {
-    { textString = "Resume", onClick = function() SetGameState() end },
-    { textString = "Options", onClick = function() end },
-    { textString = "Quit", onClick = function() Quit() end }
-}
-
-Menus.options = shallowClone(Menus.default)
-Menus.options.title = "Options"
-Menus.options.items = {
-    { textString = "Back", onClick = function() end }
-}
