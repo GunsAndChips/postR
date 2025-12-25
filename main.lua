@@ -279,3 +279,7 @@ end
 function PlayerInteract()
     -- hi
 end
+
+function Quit()
+    love.event.quit()
+end

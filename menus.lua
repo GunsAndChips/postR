@@ -10,7 +10,7 @@ function LoadMenuItems(menu)
 
         -- Set coordinates relative to menu
         item.x = menu.marginSize
-        item.y = i * (math.floor(menu.title:getHeight()) + menu.textLineSpacing) + menu.textLineSpacing
+        item.y = (i - 1) * (item.text:getHeight() + menu.textLineSpacing) + 2 * menu.marginSize + menu.title:getHeight()
 
         maxItemWidth = math.max(maxItemWidth, item.text:getWidth())
     end
@@ -40,7 +40,7 @@ function DrawMenu(menu)
 
     -- title
     love.graphics.setColor(1, 1, 1)
-    love.graphics.draw(menu.title, menu.width / 2 - menu.title:getWidth() / 2, menu.textLineSpacing)
+    love.graphics.draw(menu.title, menu.width / 2 - menu.title:getWidth() / 2, menu.marginSize)
 
     -- items
     for i = 1, #menu.items do
