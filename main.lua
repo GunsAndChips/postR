@@ -17,7 +17,6 @@ function LoadTileSprites()
     local tileFileNames = {}
 
     for i = 1, 2 do
-        --local fileName = string.format("textures/tile_%d.png",i)
         table.insert(tileFileNames, string.format("textures/pg%d.png", i))
     end
 

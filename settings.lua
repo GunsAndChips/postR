@@ -23,9 +23,6 @@ Config.movement = {}
 Config.movement.moveSpeed = 0.07 * 1.6 * 2.5
 Config.movement.sprintMultiplier = 1.6
 Config.movement.pixelPerfect = false
---Config.movement.deadzone = {}
---Config.movement.deadzone.on = false -- Whether there is a deadzone the player can move in the centre of the screen without the camera moving
---Config.movement.deadzone.size = 1/3 -- How much of the screen is deadzone
 
 Config.player = {}
 Config.player.width = 15
@@ -55,7 +52,6 @@ Config.renderers.debug = {
 Config.fonts = {}
 
 function LoadFonts()
-    --Config.fonts.ui = love.graphics.newImageFont("/fonts/font_example.png", " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
     Config.fonts.ui = love.graphics.newFont("/fonts/m6x11.ttf", 16, "normal", love.graphics.getDPIScale())
 end
 
