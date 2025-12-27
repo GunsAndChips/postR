@@ -42,8 +42,9 @@ function love.load()
     Player = Config.player
     Player.x = PIXEL_WIDTH / 2
     Player.y = PIXEL_HEIGHT / 2
-    CalculatePlayerTileCoords()
+    UpdatePlayerTileCoords()
     Player.facing = "right"
+    UpdatePlayerTargetingCoords()
 
     _Key = Settings.Keybinds
 
@@ -191,7 +192,8 @@ function DrawDebugRenderers()
     end
     if Config.renderers.debug.player.facing then
         love.graphics.setColor(1, 0, 0)
-        love.graphics.rectangle("fill", Player.x + Player.width / 2 * Lookups.facingX[Player.facing], Player.y - Player.height / 2, 1, 1)
+        love.graphics.rectangle("fill", Player.x + Player.width / 2 * Lookups.facingX[Player.facing],
+            Player.y - Player.height / 2, 1, 1)
         table.insert(debugText, "Facing: " .. Player.facing)
     end
     if Config.renderers.debug.player.targeting then
@@ -277,13 +279,17 @@ function PlayerMove()
     end
 
     CameraOffset.x, CameraOffset.y = move(CameraOffset.x, CameraOffset.y, speed, true)
-    CalculatePlayerTileCoords()
+    UpdatePlayerTileCoords()
 
+    UpdatePlayerTargetingCoords()
+end
+
+function UpdatePlayerTargetingCoords()
     Player.targeting.x = Player.x + Lookups.facingX[Player.facing] * (Player.width / 2 + Player.reachLength)
     Player.targeting.y = Player.y + Player.reachHeight
 end
 
-function CalculatePlayerTileCoords()
+function UpdatePlayerTileCoords()
     Player.tileY = math.floor((Player.y - CameraOffset.y) / Config.tile.height)
     Player.tileX = math.floor((Player.x - CameraOffset.x + (Player.y - CameraOffset.y) / 3) / Config.tile.width)
 end
