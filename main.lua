@@ -21,6 +21,8 @@ function LoadTileSprites()
     end
 
     TileSprites = love.graphics.newArrayImage(tileFileNames)
+
+    Player.targeting.texture = love.graphics.newImage("/textures/targetedTile.png")
 end
 
 local mapDefinition = require "tiled/maptest1"
@@ -94,7 +96,8 @@ function ShowHoverText()
             Hovering.text:setf({ menu.textColour, Hovering.textString }, PIXEL_WIDTH - 4 * menu.marginSize, "left")
         else
             if newHovering ~= nil then
-                newHovering.text:setf({ menu.textColourHover, " " .. newHovering.textString }, PIXEL_WIDTH - 4 * menu.marginSize, "left")
+                newHovering.text:setf({ menu.textColourHover, " " .. newHovering.textString },
+                    PIXEL_WIDTH - 4 * menu.marginSize, "left")
             end
         end
         Hovering = newHovering
@@ -110,6 +113,7 @@ end
 function love.resize(w, h)
     -- Unload menus to force recalculation of positions etc.
     Menus.pause.loaded = false
+    Menus.options.loaded = false
 
     -- debug
     print(("Window resized to width: %d and height: %d."):format(w, h))
@@ -158,18 +162,14 @@ function love.draw()
 
     map1:Render(CameraOffset)
 
-    local pixelPerfectOffset = {}
-    pixelPerfectOffset.x = 0
-    pixelPerfectOffset.y = 0
-
-    if Config.movement.pixelPerfect then
-        pixelPerfectOffset.x = CameraOffset.x - math.floor(CameraOffset.x + 0.5)
-        pixelPerfectOffset.y = CameraOffset.y - math.floor(CameraOffset.y + 0.5)
-    end
-
+    -- Player
     love.graphics.setColor(0, 0.4, 0.4)
-    love.graphics.rectangle("fill", Player.x + pixelPerfectOffset.x - Player.width / 2,
-        Player.y + pixelPerfectOffset.y - Player.height / 2, Player.width, Player.height)
+    love.graphics.rectangle("fill", Player.x - Player.width / 2, Player.y - Player.height / 2, Player.width,
+        Player.height)
+
+    -- Player targeting
+    love.graphics.setColor(1, 1, 1, 0.5)
+    love.graphics.draw(Player.targeting.texture, Player.targeting.x, Player.targeting.y)
 
     DrawDebugRenderers()
 
@@ -185,35 +185,28 @@ end
 function DrawDebugRenderers()
     local debugText = {}
 
-    local facingX = -1
-    if Player.facing == "right" then
-        facingX = 1
-    end
-
     if Config.renderers.debug.cameraOffset then
         love.graphics.setColor(1, 0, 0)
         love.graphics.rectangle("fill", CameraOffset.x, CameraOffset.y, 1, 1)
     end
     if Config.renderers.debug.player.facing then
         love.graphics.setColor(1, 0, 0)
-        love.graphics.rectangle("fill", Player.x + Player.width / 2 * facingX, Player.y - Player.height / 2, 1, 1)
+        love.graphics.rectangle("fill", Player.x + Player.width / 2 * Lookups.facingX[Player.facing], Player.y - Player.height / 2, 1, 1)
         table.insert(debugText, "Facing: " .. Player.facing)
     end
     if Config.renderers.debug.player.targeting then
-        local target = {}
-        target.fixedX = Player.x + facingX * (Player.width / 2 + Player.reachLength)
-        target.y = Player.y + Player.reachHeight
         love.graphics.setColor(1, 0, 0)
-        love.graphics.rectangle("fill", target.fixedX, target.y, 1, 1)
+        love.graphics.rectangle("fill", Player.targeting.x, Player.targeting.y, 1, 1)
     end
     if Config.renderers.debug.player.coords then
         table.insert(debugText, "Player.x: " .. Player.x .. " Player.y: " .. Player.y)
         table.insert(debugText, "CameraOffset.x: " .. CameraOffset.x .. " CameraOffset.y: " .. CameraOffset.y)
         table.insert(debugText, "Player.tileX: " .. Player.tileX .. " Player.tileY: " .. Player.tileY)
-    end
 
-    love.graphics.setColor(1, 1, 0)
-    love.graphics.rectangle("fill", Player.x, Player.y, 1, 1)
+        -- Show player x,y in yellow
+        love.graphics.setColor(1, 1, 0)
+        love.graphics.rectangle("fill", Player.x, Player.y, 1, 1)
+    end
 
     if #debugText > 0 and Game.state ~= "paused" then
         local debugTextString = ""
@@ -285,6 +278,9 @@ function PlayerMove()
 
     CameraOffset.x, CameraOffset.y = move(CameraOffset.x, CameraOffset.y, speed, true)
     CalculatePlayerTileCoords()
+
+    Player.targeting.x = Player.x + Lookups.facingX[Player.facing] * (Player.width / 2 + Player.reachLength)
+    Player.targeting.y = Player.y + Player.reachHeight
 end
 
 function CalculatePlayerTileCoords()

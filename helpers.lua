@@ -5,3 +5,11 @@ function ShallowClone(table)
     end
     return copy
 end
+
+-- Calculate player targeting coordinates
+Lookups = {
+    facingX = {
+        right = 1,
+        left = -1
+    }
+}

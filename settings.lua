@@ -4,13 +4,14 @@ Settings = {}
 Settings.movement = {}
 Settings.movement.useRotatedY = true -- Whether the Y axis for player movement is rotated to match the tilt of the parallelogram tiles
 
-Settings.Keybinds = {}
-Settings.Keybinds.up = "w"
-Settings.Keybinds.down = "s"
-Settings.Keybinds.left = "a"
-Settings.Keybinds.right = "d"
-Settings.Keybinds.sprint = "lshift"
-Settings.Keybinds.pause = "escape"
+Settings.Keybinds = {
+    up = "w",
+    down = "s",
+    left = "a",
+    right = "d",
+    sprint = "lshift",
+    pause = "escape"
+}
 
 Config = {}
 Config.tile = {}
@@ -31,6 +32,11 @@ Config.player.width = 15
 Config.player.height = 28
 Config.player.reachLength = Config.tile.width * 1
 Config.player.reachHeight = -Config.player.height / 2 + Config.player.height * 4 / 7
+Config.player.targeting = {
+    texture = nil,
+    x = 0,
+    y = 0
+}
 
 Config.renderers = {}
 Config.renderers.debug = {}
