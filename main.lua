@@ -1,6 +1,7 @@
 require "map"
 require "settings"
 require "menus"
+require "player"
 
 -- TLfres for scaling
 local TLfres = require "libraries/tlfres"
