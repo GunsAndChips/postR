@@ -82,26 +82,6 @@ function love.mousemoved(x, y, dx, dy, istouch)
     ShowHoverText()
 end
 
-function ShowHoverText()
-    if #Game.visibleMenus > 0 then
-        local pixelX, pixelY = love.mouse.getPosition()
-        local menu = Game.visibleMenus[#Game.visibleMenus]
-        local newHovering = GetMenuItem(pixelX, pixelY, menu)
-        if Hovering == newHovering then
-            return
-        end
-        if Hovering ~= nil then
-            Hovering.text:setf({ menu.textColour, Hovering.textString }, PIXEL_WIDTH - 4 * menu.marginSize, "left")
-        else
-            if newHovering ~= nil then
-                newHovering.text:setf({ menu.textColourHover, " " .. newHovering.textString },
-                    PIXEL_WIDTH - 4 * menu.marginSize, "left")
-            end
-        end
-        Hovering = newHovering
-    end
-end
-
 function love.mousereleased(x, y, button, istouch, presses)
     if #Game.visibleMenus > 0 and button == 1 and Hovering ~= nil then
         Hovering.onClick()

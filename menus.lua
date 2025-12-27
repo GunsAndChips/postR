@@ -17,9 +17,9 @@ Menus.pause = ShallowClone(Menus.default)
 Menus.pause.id = "pause"
 Menus.pause.titleString = "Paused"
 Menus.pause.items = {
-    { textString = "Resume", onClick = function() SetGameState() end },
+    { textString = "Resume",  onClick = function() SetGameState() end },
     { textString = "Options", onClick = function() table.insert(Game.visibleMenus, Menus.options) end },
-    { textString = "Quit", onClick = function() Quit() end }
+    { textString = "Quit",    onClick = function() Quit() end }
 }
 
 Menus.options = ShallowClone(Menus.default)
@@ -97,6 +97,26 @@ function GetMenuItem(x, y, menu)
         if menuY > item.y and menuY < item.y + item.text:getHeight() and menuX > item.x and menuX < item.x + item.text:getWidth() then
             return item
         end
+    end
+end
+
+function ShowHoverText()
+    if #Game.visibleMenus > 0 then
+        local pixelX, pixelY = love.mouse.getPosition()
+        local menu = Game.visibleMenus[#Game.visibleMenus]
+        local newHovering = GetMenuItem(pixelX, pixelY, menu)
+        if Hovering == newHovering then
+            return
+        end
+        if Hovering ~= nil then
+            Hovering.text:setf({ menu.textColour, Hovering.textString }, PIXEL_WIDTH - 4 * menu.marginSize, "left")
+        else
+            if newHovering ~= nil then
+                newHovering.text:setf({ menu.textColourHover, " " .. newHovering.textString },
+                    PIXEL_WIDTH - 4 * menu.marginSize, "left")
+            end
+        end
+        Hovering = newHovering
     end
 end
 
