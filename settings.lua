@@ -46,7 +46,7 @@ Config.renderers.debug = {
         TileTransform = false
     },
     player = {
-        targeting = true,
+        targeting = false,
         facing = false,
         coords = true
     }

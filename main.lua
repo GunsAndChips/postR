@@ -145,17 +145,19 @@ function love.draw()
     map1:Render()
     love.graphics.pop()
 
-    -- Player
-    love.graphics.setColor(0, 0.4, 0.4)
-    love.graphics.rectangle("fill", Player.x - Player.width / 2, Player.y - Player.height / 2, Player.width,
-        Player.height)
-
     -- Player targeting
-    love.graphics.setColor(1, 1, 1, 0.5)
+    local period = 3
+    local opacity = math.sin(math.abs(period / 2 - love.timer.getTime() % period) / period / 1.5) + 0.15
+    love.graphics.setColor(1, 1, 1, opacity)
     if Player.targeting.tile ~= nil then
         local targetX, targetY = MapTilesTransform:transformPoint(Player.targeting.tile.x, Player.targeting.tile.y)
         love.graphics.draw(Player.targeting.texture, targetX - Config.tile.staggerX + 1, targetY)
     end
+
+    -- Player
+    love.graphics.setColor(0, 0.4, 0.4)
+    love.graphics.rectangle("fill", Player.x - Player.width / 2, Player.y - Player.height / 2, Player.width,
+        Player.height)
 
     DrawDebugRenderers()
 
