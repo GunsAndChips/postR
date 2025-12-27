@@ -18,9 +18,6 @@ function Map:New(mapDefinition)
     this.screenWidth = (this.widthInTiles) * this.tileWidth
     this.screenHeight = (this.heightInTiles) * this.tileHeight
 
-    this.offsetX = 0-- -this.screenWidth / 2
-    this.offsetY = 0-- -this.screenHeight / 2
-
     return this
 end
 
@@ -32,8 +29,8 @@ function Map:Render()
             --Stagger each row to the left? for parallelogram tiling
             local staggerX = -self.tileStaggerX * row+1
 
-            local tileX = (col-1) * self.tileWidth + self.offsetX + staggerX
-            local tileY = (row-1) * self.tileHeight + self.offsetY
+            local tileX = (col-1) * self.tileWidth + staggerX
+            local tileY = (row-1) * self.tileHeight
             local tile = self:GetTile(col,row)
 
             if tile >= 0 then
