@@ -31,7 +31,7 @@ Config.player = {}
 Config.player.width = 15
 Config.player.height = 28
 Config.player.reachLength = Config.tile.width * 0.9
-Config.player.reachHeight = -Config.player.height / 2 + Config.player.height * 5 / 6
+Config.player.reachHeight = -Config.player.height / 2 + Config.player.height * 5 / 7
 Config.player.targeting = {
     texture = nil,
     tile = nil,
@@ -48,7 +48,7 @@ Config.renderers.debug = {
     player = {
         targeting = false,
         facing = false,
-        coords = true
+        coords = false
     }
 }
 
