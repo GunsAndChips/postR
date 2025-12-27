@@ -24,16 +24,18 @@ function Map:New(mapDefinition)
     return this
 end
 
-function Map:Render(cameraOffset)
+function Map:Render(transform)
     love.graphics.setColor(1, 1, 1)
+    love.graphics.push()
+    love.graphics.applyTransform(transform)
 
     for row=1,self.heightInTiles do
         for col=1, self.widthInTiles do
             --Stagger each row to the left? for parallelogram tiling
             local staggerX = -self.tileStaggerX * row+1
 
-            local tileX = (col-1) * self.tileWidth + self.offsetX + staggerX + cameraOffset.x
-            local tileY = (row-1) * self.tileHeight + self.offsetY + cameraOffset.y
+            local tileX = (col-1) * self.tileWidth + self.offsetX + staggerX
+            local tileY = (row-1) * self.tileHeight + self.offsetY
             local tile = self:GetTile(col,row)
 
             if tile >= 0 then
@@ -41,6 +43,7 @@ function Map:Render(cameraOffset)
             end
         end
     end
+    love.graphics.pop()
 end
 
 function Map:GetTile(x,y,layer)

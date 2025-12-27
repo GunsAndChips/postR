@@ -42,7 +42,6 @@ function love.load()
     Player = Config.player
     Player.x = PIXEL_WIDTH / 2
     Player.y = PIXEL_HEIGHT / 2
-    UpdatePlayerTileCoords()
     Player.facing = "right"
     UpdatePlayerTargetingCoords()
 
@@ -57,6 +56,8 @@ function love.load()
     LoadTileSprites()
 
     LoadFonts()
+
+    MapTransform = love.math.newTransform()
 end
 
 function love.update(dt)
@@ -161,7 +162,7 @@ end
 function love.draw()
     TLfres.beginRendering(PIXEL_WIDTH, PIXEL_HEIGHT)
 
-    map1:Render(CameraOffset)
+    map1:Render(MapTransform)
 
     -- Player
     love.graphics.setColor(0, 0.4, 0.4)
@@ -187,8 +188,11 @@ function DrawDebugRenderers()
     local debugText = {}
 
     if Config.renderers.debug.cameraOffset then
-        love.graphics.setColor(1, 0, 0)
-        love.graphics.rectangle("fill", CameraOffset.x, CameraOffset.y, 1, 1)
+        love.graphics.setColor(1, 0, 0.8)
+        love.graphics.push()
+        love.graphics.applyTransform(MapTransform)
+        love.graphics.rectangle("fill", 0, 0, 1, 1)
+        love.graphics.pop()
     end
     if Config.renderers.debug.player.facing then
         love.graphics.setColor(1, 0, 0)
@@ -202,8 +206,6 @@ function DrawDebugRenderers()
     end
     if Config.renderers.debug.player.coords then
         table.insert(debugText, "Player.x: " .. Player.x .. " Player.y: " .. Player.y)
-        table.insert(debugText, "CameraOffset.x: " .. CameraOffset.x .. " CameraOffset.y: " .. CameraOffset.y)
-        table.insert(debugText, "Player.tileX: " .. Player.tileX .. " Player.tileY: " .. Player.tileY)
 
         -- Show player x,y in yellow
         love.graphics.setColor(1, 1, 0)
@@ -220,22 +222,6 @@ function DrawDebugRenderers()
 end
 
 function PlayerMove()
-    local function move(x, y, speed, invert)
-        local sign = 1
-        if invert then
-            sign = -1
-        end
-
-        x = x + sign * (speed.magnitude * speed.x)
-        y = y + sign * (speed.magnitude * speed.y)
-
-        if Settings.movement.useRotatedY then
-            x = x - sign * ((speed.magnitude * speed.y) / 3)
-        end
-
-        return x, y
-    end
-
     if not love.keyboard.isDown(_Key.up, _Key.down, _Key.left, _Key.right) then
         return
     end
@@ -278,8 +264,14 @@ function PlayerMove()
         speed.magnitude = speed.magnitude / math.sqrt(2)
     end
 
-    CameraOffset.x, CameraOffset.y = move(CameraOffset.x, CameraOffset.y, speed, true)
-    UpdatePlayerTileCoords()
+    local dx = speed.magnitude * speed.x * -1 -- invert because we're moving the map, not the player
+    local dy = speed.magnitude * speed.y * -1 -- invert because we're moving the map, not the player
+
+    if Settings.movement.useRotatedY then
+        dx = dx + ((speed.magnitude * speed.y) / 3)
+    end
+
+    MapTransform:translate(dx, dy)
 
     UpdatePlayerTargetingCoords()
 end
@@ -287,11 +279,6 @@ end
 function UpdatePlayerTargetingCoords()
     Player.targeting.x = Player.x + Lookups.facingX[Player.facing] * (Player.width / 2 + Player.reachLength)
     Player.targeting.y = Player.y + Player.reachHeight
-end
-
-function UpdatePlayerTileCoords()
-    Player.tileY = math.floor((Player.y - CameraOffset.y) / Config.tile.height)
-    Player.tileX = math.floor((Player.x - CameraOffset.x + (Player.y - CameraOffset.y) / 3) / Config.tile.width)
 end
 
 function PlayerInteract()
