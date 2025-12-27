@@ -30,25 +30,39 @@ Config.movement.pixelPerfect = false
 Config.player = {}
 Config.player.width = 15
 Config.player.height = 28
-Config.player.reachLength = Config.tile.width * 1
+Config.player.reachLength = Config.tile.width * 0.9
 Config.player.reachHeight = -Config.player.height / 2 + Config.player.height * 4 / 7
 Config.player.targeting = {
     texture = nil,
+    tile = nil,
     x = 0,
     y = 0
 }
 
 Config.renderers = {}
-Config.renderers.debug = {}
-Config.renderers.debug.cameraOffset = true
-Config.renderers.debug.player = {}
-Config.renderers.debug.player.targeting = true
-Config.renderers.debug.player.facing = true
-Config.renderers.debug.player.coords = true
+Config.renderers.debug = {
+    map = {
+        Transform = false,
+        TileTransform = false
+    },
+    player = {
+        targeting = true,
+        facing = false,
+        coords = true
+    }
+}
 
 Config.fonts = {}
 
 function LoadFonts()
     --Config.fonts.ui = love.graphics.newImageFont("/fonts/font_example.png", " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
     Config.fonts.ui = love.graphics.newFont("/fonts/m6x11.ttf", 16, "normal", love.graphics.getDPIScale())
+end
+
+function LoadTransforms()
+    MapTransform = love.math.newTransform()
+    
+    MapTilesTransform = love.math.newTransform()
+    MapTilesTransform:scale(Config.tile.width, Config.tile.height)
+    MapTilesTransform:shear(- Config.tile.staggerX / Config.tile.width, 0)
 end

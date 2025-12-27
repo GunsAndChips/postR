@@ -35,9 +35,7 @@ function love.load()
     -- don't know if size matters here if fullscreen anyway
     love.window.setMode(1920, 1080, { vsync = true, msaa = 0, highdpi = true, fullscreen = true })
 
-    CameraOffset = {}
-    CameraOffset.x = 0
-    CameraOffset.y = 0
+    LoadTransforms()
 
     Player = Config.player
     Player.x = PIXEL_WIDTH / 2
@@ -56,8 +54,6 @@ function love.load()
     LoadTileSprites()
 
     LoadFonts()
-
-    MapTransform = love.math.newTransform()
 end
 
 function love.update(dt)
@@ -162,6 +158,7 @@ end
 function love.draw()
     TLfres.beginRendering(PIXEL_WIDTH, PIXEL_HEIGHT)
 
+    -- Apply map transform
     love.graphics.push()
     love.graphics.applyTransform(MapTransform)
     map1:Render()
@@ -174,7 +171,10 @@ function love.draw()
 
     -- Player targeting
     love.graphics.setColor(1, 1, 1, 0.5)
-    love.graphics.draw(Player.targeting.texture, Player.targeting.x, Player.targeting.y)
+    if Player.targeting.tile ~= nil then
+        local targetX, targetY = MapTilesTransform:transformPoint(Player.targeting.tile.x, Player.targeting.tile.y)
+        love.graphics.draw(Player.targeting.texture, targetX - Config.tile.staggerX + 1, targetY)
+    end
 
     DrawDebugRenderers()
 
@@ -190,11 +190,22 @@ end
 function DrawDebugRenderers()
     local debugText = {}
 
-    if Config.renderers.debug.cameraOffset then
+    if Config.renderers.debug.map.Transform then
         love.graphics.setColor(1, 0, 0.8)
         love.graphics.push()
         love.graphics.applyTransform(MapTransform)
         love.graphics.rectangle("fill", 0, 0, 1, 1)
+        love.graphics.pop()
+    end
+    if Config.renderers.debug.map.TileTransform then
+        love.graphics.setColor(1, 0, 0.8)
+        love.graphics.push()
+        love.graphics.applyTransform(MapTilesTransform)
+        for i = 0, 10 do
+            for j = 0, 10 do
+                love.graphics.rectangle("fill", i, j, 1 / Config.tile.width, 1 / Config.tile.height)
+            end
+        end
         love.graphics.pop()
     end
     if Config.renderers.debug.player.facing then
@@ -206,6 +217,11 @@ function DrawDebugRenderers()
     if Config.renderers.debug.player.targeting then
         love.graphics.setColor(1, 0, 0)
         love.graphics.rectangle("fill", Player.targeting.x, Player.targeting.y, 1, 1)
+
+        if Player.targeting.tile ~= nil then
+            local tileX, tileY = MapTilesTransform:transformPoint(Player.targeting.tile.x, Player.targeting.tile.y)
+            love.graphics.rectangle("fill", tileX, tileY, 1, 1)
+        end
     end
     if Config.renderers.debug.player.coords then
         table.insert(debugText, "Player.x: " .. Player.x .. " Player.y: " .. Player.y)
@@ -276,12 +292,24 @@ function PlayerMove()
 
     MapTransform:translate(dx, dy)
 
+    local tiles = {}
+    tiles.dy = dy / Config.tile.height
+    tiles.dx = dx / Config.tile.width + tiles.dy * (Config.tile.staggerX / Config.tile.width)
+    MapTilesTransform:translate(tiles.dx, tiles.dy)
+
     UpdatePlayerTargetingCoords()
 end
 
 function UpdatePlayerTargetingCoords()
     Player.targeting.x = Player.x + Lookups.facingX[Player.facing] * (Player.width / 2 + Player.reachLength)
     Player.targeting.y = Player.y + Player.reachHeight
+
+    local tileX, tileY = MapTilesTransform:inverseTransformPoint(Player.targeting.x, Player.targeting.y)
+
+    Player.targeting.tile = {
+        x = math.floor(tileX),
+        y = math.floor(tileY)
+    }
 end
 
 function PlayerInteract()
