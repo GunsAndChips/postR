@@ -24,11 +24,9 @@ function Map:New(mapDefinition)
     return this
 end
 
-function Map:Render(transform)
+function Map:Render()
     love.graphics.setColor(1, 1, 1)
-    love.graphics.push()
-    love.graphics.applyTransform(transform)
-
+    
     for row=1,self.heightInTiles do
         for col=1, self.widthInTiles do
             --Stagger each row to the left? for parallelogram tiling
@@ -43,7 +41,6 @@ function Map:Render(transform)
             end
         end
     end
-    love.graphics.pop()
 end
 
 function Map:GetTile(x,y,layer)

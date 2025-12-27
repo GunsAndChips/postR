@@ -162,7 +162,10 @@ end
 function love.draw()
     TLfres.beginRendering(PIXEL_WIDTH, PIXEL_HEIGHT)
 
-    map1:Render(MapTransform)
+    love.graphics.push()
+    love.graphics.applyTransform(MapTransform)
+    map1:Render()
+    love.graphics.pop()
 
     -- Player
     love.graphics.setColor(0, 0.4, 0.4)
