@@ -18,7 +18,7 @@ Menus.options.items = {
     { textString = "Back", onClick = function() MenuBack() end }
 }
 
--- Converts simple menu defined objects from above into fleshed out object
+-- Fleshes out the simple menu objects from above
 -- e.g. sets fonts and x/y positions for items, so we don't have to do it every time we render them)
 function LoadMenuItems(menu)
     menu.title = love.graphics.newText(Config.fonts.ui, menu.titleString)
