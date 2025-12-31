@@ -33,7 +33,14 @@ Config.menus = {
     hoverOffsetX = 2
 }
 Config.menus.defaults = {
-    title = "Menu Title",
+    title = {
+        textString = "Menu Title",
+        text = nil,
+        x = nil,
+        y = nil,
+        width = nil,
+        height = nil
+    },
     loaded = false,
     minHeight = 120,
     minWidth = 100,
@@ -65,6 +72,8 @@ function LoadMenuConfig()
         -- Remove one . (the leading one) from range2
         range2 = string.sub(range2, 2, -1)
     end
+
+    Config.menus.rangeText.width = Config.menus.rangeText[1]:getWidth()
 end
 
 Config.movement = {

@@ -2,51 +2,71 @@ require "helpers"
 
 Menus = {}
 
-Menus.pause = ShallowClone(Config.menus.defaults)
+Menus.pause = Clone(Config.menus.defaults)
 Menus.pause.id = "pause"
-Menus.pause.titleString = "Paused"
+Menus.pause.title.textString = "Paused"
 Menus.pause.items = {
     { textString = "Resume",  type = "button", onClick = function() SetGameState() end },
     { textString = "Options", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.options) end },
     { textString = "Quit",    type = "button", onClick = function() Quit() end }
 }
 
-Menus.options = ShallowClone(Config.menus.defaults)
+Menus.options = Clone(Config.menus.defaults)
 Menus.options.id = "options"
-Menus.options.titleString = "Options"
+Menus.options.title.textString = "Options"
 Menus.options.items = {
-    { textString = "Volume", type = "range", value = 4 },
+    { textString = "Volume", type = "range",  value = 4 },
     { textString = "Back",   type = "button", onClick = function() MenuBack() end }
 }
 
 -- Fleshes out the simple menu objects from above
 -- e.g. sets fonts and x/y positions for items, so we don't have to do it every time we render them)
 function LoadMenu(menu)
-    menu.title = love.graphics.newText(Config.fonts.ui, menu.titleString)
-    local maxItemWidth = menu.title:getWidth()
+    -- Set Title
+    local title = menu.title
+    title.text = love.graphics.newText(Config.fonts.ui, title.textString)
+    title.width = title.text:getWidth()
+    title.height = title.text:getHeight()
+    -- Title X can't be set until the menu width is decided
+    title.y = menu.marginSize
+
+    local largestItemWidth = title.width
 
     for i = 1, #menu.items do
         local item = menu.items[i]
         local maxItemLength = PIXEL_WIDTH - 4 * menu.marginSize
+
+        -- if item.type == "range" then
+        --     item.control = {
+        --         x = menu.width - menu.marginSize - Config.menus.rangeText.width,
+        --         y = item.y
+        --     }
+        -- end
+
         -- Set text
         item.text = love.graphics.newText(Config.fonts.ui)
         item.text:setf({ menu.textColour, item.textString }, maxItemLength, "left")
 
-        -- Set hover text
-        item.textHover = love.graphics.newText(Config.fonts.ui)
-        item.textHover:setf({ menu.textColourHover, item.textString }, maxItemLength, "left")
+        if (item.type == "button") then
+            -- Set hover text
+            item.textHover = love.graphics.newText(Config.fonts.ui)
+            item.textHover:setf({ menu.textColourHover, item.textString }, maxItemLength, "left")
+        end
 
         -- Set coordinates relative to menu
         item.x = menu.marginSize
-        item.y = (i - 1) * (item.text:getHeight() + menu.textLineSpacing) + 2 * menu.marginSize + menu.title:getHeight()
+        item.y = (i - 1) * (item.text:getHeight() + menu.textLineSpacing) + 2 * menu.marginSize + title.height
 
-        maxItemWidth = math.max(maxItemWidth, item.text:getWidth())
+        largestItemWidth = math.max(largestItemWidth, item.text:getWidth())
     end
 
     -- Set menu width to fit all items on it, without going below the minWidth
-    menu.width = math.max(maxItemWidth + 2 * menu.marginSize, menu.minWidth)
+    menu.width = math.max(largestItemWidth + 2 * menu.marginSize, menu.minWidth)
     -- Set menu width to not go over max width, which is the screen size minus a margin on each size
     menu.width = math.min(menu.width, PIXEL_WIDTH - 2 * menu.marginSize)
+
+    -- Set title x centred on the Menu
+    title.x = menu.width / 2 - title.width / 2
 
     -- TODO: make menu height dynamic to fit all items contained in that menu
     menu.height = menu.minHeight
@@ -70,7 +90,7 @@ function DrawMenu(menu)
 
     -- title
     love.graphics.setColor(1, 1, 1)
-    love.graphics.draw(menu.title, menu.width / 2 - menu.title:getWidth() / 2, menu.marginSize)
+    love.graphics.draw(menu.title.text, menu.title.x, menu.title.y)
 
     -- items
     for i = 1, #menu.items do
@@ -82,7 +102,7 @@ function DrawMenu(menu)
         end
 
         if item.type == "range" then
-            local rangeText = Config.menus.rangeText[item.value+1]
+            local rangeText = Config.menus.rangeText[item.value + 1]
             love.graphics.draw(rangeText, menu.width - menu.marginSize - rangeText:getWidth(), item.y)
         end
     end

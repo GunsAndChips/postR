@@ -1,12 +1,15 @@
-function ShallowClone(table)
+function Clone(table)
     local copy = {}
     for key, value in pairs(table) do
-        copy[key] = value
+        if type(value) == "table" then
+            copy[key] = Clone(value)
+        else
+            copy[key] = value
+        end
     end
     return copy
 end
 
--- Calculate player targeting coordinates
 Lookups = {
     facingX = {
         right = 1,
