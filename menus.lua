@@ -6,21 +6,22 @@ Menus.pause = ShallowClone(Config.menus.defaults)
 Menus.pause.id = "pause"
 Menus.pause.titleString = "Paused"
 Menus.pause.items = {
-    { textString = "Resume",  onClick = function() SetGameState() end },
-    { textString = "Options", onClick = function() table.insert(Game.visibleMenus, Menus.options) end },
-    { textString = "Quit",    onClick = function() Quit() end }
+    { textString = "Resume",  type = "button", onClick = function() SetGameState() end },
+    { textString = "Options", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.options) end },
+    { textString = "Quit",    type = "button", onClick = function() Quit() end }
 }
 
 Menus.options = ShallowClone(Config.menus.defaults)
 Menus.options.id = "options"
 Menus.options.titleString = "Options"
 Menus.options.items = {
-    { textString = "Back", onClick = function() MenuBack() end }
+    { textString = "Volume", type = "range", value = 4 },
+    { textString = "Back",   type = "button", onClick = function() MenuBack() end }
 }
 
 -- Fleshes out the simple menu objects from above
 -- e.g. sets fonts and x/y positions for items, so we don't have to do it every time we render them)
-function LoadMenuItems(menu)
+function LoadMenu(menu)
     menu.title = love.graphics.newText(Config.fonts.ui, menu.titleString)
     local maxItemWidth = menu.title:getWidth()
 
@@ -42,9 +43,12 @@ function LoadMenuItems(menu)
         maxItemWidth = math.max(maxItemWidth, item.text:getWidth())
     end
 
+    -- Set menu width to fit all items on it, without going below the minWidth
     menu.width = math.max(maxItemWidth + 2 * menu.marginSize, menu.minWidth)
+    -- Set menu width to not go over max width, which is the screen size minus a margin on each size
     menu.width = math.min(menu.width, PIXEL_WIDTH - 2 * menu.marginSize)
 
+    -- TODO: make menu height dynamic to fit all items contained in that menu
     menu.height = menu.minHeight
     menu.transform = love.math.newTransform()
     menu.transform:translate(PIXEL_WIDTH / 2 - menu.width / 2, PIXEL_HEIGHT / 2 - menu.height / 2)
@@ -54,7 +58,7 @@ end
 
 function DrawMenu(menu)
     if (not menu.loaded) then
-        LoadMenuItems(menu)
+        LoadMenu(menu)
     end
 
     love.graphics.push()
@@ -71,11 +75,16 @@ function DrawMenu(menu)
     -- items
     for i = 1, #menu.items do
         local item = menu.items[i]
-        if (item == Hovering) then
+        if (item == Hovering and item.type == "button") then
             love.graphics.draw(item.textHover, item.x + Config.menus.hoverOffsetX, item.y)
         else
             love.graphics.draw(item.text, item.x, item.y)
         end
+
+        -- if item.type == "range" then
+        --     local rangeText = Config.menus.rangeText[item.value]
+        --     love.graphics.draw(rangeText, menu.width - menu.marginSize - rangeText:getWidth(), item.y)
+        -- end
     end
 
     love.graphics.pop()

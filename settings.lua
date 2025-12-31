@@ -20,6 +20,11 @@ Config.tile = {
     staggerX = 3
 }
 
+Config.fonts = {}
+function LoadFonts()
+    Config.fonts.ui = love.graphics.newFont("/fonts/m6x11.ttf", 16, "normal", love.graphics.getDPIScale())
+end
+
 Config.menus = {
     hoverOffsetX = 2
 }
@@ -31,9 +36,42 @@ Config.menus.defaults = {
     backgroundColour = { 0.6, 0.6, 0.6 },
     textColour = { 1, 1, 1 },
     textColourHover = { 0.1, 0.3, 0.1 },
+    textColourDisabled = { 1, 0, 0 },
     textLineSpacing = 3,
     marginSize = 6
 }
+
+function LoadMenuConfig()
+    Config.menus.rangeText = {
+        love.graphics.newText(Config.fonts.ui),
+        love.graphics.newText(Config.fonts.ui),
+        love.graphics.newText(Config.fonts.ui),
+        love.graphics.newText(Config.fonts.ui),
+        love.graphics.newText(Config.fonts.ui),
+        love.graphics.newText(Config.fonts.ui),
+        love.graphics.newText(Config.fonts.ui),
+        love.graphics.newText(Config.fonts.ui)
+    }
+
+    for i = 1, #Config.menus.rangeText do
+        local text1 = ""
+        for j = 1, i do
+            text1 = text1 .. "."
+        end
+
+        local text2 = ""
+        for j = 1, #Config.menus.rangeText - i do
+            text2 = text2 .. "."
+        end
+        local textTable = {
+            Config.menus.defaults.textColour,
+            text1,
+            Config.menus.defaults.textColourDisabled,
+            text2
+        }
+        Config.menus.rangeText[i]:setf(textTable, 300, "right")
+    end
+end
 
 Config.movement = {
     moveSpeed = 0.07 * 1.6 * 2.5,
@@ -66,12 +104,6 @@ Config.renderers.debug = {
         coords = false
     }
 }
-
-Config.fonts = {}
-
-function LoadFonts()
-    Config.fonts.ui = love.graphics.newFont("/fonts/m6x11.ttf", 16, "normal", love.graphics.getDPIScale())
-end
 
 function LoadTransforms()
     MapTransform = love.math.newTransform()

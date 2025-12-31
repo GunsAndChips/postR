@@ -54,6 +54,7 @@ function love.load()
     LoadTileSprites()
 
     LoadFonts()
+    LoadMenuConfig()
 end
 
 function love.update(dt)
@@ -83,7 +84,7 @@ function love.mousemoved(x, y, dx, dy, istouch)
 end
 
 function love.mousereleased(x, y, button, istouch, presses)
-    if #Game.visibleMenus > 0 and button == 1 and Hovering ~= nil then
+    if #Game.visibleMenus > 0 and button == 1 and Hovering ~= nil and Hovering.type == "button" then
         Hovering.onClick()
     end
 end
