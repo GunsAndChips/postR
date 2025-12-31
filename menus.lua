@@ -26,9 +26,14 @@ function LoadMenuItems(menu)
 
     for i = 1, #menu.items do
         local item = menu.items[i]
+        local maxItemLength = PIXEL_WIDTH - 4 * menu.marginSize
         -- Set text
         item.text = love.graphics.newText(Config.fonts.ui)
-        item.text:setf({ menu.textColour, item.textString }, PIXEL_WIDTH - 4 * menu.marginSize, "left")
+        item.text:setf({ menu.textColour, item.textString }, maxItemLength, "left")
+
+        -- Set hover text
+        item.textHover = love.graphics.newText(Config.fonts.ui)
+        item.textHover:setf({ menu.textColourHover, item.textString }, maxItemLength, "left")
 
         -- Set coordinates relative to menu
         item.x = menu.marginSize
@@ -66,7 +71,11 @@ function DrawMenu(menu)
     -- items
     for i = 1, #menu.items do
         local item = menu.items[i]
-        love.graphics.draw(item.text, item.x, item.y)
+        if (item == Hovering) then
+            love.graphics.draw(item.textHover, item.x + Config.menus.hoverOffsetX, item.y)
+        else
+            love.graphics.draw(item.text, item.x, item.y)
+        end
     end
 
     love.graphics.pop()
@@ -93,21 +102,7 @@ function ShowHoverText()
     if #Game.visibleMenus > 0 then
         local pixelX, pixelY = love.mouse.getPosition()
         local menu = Game.visibleMenus[#Game.visibleMenus]
-        local newHovering = GetMenuItem(pixelX, pixelY, menu)
-        if Hovering == newHovering then
-            return
-        end
-        if Hovering ~= nil then
-            Hovering.text:setf({ menu.textColour, Hovering.textString }, PIXEL_WIDTH - 4 * menu.marginSize, "left")
-            Hovering.x = Hovering.x - Config.menus.hoverOffsetX
-        else
-            if newHovering ~= nil then
-                newHovering.text:setf({ menu.textColourHover, newHovering.textString },
-                    PIXEL_WIDTH - 4 * menu.marginSize, "left")
-                newHovering.x = newHovering.x + Config.menus.hoverOffsetX
-            end
-        end
-        Hovering = newHovering
+        Hovering = GetMenuItem(pixelX, pixelY, menu)
     end
 end
 
