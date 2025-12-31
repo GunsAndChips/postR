@@ -23,6 +23,17 @@ Config.tile = {
 Config.menus = {
     hoverOffsetX = 2
 }
+Config.menus.defaults = {
+    title = "Menu Title",
+    loaded = false,
+    minHeight = 120,
+    minWidth = 100,
+    backgroundColour = { 0.6, 0.6, 0.6 },
+    textColour = { 1, 1, 1 },
+    textColourHover = { 0.1, 0.3, 0.1 },
+    textLineSpacing = 3,
+    marginSize = 6
+}
 
 Config.movement = {
     moveSpeed = 0.07 * 1.6 * 2.5,

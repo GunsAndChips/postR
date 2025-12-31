@@ -1,19 +1,8 @@
 require "helpers"
 
 Menus = {}
-Menus.default = {
-    title = "Menu Title",
-    loaded = false,
-    minHeight = 120,
-    minWidth = 100,
-    backgroundColour = { 0.6, 0.6, 0.6 },
-    textColour = { 1, 1, 1 },
-    textColourHover = { 0.1, 0.3, 0.1 },
-    textLineSpacing = 3,
-    marginSize = 6
-}
 
-Menus.pause = ShallowClone(Menus.default)
+Menus.pause = ShallowClone(Config.menus.defaults)
 Menus.pause.id = "pause"
 Menus.pause.titleString = "Paused"
 Menus.pause.items = {
@@ -22,7 +11,7 @@ Menus.pause.items = {
     { textString = "Quit",    onClick = function() Quit() end }
 }
 
-Menus.options = ShallowClone(Menus.default)
+Menus.options = ShallowClone(Config.menus.defaults)
 Menus.options.id = "options"
 Menus.options.titleString = "Options"
 Menus.options.items = {
