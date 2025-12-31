@@ -59,8 +59,9 @@ function PlayerMove()
 end
 
 function UpdatePlayerTargetingCoords()
-    Player.targeting.x = Player.x + Lookups.facingX[Player.facing] * (Player.width / 2 + Player.reachLength)
-    Player.targeting.y = Player.y + Player.reachHeight
+    Player.targeting.x = Player.x + Lookups.facingX[Player.facing] * (Player.width / 2 + Player.targeting.distance)
+    -- Set height to target at, to the player's coords + half their height to get to their feet, minus the height
+    Player.targeting.y = Player.y + Player.height/2 - Player.targeting.height
 
     local tileX, tileY = MapTilesTransform:inverseTransformPoint(Player.targeting.x, Player.targeting.y)
 

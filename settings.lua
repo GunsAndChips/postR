@@ -14,22 +14,29 @@ Settings.Keybinds = {
 }
 
 Config = {}
-Config.tile = {}
-Config.tile.width = 16
-Config.tile.height = 9
-Config.tile.staggerX = 3
+Config.tile = {
+    width = 16,
+    height = 9,
+    staggerX = 3
+}
 
-Config.movement = {}
-Config.movement.moveSpeed = 0.07 * 1.6 * 2.5
-Config.movement.sprintMultiplier = 1.6
-Config.movement.pixelPerfect = false
+Config.menus = {
+    hoverOffsetX = 2
+}
 
-Config.player = {}
-Config.player.width = 15
-Config.player.height = 28
-Config.player.reachLength = Config.tile.width * 0.9
-Config.player.reachHeight = -Config.player.height / 2 + Config.player.height * 5 / 7
+Config.movement = {
+    moveSpeed = 0.07 * 1.6 * 2.5,
+    sprintMultiplier = 1.6
+}
+
+Config.player = {
+    width = 15,
+    height = 28,
+    targeting = {}
+}
 Config.player.targeting = {
+    distance = Config.tile.width * 0.9,
+    height = Config.player.height * 0.2,
     texture = nil,
     tile = nil,
     x = 0,
@@ -57,8 +64,8 @@ end
 
 function LoadTransforms()
     MapTransform = love.math.newTransform()
-    
+
     MapTilesTransform = love.math.newTransform()
     MapTilesTransform:scale(Config.tile.width, Config.tile.height)
-    MapTilesTransform:shear(- Config.tile.staggerX / Config.tile.width, 0)
+    MapTilesTransform:shear(-Config.tile.staggerX / Config.tile.width, 0)
 end

@@ -110,10 +110,12 @@ function ShowHoverText()
         end
         if Hovering ~= nil then
             Hovering.text:setf({ menu.textColour, Hovering.textString }, PIXEL_WIDTH - 4 * menu.marginSize, "left")
+            Hovering.x = Hovering.x - Config.menus.hoverOffsetX
         else
             if newHovering ~= nil then
-                newHovering.text:setf({ menu.textColourHover, " " .. newHovering.textString },
+                newHovering.text:setf({ menu.textColourHover, newHovering.textString },
                     PIXEL_WIDTH - 4 * menu.marginSize, "left")
+                newHovering.x = newHovering.x + Config.menus.hoverOffsetX
             end
         end
         Hovering = newHovering
