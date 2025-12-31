@@ -81,10 +81,10 @@ function DrawMenu(menu)
             love.graphics.draw(item.text, item.x, item.y)
         end
 
-        -- if item.type == "range" then
-        --     local rangeText = Config.menus.rangeText[item.value]
-        --     love.graphics.draw(rangeText, menu.width - menu.marginSize - rangeText:getWidth(), item.y)
-        -- end
+        if item.type == "range" then
+            local rangeText = Config.menus.rangeText[item.value+1]
+            love.graphics.draw(rangeText, menu.width - menu.marginSize - rangeText:getWidth(), item.y)
+        end
     end
 
     love.graphics.pop()

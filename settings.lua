@@ -22,7 +22,11 @@ Config.tile = {
 
 Config.fonts = {}
 function LoadFonts()
-    Config.fonts.ui = love.graphics.newFont("/fonts/m6x11.ttf", 16, "normal", love.graphics.getDPIScale())
+    local dpiScale = love.graphics.getDPIScale()
+    Config.fonts.ui = love.graphics.newFont("/fonts/m6x11.ttf", 16, "normal", dpiScale)
+    Config.fonts.menu = {
+        rangeDots = love.graphics.newFont("/fonts/m6x11.ttf", 32, "normal", dpiScale)
+    }
 end
 
 Config.menus = {
@@ -36,40 +40,30 @@ Config.menus.defaults = {
     backgroundColour = { 0.6, 0.6, 0.6 },
     textColour = { 1, 1, 1 },
     textColourHover = { 0.1, 0.3, 0.1 },
-    textColourDisabled = { 1, 0, 0 },
+    textColourDisabled = { 0.3, 0.3, 0.3 },
     textLineSpacing = 3,
     marginSize = 6
 }
 
 function LoadMenuConfig()
-    Config.menus.rangeText = {
-        love.graphics.newText(Config.fonts.ui),
-        love.graphics.newText(Config.fonts.ui),
-        love.graphics.newText(Config.fonts.ui),
-        love.graphics.newText(Config.fonts.ui),
-        love.graphics.newText(Config.fonts.ui),
-        love.graphics.newText(Config.fonts.ui),
-        love.graphics.newText(Config.fonts.ui),
-        love.graphics.newText(Config.fonts.ui)
-    }
+    Config.menus.rangeText = {}
 
-    for i = 1, #Config.menus.rangeText do
-        local text1 = ""
-        for j = 1, i do
-            text1 = text1 .. "."
-        end
+    local range1 = ""
+    local range2 = "........"
 
-        local text2 = ""
-        for j = 1, #Config.menus.rangeText - i do
-            text2 = text2 .. "."
-        end
+    for i = 1, #range2 + 1 do
         local textTable = {
             Config.menus.defaults.textColour,
-            text1,
+            range1,
             Config.menus.defaults.textColourDisabled,
-            text2
+            range2
         }
-        Config.menus.rangeText[i]:setf(textTable, 300, "right")
+        table.insert(Config.menus.rangeText, love.graphics.newText(Config.fonts.ui, textTable))
+
+        -- Add one . to range1
+        range1 = range1 .. "."
+        -- Remove one . (the leading one) from range2
+        range2 = string.sub(range2, 2, -1)
     end
 end
 
