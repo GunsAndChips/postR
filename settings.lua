@@ -74,6 +74,7 @@ function LoadMenuConfig()
     end
 
     Config.menus.rangeText.width = Config.menus.rangeText[1]:getWidth()
+    Config.menus.rangeText.height = Config.menus.rangeText[1]:getHeight()
 end
 
 Config.movement = {

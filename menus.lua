@@ -31,26 +31,28 @@ function LoadMenu(menu)
     title.y = menu.marginSize
 
     local largestItemWidth = title.width
+    local itemsWithControls = {}
 
     for i = 1, #menu.items do
         local item = menu.items[i]
         local maxItemLength = PIXEL_WIDTH - 4 * menu.marginSize
 
-        -- if item.type == "range" then
-        --     item.control = {
-        --         x = menu.width - menu.marginSize - Config.menus.rangeText.width,
-        --         y = item.y
-        --     }
-        -- end
-
         -- Set text
         item.text = love.graphics.newText(Config.fonts.ui)
         item.text:setf({ menu.textColour, item.textString }, maxItemLength, "left")
 
-        if (item.type == "button") then
+        if item.type == "button" then
             -- Set hover text
             item.textHover = love.graphics.newText(Config.fonts.ui)
             item.textHover:setf({ menu.textColourHover, item.textString }, maxItemLength, "left")
+        elseif item.type == "range" then
+            item.control = {
+                x = nil,
+                y = nil,
+                width = Config.menus.rangeText.width,
+                height = Config.menus.rangeText.height
+            }
+            table.insert(itemsWithControls, item)
         end
 
         -- Set coordinates relative to menu
@@ -68,6 +70,15 @@ function LoadMenu(menu)
     -- Set title x centred on the Menu
     title.x = menu.width / 2 - title.width / 2
 
+    -- Check for itemsWithControls to load
+    if #itemsWithControls > 0 then
+        for i = 1, #itemsWithControls do
+            local item = itemsWithControls[i]
+            item.control.x = menu.width - menu.marginSize - Config.menus.rangeText.width
+            item.control.y = item.y
+        end
+    end
+
     -- TODO: make menu height dynamic to fit all items contained in that menu
     menu.height = menu.minHeight
     menu.transform = love.math.newTransform()
@@ -77,7 +88,7 @@ function LoadMenu(menu)
 end
 
 function DrawMenu(menu)
-    if (not menu.loaded) then
+    if not menu.loaded then
         LoadMenu(menu)
     end
 
@@ -95,7 +106,7 @@ function DrawMenu(menu)
     -- items
     for i = 1, #menu.items do
         local item = menu.items[i]
-        if (item == Hovering and item.type == "button") then
+        if item == Hovering and item.type == "button" then
             love.graphics.draw(item.textHover, item.x + Config.menus.hoverOffsetX, item.y)
         else
             love.graphics.draw(item.text, item.x, item.y)
@@ -121,8 +132,12 @@ function GetMenuItem(x, y, menu)
 
     for i = 1, #menu.items do
         local item = menu.items[i]
-        if menuY > item.y and menuY < item.y + item.text:getHeight() and menuX > item.x and menuX < item.x + item.text:getWidth() then
-            return item
+        if menuY > item.y and menuY < item.y + item.text:getHeight() then
+            if menuX > item.x and menuX < item.x + item.text:getWidth() then
+                return item
+            elseif item.control ~= nil and menuX > item.control.x and menuX < item.control.x + item.control.width and menuY > item.control.y and menuY < item.control.y + item.control.height then
+                return item.control
+            end
         end
     end
 end
