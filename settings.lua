@@ -55,22 +55,28 @@ Config.menus.defaults = {
 function LoadMenuConfig()
     Config.menus.rangeText = {}
 
-    local range1 = ""
-    local range2 = "........"
+    local ranges = {
+        "",
+        ".",
+        "..",
+        "...",
+        "....",
+        ".....",
+        "......",
+        ".......",
+        "........"
+    }
+    ranges.count = #ranges
 
-    for i = 1, #range2 + 1 do
+    for i = 1, ranges.count do
         local textTable = {
             Config.menus.defaults.textColour,
-            range1,
+            ranges[i],
             Config.menus.defaults.textColourDisabled,
-            range2
+            ranges[ranges.count + 1 - i]
         }
+        
         table.insert(Config.menus.rangeText, love.graphics.newText(Config.fonts.ui, textTable))
-
-        -- Add one . to range1
-        range1 = range1 .. "."
-        -- Remove one . (the leading one) from range2
-        range2 = string.sub(range2, 2, -1)
     end
 
     Config.menus.rangeText.width = Config.menus.rangeText[1]:getWidth()

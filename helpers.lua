@@ -1,7 +1,7 @@
-function Clone(_table, allTablesSeen, _depth)
+function Clone(_table, allTablesSeen, depth)
     allTablesSeen = allTablesSeen or {}
-    local _depth = _depth or 0
-    print("Entering Clone function, depth: " .. _depth)
+    depth = depth or 0
+    print("Entering Clone function, depth: " .. depth)
 
     local copy = {}
     for key, value in pairs(_table) do
@@ -16,7 +16,7 @@ function Clone(_table, allTablesSeen, _depth)
             end
 
             table.insert(allTablesSeen, _table)
-            copy[key] = Clone(value, allTablesSeen, _depth + 1)
+            copy[key] = Clone(value, allTablesSeen, depth + 1)
             table.remove(allTablesSeen)
         else
             copy[key] = value
