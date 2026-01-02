@@ -1,7 +1,7 @@
 function Clone(_table, allTablesSeen, _depth)
     allTablesSeen = allTablesSeen or {}
     local _depth = _depth or 0
-    print("Running Clone function, depth: " .. _depth)
+    print("Entering Clone function, depth: " .. _depth)
 
     local copy = {}
     for key, value in pairs(_table) do
@@ -22,7 +22,7 @@ function Clone(_table, allTablesSeen, _depth)
             copy[key] = value
         end
     end
-    print("Exiting clone function...")
+    print("Exiting Clone function...")
     return copy
 end
 
