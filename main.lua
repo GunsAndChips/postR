@@ -49,7 +49,9 @@ function love.load()
         state = "play",
         visibleMenus = {}
     }
-    Hovering = nil
+    Hovering = {
+        item = nil
+    }
 
     LoadTileSprites()
 
@@ -75,17 +77,30 @@ function love.keypressed(key, scancode, isrepeat)
     end
 end
 
--- function love.mousepressed(x, y, button, istouch, presses)
---     local x, y = love.mouse.getPosition()
--- end
+function love.mousepressed(x, y, button, istouch, presses)
+    -- Overwrite x and y using the TLFres library's function
+    local x, y = love.mouse.getPosition()
+
+    if button == 1 then
+        if Hovering.item ~= nil then
+            Hovering.clicking = 1
+        else
+            Hovering.clicking = false
+        end
+    end
+end
 
 function love.mousemoved(x, y, dx, dy, istouch)
     ShowHoverText()
+    UpdateHoveringClicking()
 end
 
 function love.mousereleased(x, y, button, istouch, presses)
-    if #Game.visibleMenus > 0 and button == 1 and Hovering ~= nil and Hovering.type == "button" then
-        Hovering.onClick()
+    if Hovering.item ~= nil then
+        Hovering.clicking = false
+    end
+    if #Game.visibleMenus > 0 and button == 1 and Hovering.item ~= nil and Hovering.item.type == "button" then
+        Hovering.item.onClick()
     end
 end
 

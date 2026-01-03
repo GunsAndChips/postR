@@ -47,6 +47,7 @@ Config.menus.defaults = {
     backgroundColour = { 0.6, 0.6, 0.6 },
     textColour = { 1, 1, 1 },
     textColourHover = { 0.1, 0.3, 0.1 },
+    textColourClick = { 0.1, 0.3, 0.1 },
     textColourDisabled = { 0.3, 0.3, 0.3 },
     textLineSpacing = 3,
     marginSize = 6
@@ -75,7 +76,7 @@ function LoadMenuConfig()
             Config.menus.defaults.textColourDisabled,
             ranges[ranges.count + 1 - i]
         }
-        
+
         table.insert(Config.menus.rangeText, love.graphics.newText(Config.fonts.ui, textTable))
     end
 

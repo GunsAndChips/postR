@@ -41,10 +41,28 @@ function LoadMenu(menu)
         item.text = love.graphics.newText(Config.fonts.ui)
         item.text:setf({ menu.textColour, item.textString }, maxItemLength, "left")
 
+        item.height = item.text:getHeight()
+        item.width = item.text:getWidth()
+
         if item.type == "button" then
             -- Set hover text
-            item.textHover = love.graphics.newText(Config.fonts.ui)
-            item.textHover:setf({ menu.textColourHover, item.textString }, maxItemLength, "left")
+            if menu.textColourHover == menu.textColour then
+                item.textHover = item.text
+            else
+                item.textHover = love.graphics.newText(Config.fonts.ui)
+                item.textHover:setf({ menu.textColourHover, item.textString }, maxItemLength, "left")
+            end
+
+            -- Set click text
+            if menu.textColourClick == menu.textColour then
+                item.textClick = item.text
+            elseif menu.textColourClick == menu.textColourHover then
+                item.textClick = item.textHover
+            else
+                item.textClick = love.graphics.newText(Config.fonts.ui)
+                item.textClick:setf({ menu.textColourClick, item.textString }, maxItemLength, "left")
+            end
+
         elseif item.type == "range" then
             item.control = {
                 x = nil,
@@ -57,9 +75,9 @@ function LoadMenu(menu)
 
         -- Set coordinates relative to menu
         item.x = menu.marginSize
-        item.y = (i - 1) * (item.text:getHeight() + menu.textLineSpacing) + 2 * menu.marginSize + title.height
+        item.y = (i - 1) * (item.height + menu.textLineSpacing) + 2 * menu.marginSize + title.height
 
-        largestItemWidth = math.max(largestItemWidth, item.text:getWidth())
+        largestItemWidth = math.max(largestItemWidth, item.width)
     end
 
     -- Set menu width to fit all items on it, without going below the minWidth
@@ -75,7 +93,13 @@ function LoadMenu(menu)
         for i = 1, #itemsWithControls do
             local item = itemsWithControls[i]
             item.control.x = menu.width - menu.marginSize - Config.menus.rangeText.width
-            item.control.y = item.y
+            if item.height == item.control.height then
+                -- If control height matches the text, then set Y to match
+                item.control.y = item.y
+            else
+                -- Otherwise, set y so the bottom of the control aligns with the bottom of the text
+                item.control.y = item.y + item.height - item.control.height
+            end
         end
     end
 
@@ -106,8 +130,12 @@ function DrawMenu(menu)
     -- items
     for i = 1, #menu.items do
         local item = menu.items[i]
-        if item == Hovering and item.type == "button" then
-            love.graphics.draw(item.textHover, item.x + Config.menus.hoverOffsetX, item.y)
+        if item == Hovering.item and item.type == "button" then
+            local hoveredText = item.textHover
+            if Hovering.clicking == 1 then
+                hoveredText = item.textClick
+            end
+            love.graphics.draw(hoveredText, item.x + Config.menus.hoverOffsetX, item.y)
         else
             love.graphics.draw(item.text, item.x, item.y)
         end
@@ -140,18 +168,37 @@ function GetMenuItem(x, y, menu)
             end
         end
     end
+    return nil
 end
 
 function ShowHoverText()
-    if #Game.visibleMenus > 0 then
-        local pixelX, pixelY = love.mouse.getPosition()
-        local menu = Game.visibleMenus[#Game.visibleMenus]
-        Hovering = GetMenuItem(pixelX, pixelY, menu)
+    if #Game.visibleMenus < 1 then
+        return
+    end
+
+    local pixelX, pixelY = love.mouse.getPosition()
+    local menu = Game.visibleMenus[#Game.visibleMenus]
+    Hovering.item = GetMenuItem(pixelX, pixelY, menu)
+
+    if Hovering.item == nil and Hovering.clicking ~= false then
+        Hovering.clicking = false
+    elseif Hovering.item ~= nil and love.mouse.isDown(1) then
+        Hovering.clicking = 1
+    end
+end
+
+function UpdateHoveringClicking()
+    if Hovering.item == nil then
+        Hovering.clicking = false
+    elseif love.mouse.isDown(1) then
+        Hovering.clicking = 1
+    else
+        Hovering.clicking = false
     end
 end
 
 function MenuBack()
     table.remove(Game.visibleMenus)
-    Hovering = nil
+    Hovering.item = nil
     ShowHoverText()
 end
