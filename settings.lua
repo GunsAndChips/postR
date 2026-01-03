@@ -17,12 +17,9 @@ function SaveSettings()
         error("An error occurred when opening the settings file.")
     end
 
-    local settingsJson = json.encode(Settings)
-    print(settingsJson)
-    settingsFile:write(settingsJson)
+    settingsFile:write(json.encode(Settings))
     settingsFile:close()
 end
-
 
 Config = {}
 Config.tile = {

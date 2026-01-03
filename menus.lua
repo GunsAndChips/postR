@@ -9,6 +9,7 @@ function Menu:New(id, title)
     end
     title = title or "Menu Title"
     local this = {
+        id = id,
         title = {
             textString = title,
             text = nil,
@@ -289,6 +290,9 @@ function GetClickingIfHovering()
 end
 
 function Menu:Back()
+    if self.id == "options" then
+        Settings.volume.master = self.items[1].value
+    end
     SaveSettings()
     table.remove(Game.visibleMenus)
 end
