@@ -30,7 +30,7 @@ function LoadFonts()
 end
 
 Config.menus = {
-    hoverOffsetX = 2
+    hoverOffsetX = 2 -- Should be less than the Margin Size for the menu to not cause issues
 }
 Config.menus.defaults = {
     title = {

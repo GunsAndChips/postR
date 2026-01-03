@@ -129,21 +129,22 @@ function DrawMenu(menu)
     -- items
     for i = 1, #menu.items do
         local item = menu.items[i]
-        if item == Hovering.item then
-            local hoveredText = item.textHover
+        local x = item.x
+        local displayText = item.text
 
-            local x = item.x
+        if item == Hovering.item then
+            displayText = item.textHover
+
             if item.type == "button" then
                 x = item.x + Config.menus.hoverOffsetX
                 if Hovering.clicking == 1 then
-                    hoveredText = item.textClick
+                    displayText = item.textClick
                 end
             end
-            
-            love.graphics.draw(hoveredText, x, item.y)
-        else
-            love.graphics.draw(item.text, item.x, item.y)
         end
+
+        -- Draw menu item
+        love.graphics.draw(displayText, x, item.y)
 
         if item.type == "range" then
             local rangeText = Config.menus.rangeText[item.value + 1]
