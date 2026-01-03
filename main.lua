@@ -92,15 +92,15 @@ end
 
 function love.mousemoved(x, y, dx, dy, istouch)
     ShowHoverText()
-    UpdateHoveringClicking()
 end
 
 function love.mousereleased(x, y, button, istouch, presses)
-    if Hovering.item ~= nil then
+    if button == 1 then
         Hovering.clicking = false
-    end
-    if #Game.visibleMenus > 0 and button == 1 and Hovering.item ~= nil and Hovering.item.type == "button" then
-        Hovering.item.onClick()
+        if #Game.visibleMenus > 0 and Hovering.item ~= nil and Hovering.item.type == "button" then
+            Hovering.item.onClick()
+            ShowHoverText()
+        end
     end
 end
 

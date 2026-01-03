@@ -54,45 +54,51 @@ Config.menus.defaults = {
 }
 
 function LoadMenuConfig()
-    Config.menus.rangeText = {}
+    local function CreateRangeText(font, colour1, colour2)
+        local rangeText = {}
 
-    Config.menus.rangeText.font = Config.fonts.ui150
+        -- Set offsetY based on the font scale
+        if font == Config.fonts.ui150 then
+            rangeText.offsetY = -6
+        elseif font == Config.fonts.ui200 then
+            rangeText.offsetY = -11
+        else
+            rangeText.offsetY = 0
+        end
 
-    -- Set offsetY based on the font scale
-    if Config.menus.rangeText.font == Config.fonts.ui150 then
-        Config.menus.rangeText.offsetY = -6
-    elseif Config.menus.rangeText.font == Config.fonts.ui200 then
-        Config.menus.rangeText.offsetY = -11
-    else
-        Config.menus.rangeText.offsetY = 0
-    end
-
-    local ranges = {
-        "",
-        ".",
-        "..",
-        "...",
-        "....",
-        ".....",
-        "......",
-        ".......",
-        "........"
-    }
-    ranges.count = #ranges
-
-    for i = 1, ranges.count do
-        local textTable = {
-            Config.menus.defaults.textColour,
-            ranges[i],
-            Config.menus.defaults.textColourDisabled,
-            ranges[ranges.count + 1 - i]
+        local ranges = {
+            "",
+            ".",
+            "..",
+            "...",
+            "....",
+            ".....",
+            "......",
+            ".......",
+            "........"
         }
+        ranges.count = #ranges
 
-        table.insert(Config.menus.rangeText, love.graphics.newText(Config.menus.rangeText.font, textTable))
+        for i = 1, ranges.count do
+            local textTable = {
+                colour1,
+                ranges[i],
+                colour2,
+                ranges[ranges.count + 1 - i]
+            }
+
+            table.insert(rangeText, love.graphics.newText(font, textTable))
+        end
+
+        rangeText.width = rangeText[1]:getWidth()
+        rangeText.height = rangeText[1]:getHeight()
+
+        return rangeText
     end
 
-    Config.menus.rangeText.width = Config.menus.rangeText[1]:getWidth()
-    Config.menus.rangeText.height = Config.menus.rangeText[1]:getHeight()
+    love.graphics.setColor(1, 1, 1)
+    Config.menus.rangeText = CreateRangeText(Config.fonts.ui150, Config.menus.defaults.textColour, Config.menus.defaults.textColourDisabled)
+    Config.menus.rangeTextHover = CreateRangeText(Config.fonts.ui150, Config.menus.defaults.textColourHover, Config.menus.defaults.textColourDisabled)
 end
 
 Config.movement = {

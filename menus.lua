@@ -16,7 +16,7 @@ Menus.options.id = "options"
 Menus.options.title.textString = "Options"
 Menus.options.items = {
     { textString = "Volume", type = "range",  value = 4 },
-    { textString = "Back",   type = "button", onClick = function() MenuBack() end }
+    { textString = "Back",   type = "button", onClick = function() table.remove(Game.visibleMenus) end }
 }
 
 -- Fleshes out the simple menu objects from above
@@ -68,7 +68,8 @@ function LoadMenu(menu)
                 x = nil,
                 y = nil,
                 width = Config.menus.rangeText.width,
-                height = Config.menus.rangeText.height
+                height = Config.menus.rangeText.height,
+                type = "control"
             }
             table.insert(itemsWithControls, item)
 
@@ -185,26 +186,15 @@ function ShowHoverText()
     local pixelX, pixelY = love.mouse.getPosition()
     local menu = Game.visibleMenus[#Game.visibleMenus]
     Hovering.item = GetMenuItem(pixelX, pixelY, menu)
-
-    if Hovering.item == nil and Hovering.clicking ~= false then
-        Hovering.clicking = false
-    elseif Hovering.item ~= nil and love.mouse.isDown(1) then
-        Hovering.clicking = 1
-    end
+    Hovering.clicking = GetClickingIfHovering()
 end
 
-function UpdateHoveringClicking()
+function GetClickingIfHovering()
     if Hovering.item == nil then
-        Hovering.clicking = false
+        return false
     elseif love.mouse.isDown(1) then
-        Hovering.clicking = 1
+        return 1
     else
-        Hovering.clicking = false
+        return false
     end
-end
-
-function MenuBack()
-    table.remove(Game.visibleMenus)
-    Hovering.item = nil
-    ShowHoverText()
 end
