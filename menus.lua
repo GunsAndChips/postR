@@ -41,19 +41,19 @@ function LoadMenu(menu)
         item.text = love.graphics.newText(Config.fonts.ui)
         item.text:setf({ menu.textColour, item.textString }, maxItemLength, "left")
 
+        -- Set hover text
+        if menu.textColourHover == menu.textColour then
+            item.textHover = item.text
+        else
+            item.textHover = love.graphics.newText(Config.fonts.ui)
+            item.textHover:setf({ menu.textColourHover, item.textString }, maxItemLength, "left")
+        end
+
         item.height = item.text:getHeight()
         item.width = item.text:getWidth()
         local itemAndControlWidth = item.width
 
         if item.type == "button" then
-            -- Set hover text
-            if menu.textColourHover == menu.textColour then
-                item.textHover = item.text
-            else
-                item.textHover = love.graphics.newText(Config.fonts.ui)
-                item.textHover:setf({ menu.textColourHover, item.textString }, maxItemLength, "left")
-            end
-
             -- Set click text
             if menu.textColourClick == menu.textColour then
                 item.textClick = item.text
@@ -63,7 +63,6 @@ function LoadMenu(menu)
                 item.textClick = love.graphics.newText(Config.fonts.ui)
                 item.textClick:setf({ menu.textColourClick, item.textString }, maxItemLength, "left")
             end
-
         elseif item.type == "range" then
             item.control = {
                 x = nil,
@@ -130,12 +129,18 @@ function DrawMenu(menu)
     -- items
     for i = 1, #menu.items do
         local item = menu.items[i]
-        if item == Hovering.item and item.type == "button" then
+        if item == Hovering.item then
             local hoveredText = item.textHover
-            if Hovering.clicking == 1 then
-                hoveredText = item.textClick
+
+            local x = item.x
+            if item.type == "button" then
+                x = item.x + Config.menus.hoverOffsetX
+                if Hovering.clicking == 1 then
+                    hoveredText = item.textClick
+                end
             end
-            love.graphics.draw(hoveredText, item.x + Config.menus.hoverOffsetX, item.y)
+            
+            love.graphics.draw(hoveredText, x, item.y)
         else
             love.graphics.draw(item.text, item.x, item.y)
         end
