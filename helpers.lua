@@ -28,6 +28,18 @@ function Clone(_table, allTablesSeen, depth)
     return copy
 end
 
+function RoundToEven(number, roundUp)
+    roundUp = roundUp or false
+
+    if number % 2 == 0 then
+        return number
+    elseif roundUp then
+        return number + 1
+    else
+        return number - 1
+    end
+end
+
 Lookups = {
     facingX = {
         right = 1,

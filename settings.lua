@@ -33,10 +33,6 @@ function LoadFonts()
     Config.fonts.ui200 = love.graphics.newFont("/fonts/m6x11.ttf", 32, "normal", dpiScale)
 end
 
-Config.menus = {
-    hoverOffsetX = 2 -- Should be less than the Margin Size for the menu to not cause issues
-}
-
 Config.movement = {
     moveSpeed = 0.07 * 1.6 * 2.5,
     sprintMultiplier = 1.6

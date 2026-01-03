@@ -20,7 +20,7 @@ function Menu:New(id, title)
         items = {},
         loaded = false,
         minHeight = 120,
-        minWidth = 95,
+        minWidth = 96,
         backgroundColour = { 0.5, 0.5, 0.5 },
         textColour = { 1, 1, 1 },
         textColourHover = { 0.1, 0.3, 0.1 },
@@ -29,7 +29,8 @@ function Menu:New(id, title)
         textLineSpacing = 3,
         marginSize = 6,
         rangeText = nil,
-        rangeTextHover = nil
+        rangeTextHover = nil,
+        hoverOffsetX = 2
     }
 
     return this
@@ -154,11 +155,13 @@ function Menu:Load()
 
     -- Set menu width to fit all items on it, without going below the minWidth
     self.width = math.max(largestItemWidth + 2 * self.marginSize, self.minWidth)
-    -- Set menu width to not go over max width, which is the screen size minus a margin on each size
-    self.width = math.min(self.width, PIXEL_WIDTH - 2 * self.marginSize)
+    -- Set menu width to not go over max width, which is the screen size minus a margin on each size (rounded down to the nearest even number)
+    self.width = math.min(self.width, RoundToEven(PIXEL_WIDTH - 2 * self.marginSize, false))
+    -- Round the result up to the nearest even number, so centred text can be properly centred
+    self.width = RoundToEven(self.width, true)
 
     -- Set title x centred on the Menu
-    title.x = self.width / 2 - title.width / 2
+    title.x = math.floor(self.width / 2 - title.width / 2)
 
     -- Check for itemsWithControls to load
     if #itemsWithControls > 0 then
@@ -204,7 +207,7 @@ function Menu:Draw()
         local displayText = item.text
 
         if item.type == "button" and Hovering.item == item then
-            x = item.x + Config.menus.hoverOffsetX
+            x = item.x + self.hoverOffsetX
             if Hovering.clicking == 1 then
                 displayText = item.textClick
             else
