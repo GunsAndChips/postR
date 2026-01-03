@@ -99,9 +99,13 @@ end
 function love.mousereleased(x, y, button, istouch, presses)
     if button == 1 then
         Hovering.clicking = false
-        if #Game.visibleMenus > 0 and Hovering.item ~= nil and Hovering.item.type == "button" then
-            Hovering.item.onClick()
-            ShowHoverText()
+        if #Game.visibleMenus > 0 and Hovering.item ~= nil then
+            if Hovering.item.type == "button" then
+                Hovering.item.onClick()
+                ShowHoverText()
+            elseif Hovering.item.type == "control" and Hovering.rangePosition ~= nil then
+                Hovering.item.parent.value = Hovering.rangePosition
+            end
         end
     end
 end

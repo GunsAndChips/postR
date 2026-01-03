@@ -69,7 +69,8 @@ function LoadMenu(menu)
                 y = nil,
                 width = Config.menus.rangeText.width,
                 height = Config.menus.rangeText.height,
-                type = "control"
+                type = "control",
+                parent = item
             }
             table.insert(itemsWithControls, item)
 
@@ -151,7 +152,7 @@ function DrawMenu(menu)
             local controlText = nil
 
             if Hovering.item == item.control then
-                controlText = Config.menus.rangeTextHover[Hovering.rangePosition]
+                controlText = Config.menus.rangeTextHover[Hovering.rangePosition + 1]
             else
                 controlText = Config.menus.rangeText[item.value + 1]
             end
@@ -181,7 +182,7 @@ function GetMenuItem(x, y, menu)
                 local rangePosition = nil
                 if item.type == "range" then
                     local rangeDotCount = Config.menus.rangeTextHover.length
-                    rangePosition = math.floor((menuX - item.control.x) / item.control.width * rangeDotCount) + 2
+                    rangePosition = math.floor((menuX - item.control.x) / item.control.width * rangeDotCount) + 1
                     if rangePosition < 1 or rangePosition > rangeDotCount + 1 then
                         error("rangePosition: '" ..
                         rangePosition .. "' is not valid. Must not be less than 1 or more than " .. rangeDotCount + 1)
