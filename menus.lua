@@ -289,5 +289,6 @@ function GetClickingIfHovering()
 end
 
 function Menu:Back()
+    SaveSettings()
     table.remove(Game.visibleMenus)
 end

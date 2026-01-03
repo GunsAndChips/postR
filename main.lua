@@ -13,6 +13,8 @@ end
 PIXEL_WIDTH = 320
 PIXEL_HEIGHT = 180
 
+LoadSettings()
+
 TileSprites = {}
 function LoadTileSprites()
     local tileFileNames = {}

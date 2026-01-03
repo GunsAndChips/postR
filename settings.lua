@@ -1,21 +1,28 @@
 local TLfres = require "libraries/tlfres"
+local json = require "libraries/json/json"
 
-Settings = {}
-Settings.movement = {}
-Settings.movement.useRotatedY = true -- Whether the Y axis for player movement is rotated to match the tilt of the parallelogram tiles
+function LoadSettings()
+    local settingsFile = io.open("playersettings.json", "r")
+    if not settingsFile then
+        error("An error occurred when opening the settings file.")
+    end
 
-Settings.Keybinds = {
-    up = "w",
-    down = "s",
-    left = "a",
-    right = "d",
-    sprint = "lshift",
-    pause = "escape"
-}
+    local settingsJson = settingsFile:read("*a")
+    Settings = json.decode(settingsJson)
+end
 
-Settings.volume = {
-    master = 4
-}
+function SaveSettings()
+    local settingsFile = io.open("playersettings.json", "w")
+    if not settingsFile then
+        error("An error occurred when opening the settings file.")
+    end
+
+    local settingsJson = json.encode(Settings)
+    print(settingsJson)
+    settingsFile:write(settingsJson)
+    settingsFile:close()
+end
+
 
 Config = {}
 Config.tile = {
