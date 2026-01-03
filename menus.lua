@@ -3,16 +3,6 @@ require "helpers"
 Menu = {}
 Menu.__index = Menu
 
-Menus = {}
-
-Menus.options = Clone(Config.menus.defaults)
-Menus.options.id = "options"
-Menus.options.title.textString = "Options"
-Menus.options.items = {
-    { textString = "Volume", type = "range",  value = Settings.volume.master },
-    { textString = "Back",   type = "button", onClick = function() Menu.Back() end }
-}
-
 function Menu:New(id, title)
     if type(id) ~= "string" then
         error("Unable to create menu without id. Please provide a string value.")
@@ -37,15 +27,64 @@ function Menu:New(id, title)
         textColourClick = { 0.1, 0.3, 0.1 },
         textColourDisabled = { 0.69, 0.69, 0.69 },
         textLineSpacing = 3,
-        marginSize = 6
+        marginSize = 6,
+        rangeText = nil,
+        rangeTextHover = nil
     }
+
     return this
 end
 
--- Fleshes out the simple menu objects from above
--- e.g. sets fonts and x/y positions for items, so we don't have to do it every time we render them)
+-- Creates range text of the desired font for the two colours provided
+-- Range text is a series of dots that are two colours, indicating a scalar value
+local function CreateRangeText(font, colour1, colour2)
+    local rangeText = {}
+
+    -- Set offsetY based on the font scale
+    if font == Config.fonts.ui150 then
+        rangeText.offsetY = -6
+    elseif font == Config.fonts.ui200 then
+        rangeText.offsetY = -11
+    else
+        rangeText.offsetY = 0
+    end
+
+    local ranges = {
+        "",
+        ".",
+        "..",
+        "...",
+        "....",
+        ".....",
+        "......",
+        ".......",
+        "........"
+    }
+    ranges.count = #ranges
+
+    for i = 1, ranges.count do
+        local textTable = {
+            colour1,
+            ranges[i],
+            colour2,
+            ranges[ranges.count + 1 - i]
+        }
+
+        table.insert(rangeText, love.graphics.newText(font, textTable))
+    end
+
+    rangeText.width = rangeText[1]:getWidth()
+    rangeText.height = rangeText[1]:getHeight()
+    rangeText.length = #ranges - 1
+
+    return rangeText
+end
+
+-- Fleshes out simple menu definitions
+-- e.g. sets fonts and x/y positions for items, so we don't have to do it every time we render them
 function Menu:Load()
     log.debug("Loading menu: " .. self.title.textString)
+
     -- Set Title
     local title = self.title
     title.text = love.graphics.newText(Config.fonts.ui, title.textString)
@@ -53,6 +92,10 @@ function Menu:Load()
     title.height = title.text:getHeight()
     -- Title X can't be set until the menu width is decided
     title.y = self.marginSize
+
+    -- Load rangeText for range controls
+    self.rangeText = CreateRangeText(Config.fonts.ui150, self.textColour, self.textColourDisabled)
+    self.rangeTextHover = CreateRangeText(Config.fonts.ui150, self.textColourHover, self.textColourDisabled)
 
     local largestItemWidth = title.width
     local itemsWithControls = {}
@@ -91,8 +134,8 @@ function Menu:Load()
             item.control = {
                 x = nil,
                 y = nil,
-                width = Config.menus.rangeText.width,
-                height = Config.menus.rangeText.height,
+                width = self.rangeText.width,
+                height = self.rangeText.height,
                 type = "control",
                 parent = item
             }
@@ -122,14 +165,16 @@ function Menu:Load()
         for i = 1, #itemsWithControls do
             local item = itemsWithControls[i]
             if item.type == "range" then
-                item.control.x = self.width - self.marginSize - Config.menus.rangeText.width
-                item.control.y = item.y + Config.menus.rangeText.offsetY
+                item.control.x = self.width - self.marginSize - self.rangeText.width
+                item.control.y = item.y + self.rangeText.offsetY
             end
         end
     end
 
     -- TODO: make menu height dynamic to fit all items contained in that menu
     self.height = self.minHeight
+
+    -- Set transform
     self.transform = love.math.newTransform()
     self.transform:translate(PIXEL_WIDTH / 2 - self.width / 2, PIXEL_HEIGHT / 2 - self.height / 2)
 
@@ -176,9 +221,9 @@ function Menu:Draw()
             local controlText = nil
 
             if Hovering.item == item.control then
-                controlText = Config.menus.rangeTextHover[Hovering.rangePosition + 1]
+                controlText = self.rangeTextHover[Hovering.rangePosition + 1]
             else
-                controlText = Config.menus.rangeText[item.value + 1]
+                controlText = self.rangeText[item.value + 1]
             end
 
             love.graphics.draw(controlText, self.width - self.marginSize - controlText:getWidth(), item.control.y)
@@ -205,7 +250,7 @@ function Menu:GetItem(x, y)
             elseif item.control ~= nil and menuX > item.control.x and menuX < item.control.x + item.control.width and menuY > item.control.y and menuY < item.control.y + item.control.height then
                 local rangePosition = nil
                 if item.type == "range" then
-                    local rangeDotCount = Config.menus.rangeTextHover.length
+                    local rangeDotCount = self.rangeTextHover.length
                     rangePosition = math.floor((menuX - item.control.x) / item.control.width * rangeDotCount) + 1
                     if rangePosition < 1 or rangePosition > rangeDotCount + 1 then
                         error("rangePosition: '" ..

@@ -31,10 +31,16 @@ local mapDefinition = require "tiled/maptest1"
 local map1 = Map:New(mapDefinition)
 
 -- Load menus
+local optionsMenu = Menu:New("options", "Options")
+optionsMenu.items = {
+    { textString = "Volume", type = "range",  value = Settings.volume.master },
+    { textString = "Back",   type = "button", onClick = function() Menu.Back(optionsMenu) end }
+}
+
 local pauseMenu = Menu:New("pause", "Paused")
 pauseMenu.items = {
     { textString = "Resume",  type = "button", onClick = function() SetGameState() end },
-    { textString = "Options", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.options) end },
+    { textString = "Options", type = "button", onClick = function() table.insert(Game.visibleMenus, optionsMenu) end },
     { textString = "Quit",    type = "button", onClick = function() Quit() end }
 }
 
@@ -67,7 +73,6 @@ function love.load()
     LoadTileSprites()
 
     LoadFonts()
-    LoadMenuConfig()
 end
 
 function love.update(dt)
@@ -124,7 +129,7 @@ end
 function love.resize(w, h)
     -- Unload menus to force recalculation of positions etc.
     pauseMenu.loaded = false
-    Menus.options.loaded = false
+    optionsMenu.loaded = false
 
     log.debug(("Window resized to width: %d and height: %d."):format(w, h))
 end
