@@ -16,7 +16,7 @@ Menus.options.id = "options"
 Menus.options.title.textString = "Options"
 Menus.options.items = {
     { textString = "Volume", type = "range",  value = 4 },
-    { textString = "Back",   type = "button", onClick = function() table.remove(Game.visibleMenus) end }
+    { textString = "Back",   type = "button", onClick = function() MenuBack() end }
 }
 
 -- Fleshes out the simple menu objects from above
@@ -133,23 +133,30 @@ function DrawMenu(menu)
         local x = item.x
         local displayText = item.text
 
-        if item == Hovering.item then
-            displayText = item.textHover
-
-            if item.type == "button" then
-                x = item.x + Config.menus.hoverOffsetX
-                if Hovering.clicking == 1 then
-                    displayText = item.textClick
-                end
+        if item.type == "button" and Hovering.item == item then
+            x = item.x + Config.menus.hoverOffsetX
+            if Hovering.clicking == 1 then
+                displayText = item.textClick
+            else
+                displayText = item.textHover
             end
+        elseif item.type == "range" and Hovering.item == item.control then
+            displayText = item.textHover
         end
 
         -- Draw menu item
         love.graphics.draw(displayText, x, item.y)
 
         if item.type == "range" then
-            local rangeText = Config.menus.rangeText[item.value + 1]
-            love.graphics.draw(rangeText, menu.width - menu.marginSize - rangeText:getWidth(), item.control.y)
+            local controlText = nil
+
+            if Hovering.item == item.control then
+                controlText = Config.menus.rangeTextHover[Hovering.rangePosition]
+            else
+                controlText = Config.menus.rangeText[item.value + 1]
+            end
+
+            love.graphics.draw(controlText, menu.width - menu.marginSize - controlText:getWidth(), item.control.y)
         end
     end
 
@@ -158,24 +165,33 @@ end
 
 function GetMenuItem(x, y, menu)
     if not menu.loaded then
-        return nil
+        return nil, nil
     end
     local menuX, menuY = menu.transform:inverseTransformPoint(x, y)
     if menuX < 0 or menuX > menu.width or menuY < 0 or menuY > menu.height then
-        return nil
+        return nil, nil
     end
 
     for i = 1, #menu.items do
         local item = menu.items[i]
-        if menuY > item.y and menuY < item.y + item.text:getHeight() then
-            if menuX > item.x and menuX < item.x + item.text:getWidth() then
+        if menuY > item.y and menuY < item.y + item.height then
+            if menuX > item.x and menuX < item.x + item.width then
                 return item
             elseif item.control ~= nil and menuX > item.control.x and menuX < item.control.x + item.control.width and menuY > item.control.y and menuY < item.control.y + item.control.height then
-                return item.control
+                local rangePosition = nil
+                if item.type == "range" then
+                    local rangeDotCount = Config.menus.rangeTextHover.length
+                    rangePosition = math.floor((menuX - item.control.x) / item.control.width * rangeDotCount) + 2
+                    if rangePosition < 1 or rangePosition > rangeDotCount + 1 then
+                        error("rangePosition: '" ..
+                        rangePosition .. "' is not valid. Must not be less than 1 or more than " .. rangeDotCount + 1)
+                    end
+                end
+                return item.control, rangePosition
             end
         end
     end
-    return nil
+    return nil, nil
 end
 
 function ShowHoverText()
@@ -185,7 +201,7 @@ function ShowHoverText()
 
     local pixelX, pixelY = love.mouse.getPosition()
     local menu = Game.visibleMenus[#Game.visibleMenus]
-    Hovering.item = GetMenuItem(pixelX, pixelY, menu)
+    Hovering.item, Hovering.rangePosition = GetMenuItem(pixelX, pixelY, menu)
     Hovering.clicking = GetClickingIfHovering()
 end
 
@@ -197,4 +213,8 @@ function GetClickingIfHovering()
     else
         return false
     end
+end
+
+function MenuBack()
+    table.remove(Game.visibleMenus)
 end

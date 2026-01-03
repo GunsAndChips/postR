@@ -50,7 +50,9 @@ function love.load()
         visibleMenus = {}
     }
     Hovering = {
-        item = nil
+        item = nil,
+        clicking = false,
+        rangePosition = 1
     }
 
     LoadTileSprites()
