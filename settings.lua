@@ -13,6 +13,10 @@ Settings.Keybinds = {
     pause = "escape"
 }
 
+Settings.volume = {
+    master = 4
+}
+
 Config = {}
 Config.tile = {
     width = 16,
@@ -132,6 +136,10 @@ Config.renderers.debug = {
         facing = false,
         coords = false
     }
+}
+
+Config.debug = {
+    logging = true
 }
 
 function LoadTransforms()

@@ -1,52 +1,76 @@
 require "helpers"
 
-Menus = {}
+Menu = {}
+Menu.__index = Menu
 
-Menus.pause = Clone(Config.menus.defaults)
-Menus.pause.id = "pause"
-Menus.pause.title.textString = "Paused"
-Menus.pause.items = {
-    { textString = "Resume",  type = "button", onClick = function() SetGameState() end },
-    { textString = "Options", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.options) end },
-    { textString = "Quit",    type = "button", onClick = function() Quit() end }
-}
+Menus = {}
 
 Menus.options = Clone(Config.menus.defaults)
 Menus.options.id = "options"
 Menus.options.title.textString = "Options"
 Menus.options.items = {
-    { textString = "Volume", type = "range",  value = 4 },
-    { textString = "Back",   type = "button", onClick = function() MenuBack() end }
+    { textString = "Volume", type = "range",  value = Settings.volume.master },
+    { textString = "Back",   type = "button", onClick = function() Menu.Back() end }
 }
+
+function Menu:New(id, title)
+    if type(id) ~= "string" then
+        error("Unable to create menu without id. Please provide a string value.")
+    end
+    title = title or "Menu Title"
+    local this = {
+        title = {
+            textString = title,
+            text = nil,
+            x = nil,
+            y = nil,
+            width = nil,
+            height = nil
+        },
+        items = {},
+        loaded = false,
+        minHeight = 120,
+        minWidth = 95,
+        backgroundColour = { 0.5, 0.5, 0.5 },
+        textColour = { 1, 1, 1 },
+        textColourHover = { 0.1, 0.3, 0.1 },
+        textColourClick = { 0.1, 0.3, 0.1 },
+        textColourDisabled = { 0.69, 0.69, 0.69 },
+        textLineSpacing = 3,
+        marginSize = 6
+    }
+    return this
+end
 
 -- Fleshes out the simple menu objects from above
 -- e.g. sets fonts and x/y positions for items, so we don't have to do it every time we render them)
-function LoadMenu(menu)
+function Menu:Load()
+    log.debug("Loading menu: " .. self.title.textString)
     -- Set Title
-    local title = menu.title
+    local title = self.title
     title.text = love.graphics.newText(Config.fonts.ui, title.textString)
     title.width = title.text:getWidth()
     title.height = title.text:getHeight()
     -- Title X can't be set until the menu width is decided
-    title.y = menu.marginSize
+    title.y = self.marginSize
 
     local largestItemWidth = title.width
     local itemsWithControls = {}
 
-    for i = 1, #menu.items do
-        local item = menu.items[i]
-        local maxItemLength = PIXEL_WIDTH - 4 * menu.marginSize
+    for i = 1, #self.items do
+        local item = self.items[i]
+        local maxItemLength = PIXEL_WIDTH - 4 * self.marginSize
 
         -- Set text
         item.text = love.graphics.newText(Config.fonts.ui)
-        item.text:setf({ menu.textColour, item.textString }, maxItemLength, "left")
+        item.text:setf({ self.textColour, item.textString }, maxItemLength, "left")
 
         -- Set hover text
-        if menu.textColourHover == menu.textColour then
+        if self.textColourHover == self.textColour then
             item.textHover = item.text
         else
             item.textHover = love.graphics.newText(Config.fonts.ui)
-            item.textHover:setf({ menu.textColourHover, item.textString }, maxItemLength, "left")
+            item.textHover:setf({ self.textColourHover, item.textString }, maxItemLength, "left")
         end
 
         item.height = item.text:getHeight()
@@ -55,13 +79,13 @@ function LoadMenu(menu)
 
         if item.type == "button" then
             -- Set click text
-            if menu.textColourClick == menu.textColour then
+            if self.textColourClick == self.textColour then
                 item.textClick = item.text
-            elseif menu.textColourClick == menu.textColourHover then
+            elseif self.textColourClick == self.textColourHover then
                 item.textClick = item.textHover
             else
                 item.textClick = love.graphics.newText(Config.fonts.ui)
-                item.textClick:setf({ menu.textColourClick, item.textString }, maxItemLength, "left")
+                item.textClick:setf({ self.textColourClick, item.textString }, maxItemLength, "left")
             end
         elseif item.type == "range" then
             item.control = {
@@ -79,58 +103,58 @@ function LoadMenu(menu)
         end
 
         -- Set coordinates relative to menu
-        item.x = menu.marginSize
-        item.y = (i - 1) * (item.height + menu.textLineSpacing) + 2 * menu.marginSize + title.height
+        item.x = self.marginSize
+        item.y = (i - 1) * (item.height + self.textLineSpacing) + 2 * self.marginSize + title.height
 
         largestItemWidth = math.max(largestItemWidth, itemAndControlWidth)
     end
 
     -- Set menu width to fit all items on it, without going below the minWidth
-    menu.width = math.max(largestItemWidth + 2 * menu.marginSize, menu.minWidth)
+    self.width = math.max(largestItemWidth + 2 * self.marginSize, self.minWidth)
     -- Set menu width to not go over max width, which is the screen size minus a margin on each size
-    menu.width = math.min(menu.width, PIXEL_WIDTH - 2 * menu.marginSize)
+    self.width = math.min(self.width, PIXEL_WIDTH - 2 * self.marginSize)
 
     -- Set title x centred on the Menu
-    title.x = menu.width / 2 - title.width / 2
+    title.x = self.width / 2 - title.width / 2
 
     -- Check for itemsWithControls to load
     if #itemsWithControls > 0 then
         for i = 1, #itemsWithControls do
             local item = itemsWithControls[i]
             if item.type == "range" then
-                item.control.x = menu.width - menu.marginSize - Config.menus.rangeText.width
+                item.control.x = self.width - self.marginSize - Config.menus.rangeText.width
                 item.control.y = item.y + Config.menus.rangeText.offsetY
             end
         end
     end
 
     -- TODO: make menu height dynamic to fit all items contained in that menu
-    menu.height = menu.minHeight
-    menu.transform = love.math.newTransform()
-    menu.transform:translate(PIXEL_WIDTH / 2 - menu.width / 2, PIXEL_HEIGHT / 2 - menu.height / 2)
+    self.height = self.minHeight
+    self.transform = love.math.newTransform()
+    self.transform:translate(PIXEL_WIDTH / 2 - self.width / 2, PIXEL_HEIGHT / 2 - self.height / 2)
 
-    menu.loaded = true
+    self.loaded = true
 end
 
-function DrawMenu(menu)
-    if not menu.loaded then
-        LoadMenu(menu)
+function Menu:Draw()
+    if not self.loaded then
+        Menu.Load(self)
     end
 
     love.graphics.push()
-    love.graphics.applyTransform(menu.transform)
+    love.graphics.applyTransform(self.transform)
 
     -- background
-    love.graphics.setColor(menu.backgroundColour)
-    love.graphics.rectangle("fill", 0, 0, menu.width, menu.height)
+    love.graphics.setColor(self.backgroundColour)
+    love.graphics.rectangle("fill", 0, 0, self.width, self.height)
 
     -- title
     love.graphics.setColor(1, 1, 1)
-    love.graphics.draw(menu.title.text, menu.title.x, menu.title.y)
+    love.graphics.draw(self.title.text, self.title.x, self.title.y)
 
     -- items
-    for i = 1, #menu.items do
-        local item = menu.items[i]
+    for i = 1, #self.items do
+        local item = self.items[i]
         local x = item.x
         local displayText = item.text
 
@@ -157,24 +181,24 @@ function DrawMenu(menu)
                 controlText = Config.menus.rangeText[item.value + 1]
             end
 
-            love.graphics.draw(controlText, menu.width - menu.marginSize - controlText:getWidth(), item.control.y)
+            love.graphics.draw(controlText, self.width - self.marginSize - controlText:getWidth(), item.control.y)
         end
     end
 
     love.graphics.pop()
 end
 
-function GetMenuItem(x, y, menu)
-    if not menu.loaded then
+function Menu:GetItem(x, y)
+    if not self.loaded then
         return nil, nil
     end
-    local menuX, menuY = menu.transform:inverseTransformPoint(x, y)
-    if menuX < 0 or menuX > menu.width or menuY < 0 or menuY > menu.height then
+    local menuX, menuY = self.transform:inverseTransformPoint(x, y)
+    if menuX < 0 or menuX > self.width or menuY < 0 or menuY > self.height then
         return nil, nil
     end
 
-    for i = 1, #menu.items do
-        local item = menu.items[i]
+    for i = 1, #self.items do
+        local item = self.items[i]
         if menuY > item.y and menuY < item.y + item.height then
             if menuX > item.x and menuX < item.x + item.width then
                 return item
@@ -185,7 +209,7 @@ function GetMenuItem(x, y, menu)
                     rangePosition = math.floor((menuX - item.control.x) / item.control.width * rangeDotCount) + 1
                     if rangePosition < 1 or rangePosition > rangeDotCount + 1 then
                         error("rangePosition: '" ..
-                        rangePosition .. "' is not valid. Must not be less than 1 or more than " .. rangeDotCount + 1)
+                            rangePosition .. "' is not valid. Must not be less than 1 or more than " .. rangeDotCount)
                     end
                 end
                 return item.control, rangePosition
@@ -202,7 +226,7 @@ function ShowHoverText()
 
     local pixelX, pixelY = love.mouse.getPosition()
     local menu = Game.visibleMenus[#Game.visibleMenus]
-    Hovering.item, Hovering.rangePosition = GetMenuItem(pixelX, pixelY, menu)
+    Hovering.item, Hovering.rangePosition = Menu.GetItem(menu, pixelX, pixelY)
     Hovering.clicking = GetClickingIfHovering()
 end
 
@@ -216,6 +240,6 @@ function GetClickingIfHovering()
     end
 end
 
-function MenuBack()
+function Menu:Back()
     table.remove(Game.visibleMenus)
 end

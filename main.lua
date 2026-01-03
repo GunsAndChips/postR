@@ -2,6 +2,7 @@ require "map"
 require "settings"
 require "menus"
 require "player"
+require "log"
 
 -- TLfres for scaling
 local TLfres = require "libraries/tlfres"
@@ -25,9 +26,17 @@ function LoadTileSprites()
     Player.targeting.texture = love.graphics.newImage("/textures/targetedTile.png")
 end
 
+-- Load map
 local mapDefinition = require "tiled/maptest1"
-
 local map1 = Map:New(mapDefinition)
+
+-- Load menus
+local pauseMenu = Menu:New("pause", "Paused")
+pauseMenu.items = {
+    { textString = "Resume",  type = "button", onClick = function() SetGameState() end },
+    { textString = "Options", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.options) end },
+    { textString = "Quit",    type = "button", onClick = function() Quit() end }
+}
 
 function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
@@ -70,9 +79,11 @@ end
 
 function love.keypressed(key, scancode, isrepeat)
     if key == _Key.pause then
+        log.debug("Pause key pressed!")
+        local currentMenu = Game.visibleMenus[#Game.visibleMenus]
         -- If the top menu isn't the pause menu, remove it
-        if #Game.visibleMenus > 0 and Game.visibleMenus[#Game.visibleMenus].id ~= "pause" then
-            MenuBack()
+        if #Game.visibleMenus > 0 and currentMenu.id ~= "pause" then
+            Menu.Back(currentMenu)
         else
             SetGameState()
         end
@@ -112,11 +123,10 @@ end
 
 function love.resize(w, h)
     -- Unload menus to force recalculation of positions etc.
-    Menus.pause.loaded = false
+    pauseMenu.loaded = false
     Menus.options.loaded = false
 
-    -- debug
-    print(("Window resized to width: %d and height: %d."):format(w, h))
+    log.debug(("Window resized to width: %d and height: %d."):format(w, h))
 end
 
 -- function love.mousefocus(focus)
@@ -134,6 +144,7 @@ function love.focus(focus)
 end
 
 function SetGameState(newState)
+    log.debug("Setting game state!")
     if newState == nil then
         if Game.state == "paused" then
             newState = "play"
@@ -152,9 +163,10 @@ function SetGameState(newState)
     elseif newState == "paused" then
         love.mouse.setVisible(true)
         love.mouse.setGrabbed(false)
-        table.insert(Game.visibleMenus, Menus.pause)
+        table.insert(Game.visibleMenus, pauseMenu)
     end
     Game.state = newState
+    log.debug("Game state set to: " .. Game.state)
 end
 
 function love.draw()
@@ -184,7 +196,7 @@ function love.draw()
 
     if #Game.visibleMenus > 0 then
         for i = 1, #Game.visibleMenus do
-            DrawMenu(Game.visibleMenus[i])
+            Menu.Draw(Game.visibleMenus[i])
         end
     end
 

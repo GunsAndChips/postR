@@ -1,12 +1,14 @@
+require "log"
+
 function Clone(_table, allTablesSeen, depth)
     allTablesSeen = allTablesSeen or {}
     depth = depth or 0
-    print("Entering Clone function, depth: " .. depth)
+    log.debug("Entering Clone function, depth: " .. depth)
 
     local copy = {}
     for key, value in pairs(_table) do
         if type(value) == "table" then
-            print("Found table property: " .. tostring(key))
+            log.debug("Found table property: " .. tostring(key))
             if #allTablesSeen > 0 then
                 for i = 1, #allTablesSeen do
                     if _table == allTablesSeen[i] then
@@ -22,7 +24,7 @@ function Clone(_table, allTablesSeen, depth)
             copy[key] = value
         end
     end
-    print("Exiting Clone function...")
+    log.debug("Exiting Clone function...")
     return copy
 end
 
