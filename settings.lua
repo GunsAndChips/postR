@@ -1,4 +1,3 @@
-local TLfres = require "libraries/tlfres"
 local json = require "libraries/json/json"
 
 function LoadSettings()

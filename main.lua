@@ -79,8 +79,8 @@ end
 
 function love.update(dt)
     if Game.state == "play" then
-        PlayerMove()
-        PlayerInteract()
+        PlayerMove(dt)
+        PlayerInteract(dt)
     end
 end
 

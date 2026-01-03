@@ -1,4 +1,4 @@
-function PlayerMove()
+function PlayerMove(dt)
     if not love.keyboard.isDown(_Key.up, _Key.down, _Key.left, _Key.right) then
         return
     end
@@ -40,6 +40,8 @@ function PlayerMove()
     if math.abs(speed.y) + math.abs(speed.x) == 2 then
         speed.magnitude = speed.magnitude / math.sqrt(2)
     end
+    -- Delta time
+    speed.magnitude = speed.magnitude * dt * 144
 
     local dx = speed.magnitude * speed.x * -1 -- invert because we're moving the map, not the player
     local dy = speed.magnitude * speed.y * -1 -- invert because we're moving the map, not the player
@@ -71,6 +73,6 @@ function UpdatePlayerTargetingCoords()
     }
 end
 
-function PlayerInteract()
+function PlayerInteract(dt)
     -- hi
 end

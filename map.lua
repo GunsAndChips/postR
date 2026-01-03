@@ -33,7 +33,7 @@ function Map:Render()
             local tileY = (row-1) * self.tileHeight
             local tile = self:GetTile(col,row)
 
-            if tile >= 0 then
+            if tile > 0 then
                 love.graphics.drawLayer(TileSprites, tile, tileX, tileY)
             end
         end
