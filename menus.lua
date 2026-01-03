@@ -43,6 +43,7 @@ function LoadMenu(menu)
 
         item.height = item.text:getHeight()
         item.width = item.text:getWidth()
+        local itemAndControlWidth = item.width
 
         if item.type == "button" then
             -- Set hover text
@@ -71,13 +72,16 @@ function LoadMenu(menu)
                 height = Config.menus.rangeText.height
             }
             table.insert(itemsWithControls, item)
+
+            -- Add width of control so Menu is wide enough to fit both
+            itemAndControlWidth = itemAndControlWidth + item.control.width + 1
         end
 
         -- Set coordinates relative to menu
         item.x = menu.marginSize
         item.y = (i - 1) * (item.height + menu.textLineSpacing) + 2 * menu.marginSize + title.height
 
-        largestItemWidth = math.max(largestItemWidth, item.width)
+        largestItemWidth = math.max(largestItemWidth, itemAndControlWidth)
     end
 
     -- Set menu width to fit all items on it, without going below the minWidth
@@ -92,13 +96,9 @@ function LoadMenu(menu)
     if #itemsWithControls > 0 then
         for i = 1, #itemsWithControls do
             local item = itemsWithControls[i]
-            item.control.x = menu.width - menu.marginSize - Config.menus.rangeText.width
-            if item.height == item.control.height then
-                -- If control height matches the text, then set Y to match
-                item.control.y = item.y
-            else
-                -- Otherwise, set y so the bottom of the control aligns with the bottom of the text
-                item.control.y = item.y + item.height - item.control.height
+            if item.type == "range" then
+                item.control.x = menu.width - menu.marginSize - Config.menus.rangeText.width
+                item.control.y = item.y + Config.menus.rangeText.offsetY
             end
         end
     end
@@ -142,7 +142,7 @@ function DrawMenu(menu)
 
         if item.type == "range" then
             local rangeText = Config.menus.rangeText[item.value + 1]
-            love.graphics.draw(rangeText, menu.width - menu.marginSize - rangeText:getWidth(), item.y)
+            love.graphics.draw(rangeText, menu.width - menu.marginSize - rangeText:getWidth(), item.control.y)
         end
     end
 

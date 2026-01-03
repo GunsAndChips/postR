@@ -24,9 +24,9 @@ Config.fonts = {}
 function LoadFonts()
     local dpiScale = love.graphics.getDPIScale()
     Config.fonts.ui = love.graphics.newFont("/fonts/m6x11.ttf", 16, "normal", dpiScale)
-    Config.fonts.menu = {
-        rangeDots = love.graphics.newFont("/fonts/m6x11.ttf", 32, "normal", dpiScale)
-    }
+    Config.fonts.ui100 = Config.fonts.ui
+    Config.fonts.ui150 = love.graphics.newFont("/fonts/m6x11.ttf", 24, "normal", dpiScale)
+    Config.fonts.ui200 = love.graphics.newFont("/fonts/m6x11.ttf", 32, "normal", dpiScale)
 end
 
 Config.menus = {
@@ -43,7 +43,7 @@ Config.menus.defaults = {
     },
     loaded = false,
     minHeight = 120,
-    minWidth = 100,
+    minWidth = 95,
     backgroundColour = { 0.6, 0.6, 0.6 },
     textColour = { 1, 1, 1 },
     textColourHover = { 0.1, 0.3, 0.1 },
@@ -55,6 +55,17 @@ Config.menus.defaults = {
 
 function LoadMenuConfig()
     Config.menus.rangeText = {}
+
+    Config.menus.rangeText.font = Config.fonts.ui150
+
+    -- Set offsetY based on the font scale
+    if Config.menus.rangeText.font == Config.fonts.ui150 then
+        Config.menus.rangeText.offsetY = -6
+    elseif Config.menus.rangeText.font == Config.fonts.ui200 then
+        Config.menus.rangeText.offsetY = -11
+    else
+        Config.menus.rangeText.offsetY = 0
+    end
 
     local ranges = {
         "",
@@ -77,7 +88,7 @@ function LoadMenuConfig()
             ranges[ranges.count + 1 - i]
         }
 
-        table.insert(Config.menus.rangeText, love.graphics.newText(Config.fonts.ui, textTable))
+        table.insert(Config.menus.rangeText, love.graphics.newText(Config.menus.rangeText.font, textTable))
     end
 
     Config.menus.rangeText.width = Config.menus.rangeText[1]:getWidth()
