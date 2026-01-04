@@ -48,9 +48,11 @@ function LoadSettings()
 end
 
 function SaveSettings()
-    Settings.volume.master = Menus.sound.items[1].value
-    Settings.volume.music = Menus.sound.items[2].value
-    
+    if Menus.sound.loaded == true then
+        Settings.volume.master = Menus.sound.items[1].value
+        Settings.volume.music = Menus.sound.items[2].value
+    end
+
     local settingsFile = io.open("playersettings.json", "w")
     if not settingsFile then
         error("An error occurred when opening the settings file.")
