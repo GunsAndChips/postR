@@ -15,17 +15,22 @@ PIXEL_HEIGHT = 180
 
 LoadSettings()
 
-TileSprites = {}
-function LoadTileSprites()
-    local tileFileNames = {}
+-- Cuts up a tilesheet into individual tiles/quads
+local function CreateQuads(tilesheet, tileWidth, tileHeight)
+    local quads = {}
 
-    for i = 1, 2 do
-        table.insert(tileFileNames, string.format("textures/pg%d.png", i))
+    local rows = math.floor(tilesheet:getHeight() / tileHeight)
+    local columns = math.floor(tilesheet:getWidth() / tileWidth)
+
+    for i = 0, rows - 1 do
+        for j = 0, columns - 1 do
+            local quad = love.graphics.newQuad(j * tileWidth, i * tileHeight, tileWidth, tileHeight,
+            tilesheet:getDimensions())
+            table.insert(quads, quad)
+        end
     end
 
-    TileSprites = love.graphics.newArrayImage(tileFileNames)
-
-    Player.targeting.texture = love.graphics.newImage("/textures/targetedTile.png")
+    return quads
 end
 
 -- Load map
@@ -58,6 +63,7 @@ function love.load()
     Player.x = PIXEL_WIDTH / 2
     Player.y = PIXEL_HEIGHT / 2
     Player.facing = "right"
+    Player.targeting.texture = love.graphics.newImage("/textures/targetedTile.png")
     UpdatePlayerTargetingCoords()
 
     _Key = Settings.Keybinds
@@ -72,7 +78,8 @@ function love.load()
         rangePosition = 1
     }
 
-    LoadTileSprites()
+    TileSheet = love.graphics.newImage("textures/tileset1.png")
+    TileQuads = CreateQuads(TileSheet, Config.tile.width + (Config.tile.staggerX - 1), Config.tile.height)
 
     LoadFonts()
 end
