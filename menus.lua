@@ -1,5 +1,3 @@
-require "helpers"
-
 Menu = {}
 Menu.__index = Menu
 
@@ -38,7 +36,7 @@ function Menu:New(id, title)
 end
 
 -- Creates range text of the desired font for the two colours provided
--- Range text is a series of dots that are two colours, indicating a scalar value
+-- Range text is a series of dots that are two colours, representing a scalar value
 local function CreateRangeText(font, colour1, colour2)
     local rangeText = {}
 
@@ -82,7 +80,7 @@ local function CreateRangeText(font, colour1, colour2)
     return rangeText
 end
 
--- Fleshes out simple menu definitions
+-- Fleshes out menu definitions
 -- e.g. sets fonts and x/y positions for items, so we don't have to do it every time we render them
 function Menu:Load()
     log.debug("Loading menu: " .. self.title.textString)
@@ -95,71 +93,40 @@ function Menu:Load()
     -- Title X can't be set until the menu width is decided
     title.y = self.marginSize
 
-    -- Load rangeText for range controls
-    self.rangeText = CreateRangeText(Config.fonts.ui150, self.textColour, self.textColourDisabled)
-    self.rangeTextHover = CreateRangeText(Config.fonts.ui150, self.textColourHover, self.textColourDisabled)
-
+    local maxItemLength = PIXEL_WIDTH - 4 * self.marginSize
     local largestItemWidth = title.width
     local itemsWithControls = {}
 
-    for i = 1, #self.items do
-        local item = self.items[i]
-        local maxItemLength = PIXEL_WIDTH - 4 * self.marginSize
+    for i = 1, #self.itemDefinitions do
+        local itemDefinition = self.itemDefinitions[i]
+        local item = MenuItem:New(self, itemDefinition, Config.fonts.ui, maxItemLength)
+        item.x = self.marginSize
+        item.y = (i - 1) * (item.height + self.textLineSpacing) + 2 * self.marginSize + title.height
 
-        -- Set text
-        item.text = love.graphics.newText(Config.fonts.ui)
-        item.text:setf({ self.textColour, item.textString }, maxItemLength, "left")
-
-        -- Set hover text
-        if self.textColourHover == self.textColour then
-            item.textHover = item.text
-        else
-            item.textHover = love.graphics.newText(Config.fonts.ui)
-            item.textHover:setf({ self.textColourHover, item.textString }, maxItemLength, "left")
-        end
-
-        item.height = item.text:getHeight()
-        item.width = item.text:getWidth()
         local itemAndControlWidth = item.width
 
-        if item.type == "button" then
-            -- Set click text
-            if self.textColourClick == self.textColour then
-                item.textClick = item.text
-            elseif self.textColourClick == self.textColourHover then
-                item.textClick = item.textHover
-            else
-                item.textClick = love.graphics.newText(Config.fonts.ui)
-                item.textClick:setf({ self.textColourClick, item.textString }, maxItemLength, "left")
-            end
-        elseif item.type == "range" then
-            item.control = {
-                x = nil,
-                y = nil,
-                width = self.rangeText.width,
-                height = self.rangeText.height,
+        if item.type == "range" then
+            local definition = {
                 type = "control",
-                parent = item
+                parent = item,
+                onClick = function() MenuItem.SetRange() end
             }
+            item.control = MenuItem:New(self, definition, Config.fonts.ui150)
+
             table.insert(itemsWithControls, item)
 
             -- Add width of control so Menu is wide enough to fit both
             itemAndControlWidth = itemAndControlWidth + item.control.width + 1
         end
 
-        -- Set coordinates relative to menu
-        item.x = self.marginSize
-        item.y = (i - 1) * (item.height + self.textLineSpacing) + 2 * self.marginSize + title.height
-
         largestItemWidth = math.max(largestItemWidth, itemAndControlWidth)
+        table.insert(self.items, item)
     end
 
     -- Set menu width to fit all items on it, without going below the minWidth
     self.width = math.max(largestItemWidth + 2 * self.marginSize, self.minWidth)
     -- Set menu width to not go over max width, which is the screen size minus a margin on each size (rounded down to the nearest even number)
-    self.width = math.min(self.width, RoundToEven(PIXEL_WIDTH - 2 * self.marginSize, false))
-    -- Round the result up to the nearest even number, so centred text can be properly centred
-    self.width = RoundToEven(self.width, true)
+    self.width = math.min(self.width, PIXEL_WIDTH - 2 * self.marginSize)
 
     -- Set title x centred on the Menu
     title.x = math.floor(self.width / 2 - title.width / 2)
@@ -169,8 +136,8 @@ function Menu:Load()
         for i = 1, #itemsWithControls do
             local item = itemsWithControls[i]
             if item.type == "range" then
-                item.control.x = self.width - self.marginSize - self.rangeText.width
-                item.control.y = item.y + self.rangeText.offsetY
+                item.control.x = self.width - self.marginSize - item.control.width
+                item.control.y = item.y + item.control.text.offsetY
             end
         end
     end
@@ -207,15 +174,15 @@ function Menu:Draw()
         local x = item.x
         local displayText = item.text
 
-        if item.type == "button" and Hovering.item == item then
-            x = item.x + self.hoverOffsetX
-            if Hovering.clicking == 1 then
+        if Hovering.item == item then
+            if item.type == "button" then
+                x = item.x + self.hoverOffsetX
+            end
+            if Hovering.clicking == 1 and item.textClick ~= nil then
                 displayText = item.textClick
-            else
+            elseif item.textHover ~= nil then
                 displayText = item.textHover
             end
-        elseif item.type == "range" and Hovering.item == item.control then
-            displayText = item.textHover
         end
 
         -- Draw menu item
@@ -225,9 +192,10 @@ function Menu:Draw()
             local controlText = nil
 
             if Hovering.item == item.control then
-                controlText = self.rangeTextHover[Hovering.rangePosition + 1]
+                controlText = item.control.textHover[Hovering.rangePosition + 1]
             else
-                controlText = self.rangeText[item.value + 1]
+                print(item, item.value)
+                controlText = item.control.text[item.value + 1]
             end
 
             love.graphics.draw(controlText, self.width - self.marginSize - controlText:getWidth(), item.control.y)
@@ -254,7 +222,7 @@ function Menu:GetItem(x, y)
             elseif item.control ~= nil and menuX > item.control.x and menuX < item.control.x + item.control.width and menuY > item.control.y and menuY < item.control.y + item.control.height then
                 local rangePosition = nil
                 if item.type == "range" then
-                    local rangeDotCount = self.rangeTextHover.length
+                    local rangeDotCount = item.control.text.length
                     rangePosition = math.floor((menuX - item.control.x) / item.control.width * rangeDotCount) + 1
                     if rangePosition < 1 or rangePosition > rangeDotCount + 1 then
                         error("rangePosition: '" ..
@@ -289,10 +257,76 @@ function GetClickingIfHovering()
     end
 end
 
-function Menu:Back()
-    if self.id == "options" then
-        Settings.volume.master = self.items[1].value
-    end
+function Menu.Back()
     SaveSettings()
+
+    -- Remove the top menu
     table.remove(Game.visibleMenus)
+end
+
+MenuItem = {}
+MenuItem.__index = MenuItem
+
+function MenuItem:New(menu, itemDefinition, font, maxLength, textAlignment)
+    maxLength = maxLength or PIXEL_WIDTH
+    textAlignment = textAlignment or "left"
+
+    local this = {
+        type = itemDefinition.type,
+        x = menu.marginSize,
+        y = nil,
+        width = nil,
+        height = nil,
+        onClick = itemDefinition.onClick,
+        value = itemDefinition.value,
+        parent = itemDefinition.parent,
+        menu = menu
+    }
+    setmetatable(this, self)
+
+
+
+    if this.type == "control" and itemDefinition.parent.type == "range" then
+        this.text = CreateRangeText(font, menu.textColour, menu.textColourDisabled)
+        this.textHover = CreateRangeText(font, menu.textColourHover, menu.textColourDisabled)
+        this.onClick = function() this:SetRange(Hovering.rangePosition) end
+    else
+        this.text = love.graphics.newText(font)
+        this.text:setf({ menu.textColour, itemDefinition.textString }, maxLength, textAlignment)
+
+        if menu.textColourHover == menu.textColour then
+            this.textHover = this.text
+        elseif menu.textColourHover ~= nil then
+            this.textHover = love.graphics.newText(font)
+            this.textHover:setf({ menu.textColourHover, itemDefinition.textString }, maxLength, textAlignment)
+        end
+
+        if this.onClick ~= nil and menu.textColourClick ~= nil then
+            -- Set click text
+            if menu.textColourClick == menu.textColour then
+                this.textClick = this.text
+            elseif menu.textColourClick == menu.textColourHover then
+                this.textClick = this.textHover
+            else
+                this.textClick = love.graphics.newText(font)
+                this.textClick:setf({ menu.textColourClick, itemDefinition.textString }, maxLength, textAlignment)
+            end
+        end
+    end
+
+    if type(this.text) == "table" then
+        -- Set width and height from first Text in table
+        this.height = this.text[1]:getHeight()
+        this.width = this.text[1]:getWidth()
+    else
+        -- Set width and height from Text
+        this.height = this.text:getHeight()
+        this.width = this.text:getWidth()
+    end
+
+    return this
+end
+
+function MenuItem.SetRange()
+    Hovering.item.parent.value = Hovering.rangePosition
 end

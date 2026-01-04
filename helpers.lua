@@ -28,16 +28,21 @@ function Clone(_table, allTablesSeen, depth)
     return copy
 end
 
-function RoundToEven(number, roundUp)
-    roundUp = roundUp or false
-
-    if number % 2 == 0 then
-        return number
-    elseif roundUp then
-        return number + 1
-    else
-        return number - 1
+function OverwriteTable(table, overwriteWith)
+    local newTable = {}
+    for key in pairs(table) do
+        if overwriteWith[key] ~= nil then
+            newTable[key] = overwriteWith[key]
+        else
+            newTable[key] = table[key]
+        end
     end
+    for key in pairs(overwriteWith) do
+        if newTable[key] == nil then
+            newTable[key] = overwriteWith[key]
+        end
+    end
+    return newTable
 end
 
 -- Function to sort Tables by Keys from Lua documentation

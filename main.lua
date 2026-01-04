@@ -6,14 +6,15 @@ require "log"
 
 -- TLfres for scaling
 local TLfres = require "libraries/tlfres"
-function love.mouse.getPosition() -- Override the standard function with TLFres helper function
+-- Override the standard function with TLFres helper function
+---@diagnostic disable-next-line: duplicate-set-field
+function love.mouse.getPosition()
     return TLfres.getMousePosition(PIXEL_WIDTH, PIXEL_HEIGHT)
 end
 
-PIXEL_WIDTH = 320
-PIXEL_HEIGHT = 180
+PIXEL_WIDTH, PIXEL_HEIGHT = 320, 180
 
-LoadSettings()
+Settings = LoadSettings()
 
 -- Cuts up a tilesheet into individual tiles/quads
 local function CreateQuads(tilesheet, tileWidth, tileHeight)
@@ -25,7 +26,7 @@ local function CreateQuads(tilesheet, tileWidth, tileHeight)
     for i = 0, rows - 1 do
         for j = 0, columns - 1 do
             local quad = love.graphics.newQuad(j * tileWidth, i * tileHeight, tileWidth, tileHeight,
-            tilesheet:getDimensions())
+                tilesheet:getDimensions())
             table.insert(quads, quad)
         end
     end
@@ -38,16 +39,38 @@ local mapDefinition = require "tiled/maptest1"
 local map1 = Map:New(mapDefinition)
 
 -- Load menus
-local optionsMenu = Menu:New("options", "Options")
-optionsMenu.items = {
-    { textString = "Volume", type = "range",  value = Settings.volume.master },
-    { textString = "Back",   type = "button", onClick = function() Menu.Back(optionsMenu) end }
+Menus = {}
+Menus.sound = Menu:New("sound", "Sound Settings")
+Menus.sound.itemDefinitions = {
+    { textString = "Master", type = "range",  value = Settings.volume.master },
+    { textString = "Music",  type = "range",  value = Settings.volume.music },
+    { textString = "Back",   type = "button", onClick = function() Menu.Back() end }
 }
 
-local pauseMenu = Menu:New("pause", "Paused")
-pauseMenu.items = {
+Menus.game = Menu:New("game", "Game Settings")
+Menus.game.itemDefinitions = {
+    { textString = "Use Rotated Y Axis", type = "boolean", value = Settings.movement.useRotatedY },
+    { textString = "Back",               type = "button",  onClick = function() Menu.Back() end }
+}
+
+Menus.video = Menu:New("video", "Video Settings")
+Menus.video.itemDefinitions = {
+    { textString = "Fullscreen", type = "boolean", value = Settings.video.fullscreen },
+    { textString = "Back",       type = "button",  onClick = function() Menu.Back() end }
+}
+
+Menus.options = Menu:New("options", "Options")
+Menus.options.itemDefinitions = {
+    { textString = "Game",  type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.game) end },
+    { textString = "Video", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.video) end },
+    { textString = "Sound", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.sound) end },
+    { textString = "Back",  type = "button", onClick = function() Menu.Back() end }
+}
+
+Menus.pause = Menu:New("pause", "Paused")
+Menus.pause.itemDefinitions = {
     { textString = "Resume",  type = "button", onClick = function() SetGameState() end },
-    { textString = "Options", type = "button", onClick = function() table.insert(Game.visibleMenus, optionsMenu) end },
+    { textString = "Options", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.options) end },
     { textString = "Quit",    type = "button", onClick = function() Quit() end }
 }
 
@@ -97,7 +120,7 @@ function love.keypressed(key, scancode, isrepeat)
         local currentMenu = Game.visibleMenus[#Game.visibleMenus]
         -- If the top menu isn't the pause menu, remove it
         if #Game.visibleMenus > 0 and currentMenu.id ~= "pause" then
-            Menu.Back(currentMenu)
+            Menu.Back()
         else
             SetGameState()
         end
@@ -125,11 +148,9 @@ function love.mousereleased(x, y, button, istouch, presses)
     if button == 1 then
         Hovering.clicking = false
         if #Game.visibleMenus > 0 and Hovering.item ~= nil then
-            if Hovering.item.type == "button" then
+            if Hovering.item.onClick ~= nil then
                 Hovering.item.onClick()
                 ShowHoverText()
-            elseif Hovering.item.type == "control" and Hovering.rangePosition ~= nil then
-                Hovering.item.parent.value = Hovering.rangePosition
             end
         end
     end
@@ -137,8 +158,9 @@ end
 
 function love.resize(w, h)
     -- Unload menus to force recalculation of positions etc.
-    pauseMenu.loaded = false
-    optionsMenu.loaded = false
+    for key, value in pairs(Menus) do
+        Menus[key].loaded = false
+    end
 
     log.debug(("Window resized to width: %d and height: %d."):format(w, h))
 end
@@ -177,7 +199,7 @@ function SetGameState(newState)
     elseif newState == "paused" then
         love.mouse.setVisible(true)
         love.mouse.setGrabbed(false)
-        table.insert(Game.visibleMenus, pauseMenu)
+        table.insert(Game.visibleMenus, Menus.pause)
     end
     Game.state = newState
     log.debug("Game state set to: " .. Game.state)
@@ -271,5 +293,6 @@ function DrawDebugRenderers()
 end
 
 function Quit()
+    SaveSettings()
     love.event.quit()
 end

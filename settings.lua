@@ -1,22 +1,64 @@
 local json = require "libraries/json/json"
 
+SettingsClass = {}
+SettingsClass.__index = SettingsClass
+
+function SettingsClass:New()
+    local this = {
+        Keybinds = {
+            sprint = "lshift",
+            pause = "escape",
+            up = "w",
+            down = "s",
+            left = "a",
+            right = "d"
+        },
+        volume = {
+            master = 2,
+            music = 2
+        },
+        video = {
+            fullscreen = true
+        },
+        movement = {
+            useRotatedY = true
+        }
+    }
+    setmetatable(this, self)
+
+    return this
+end
+
 function LoadSettings()
+    local settings = SettingsClass:New()
+
     local settingsFile = io.open("playersettings.json", "r")
     if not settingsFile then
         error("An error occurred when opening the settings file.")
     end
 
-    local settingsJson = settingsFile:read("*a")
-    Settings = json.decode(settingsJson)
+    local settingsFileContents = settingsFile:read("*a")
+    if #settingsFileContents < 2 then
+        log.debug("Settings file is empty, using defaults")
+        return settings
+    end
+
+    log.debug(settingsFileContents)
+    return OverwriteTable(settings, json.decode(settingsFileContents))
 end
 
 function SaveSettings()
+    Settings.volume.master = Menus.sound.items[1].value
+    Settings.volume.music = Menus.sound.items[2].value
+    
     local settingsFile = io.open("playersettings.json", "w")
     if not settingsFile then
         error("An error occurred when opening the settings file.")
     end
 
-    settingsFile:write(json.encode(Settings))
+    local jason = json.encode(Settings)
+    log.debug(jason)
+    settingsFile:write(jason)
     settingsFile:close()
 end
 

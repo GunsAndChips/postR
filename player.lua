@@ -1,3 +1,5 @@
+require "helpers"
+
 function PlayerMove(dt)
     if not love.keyboard.isDown(_Key.up, _Key.down, _Key.left, _Key.right) then
         return
