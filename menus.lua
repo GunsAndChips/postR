@@ -17,6 +17,7 @@ function Menu:New(id, title)
             height = nil
         },
         items = {},
+        itemDefinitions = {},
         loaded = false,
         minHeight = 120,
         minWidth = 96,
