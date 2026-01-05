@@ -26,10 +26,7 @@ function Menu:New(id, title)
         textColourClick = { 0.1, 0.3, 0.1 },
         textColourDisabled = { 0.69, 0.69, 0.69 },
         textLineSpacing = 3,
-        marginSize = 6,
-        rangeText = nil,
-        rangeTextHover = nil,
-        hoverOffsetX = 2
+        marginSize = 6
     }
 
     return this
@@ -175,9 +172,8 @@ function Menu:Draw()
         local displayText = item.text
 
         if Hovering.item == item then
-            if item.type == "button" then
-                x = item.x + self.hoverOffsetX
-            end
+            x = item.x + item.hoverOffsetX
+
             if Hovering.clicking == 1 and item.textClick ~= nil then
                 displayText = item.textClick
             elseif item.textHover ~= nil then
@@ -280,11 +276,14 @@ function MenuItem:New(menu, itemDefinition, font, maxLength, textAlignment)
         onClick = itemDefinition.onClick,
         value = itemDefinition.value,
         parent = itemDefinition.parent,
-        menu = menu
+        menu = menu,
+        hoverOffsetX = 0
     }
     setmetatable(this, self)
 
-
+    if this.type == "button" then
+        this.hoverOffsetX = 2
+    end
 
     if this.type == "control" and itemDefinition.parent.type == "range" then
         this.text = CreateRangeText(font, menu.textColour, menu.textColourDisabled)
