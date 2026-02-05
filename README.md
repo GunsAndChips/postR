@@ -1,28 +1,34 @@
-# Working Title
+# PostR
 
 ## Design Document
 
 ## Introduction
 
 ### Game Summary
+---
 
-//
+### Setting
+Post-post apocalypse earth
 
-### Inspiration
+#### Inspiration
 
-**Stardew Valley**
-Stardew Valley is an iconic farming simulator, and the key inspiration for the mood and aesthetic of the game.
-The cute, comfy vibe and strong sense of community in particular will contrast & compliment the post-apocalyptic setting well.
-
-**Kingdom**
-The delectable pixel art graphics of the Kingdom series of games, where every moment is desktop-background-worthy is a goal.
-
-**Simon Stålenhag**
-The works of Simon Stalenhag, particularly of decrepid & rotting futuristic machinery is the style of post-apocalypse I want to portray.
+##### Laputa: Castle in the Sky
 A world of hope and timid happiness, with scars of a devastating past - not a depressing deadline of annihilation.
 
-### Platform
+##### Simon Stålenhag
+The works of Simon Stålenhag, particularly of decrepid & rotting futuristic machinery is the style of post-post-apocalypse I want to portray.
 
+##### To watch/play
+Mostly from this very good video essay that's also inspiration: <https://nebula.tv/videos/curiousarchive-my-favorite-kind-of-postapocalypse>
+Which is a companion to this very good video essay: <https://www.youtube.com/watch?v=iHSEFMYjbnE>
+
+- Future Boy Conan (anime)
+- Planet of Lana (puzzle game)
+- Rain World
+- Nausiccä of the Valley of the Wind (Ghibli)
+- Elden Ring
+
+### Platform
 Windows PC
 
 ### Development Software
@@ -32,55 +38,49 @@ Windows PC
 - Aseprite for Graphics & UI
 
 ### Genre
-
-Farming RPG
+Farming RPG?
 Singleplayer
 Relaxing
 
 ### Target Audience
-
 Me
 
-## Concept
+## Gameplay
 
-### Gameplay overview
+### Gameplay Inspiration
 
-//
+**Stardew Valley**
+Stardew Valley is an iconic farming simulator, and the key inspiration for the mood and aesthetic of the game.
+The cute, comfy vibe and strong sense of community in particular will contrast & compliment the post-apocalyptic setting well.
 
 ### Primary Mechanics
-
-//
+---
 
 ### Secondary Mechanics
-
-//
+---
 
 ## Art
 
 ### Design
+Pixel art
 
-//
+I want the background/scenery - and especially skies - to be incredibly beautiful, like the Kingdom series of games.
 
 ## Audio
 
 ### Music
-
-//
+---
 
 ### Sound Effects
-
-//
+---
 
 ## Game Experience
 
 ### UI
-
-//
+---
 
 ### Controls
-
 Mouse & Keyboard
 
 ## Development Timeline
-
-//
+---
