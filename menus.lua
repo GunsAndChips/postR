@@ -111,6 +111,8 @@ function Menu:Load()
             }
             item.control = MenuItem:New(self, definition, Config.fonts.ui150)
 
+            item.onClick = function() item.value = 0 end
+
             table.insert(itemsWithControls, item)
 
             -- Add width of control so Menu is wide enough to fit both
@@ -180,6 +182,14 @@ function Menu:Draw()
             elseif item.textHover ~= nil then
                 displayText = item.textHover
             end
+        elseif Hovering.item ~= nil and Hovering.item.parent ~= nil and Hovering.item.parent == item then
+            if item.type == "range" then
+                if Hovering.clicking == 1 and item.textClick ~= nil then
+                    displayText = item.textClick
+                elseif item.textHover ~= nil then
+                    displayText = item.textHover
+                end
+            end
         end
 
         -- Draw menu item
@@ -191,7 +201,6 @@ function Menu:Draw()
             if Hovering.item == item.control then
                 controlText = item.control.textHover[Hovering.rangePosition + 1]
             else
-                print(item, item.value)
                 controlText = item.control.text[item.value + 1]
             end
 
