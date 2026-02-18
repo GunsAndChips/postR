@@ -38,15 +38,6 @@ end
 local function CreateRangeText(font, colour1, colour2)
     local rangeText = {}
 
-    -- Set offsetY based on the font scale
-    if font == Config.fonts.ui150 then
-        rangeText.offsetY = -6
-    elseif font == Config.fonts.ui200 then
-        rangeText.offsetY = -11
-    else
-        rangeText.offsetY = 0
-    end
-
     local ranges = {
         "",
         ".",
@@ -103,20 +94,20 @@ function Menu:Load()
 
         local itemAndControlWidth = item.width
 
-        if item.type == "range" then
-            local definition = {
-                type = "control",
-                parent = item,
-                onClick = function() MenuItem.SetRange() end
-            }
-            item.control = MenuItem:New(self, definition, Config.fonts.ui150)
-
-            item.onClick = function() item.value = 0 end
-
+        if item.type == "range" or item.type == "boolean" then
             table.insert(itemsWithControls, item)
+            local paddingX = 0
+
+            if item.type == "range" then
+                item.onClick = function() item.value = 0 end
+                paddingX = 1
+            elseif item.type == "boolean" then
+                item.onClick = item.control.onClick
+                paddingX = 13
+            end
 
             -- Add width of control so Menu is wide enough to fit both
-            itemAndControlWidth = itemAndControlWidth + item.control.width + 1
+            itemAndControlWidth = item.width + item.control.width + paddingX
         end
 
         largestItemWidth = math.max(largestItemWidth, itemAndControlWidth)
@@ -135,10 +126,8 @@ function Menu:Load()
     if #itemsWithControls > 0 then
         for i = 1, #itemsWithControls do
             local item = itemsWithControls[i]
-            if item.type == "range" then
-                item.control.x = self.width - self.marginSize - item.control.width
-                item.control.y = item.y + item.control.text.offsetY
-            end
+            item.control.x = self.width - self.marginSize - item.control.width
+            item.control.y = item.y + (item.control.offsetY or 0)
         end
     end
 
@@ -182,8 +171,8 @@ function Menu:Draw()
             elseif item.textHover ~= nil then
                 displayText = item.textHover
             end
-        elseif Hovering.item ~= nil and Hovering.item.parent ~= nil and Hovering.item.parent == item then
-            if item.type == "range" then
+        elseif Hovering.item == item.control then
+            if item.type == "range" or item.type == "boolean" then
                 if Hovering.clicking == 1 and item.textClick ~= nil then
                     displayText = item.textClick
                 elseif item.textHover ~= nil then
@@ -205,6 +194,14 @@ function Menu:Draw()
             end
 
             love.graphics.draw(controlText, self.width - self.marginSize - controlText:getWidth(), item.control.y)
+        elseif item.type == "boolean" then
+            local controlText = nil
+            if Hovering.item == item.control or Hovering.item == item then
+                controlText = item.control.textHover[item.value]
+            else
+                controlText = item.control.text[item.value]
+            end
+            love.graphics.draw(controlText, self.width - self.marginSize - controlText:getWidth(), item.control.y)
         end
     end
 
@@ -225,14 +222,15 @@ function Menu:GetItem(x, y)
         if menuY > item.y and menuY < item.y + item.height then
             if menuX > item.x and menuX < item.x + item.width then
                 return item
-            elseif item.control ~= nil and menuX > item.control.x and menuX < item.control.x + item.control.width and menuY > item.control.y and menuY < item.control.y + item.control.height then
+            elseif item.control == nil then
+                return nil, nil
+            elseif menuX > item.control.x and menuX < item.control.x + item.control.width and menuY > item.control.y and menuY < item.control.y + item.control.height then
                 local rangePosition = nil
                 if item.type == "range" then
                     local rangeDotCount = item.control.text.length
                     rangePosition = math.floor((menuX - item.control.x) / item.control.width * rangeDotCount) + 1
                     if rangePosition < 1 or rangePosition > rangeDotCount + 1 then
-                        error("rangePosition: '" ..
-                            rangePosition .. "' is not valid. Must not be less than 1 or more than " .. rangeDotCount)
+                        error("rangePosition: " .. rangePosition .. " is invalid. It must be between 1 & " .. rangeDotCount)
                     end
                 end
                 return item.control, rangePosition
@@ -285,7 +283,6 @@ function MenuItem:New(menu, itemDefinition, font, maxLength, textAlignment)
         height = nil,
         onClick = itemDefinition.onClick,
         value = itemDefinition.value,
-        parent = itemDefinition.parent,
         menu = menu,
         hoverOffsetX = 0
     }
@@ -293,49 +290,90 @@ function MenuItem:New(menu, itemDefinition, font, maxLength, textAlignment)
 
     if this.type == "button" then
         this.hoverOffsetX = 2
-    end
+    elseif this.type == "range" then
+        this.control = {}
+        local controlFont = Config.fonts.ui150
+        this.control.text = CreateRangeText(controlFont, menu.textColour, menu.textColourDisabled)
+        this.control.textHover = CreateRangeText(controlFont, menu.textColourHover, menu.textColourDisabled)
 
-    if this.type == "control" and itemDefinition.parent.type == "range" then
-        this.text = CreateRangeText(font, menu.textColour, menu.textColourDisabled)
-        this.textHover = CreateRangeText(font, menu.textColourHover, menu.textColourDisabled)
-        this.onClick = function() this:SetRange(Hovering.rangePosition) end
-    else
-        this.text = love.graphics.newText(font)
-        this.text:setf({ menu.textColour, itemDefinition.textString }, maxLength, textAlignment)
+        -- Set offsetY based on the font scale
+        if controlFont == Config.fonts.ui150 then
+            this.control.offsetY = -6
+        elseif controlFont == Config.fonts.ui200 then
+            this.control.offsetY = -11
+        else
+            this.control.offsetY = 0
+        end
+
+        this.control.onClick = function() this.value = Hovering.rangePosition end
+        this.control.width, this.control.height = GetTextDimensions(this.control.text[1])
+
+    elseif this.type == "boolean" then
+        this.control = {}
+        this.control.text = {}
+        this.control.text[false] = love.graphics.newText(font)
+        this.control.text[false]:setf({ menu.textColour, "[ ]" }, maxLength, textAlignment)
+        this.control.text[true] = love.graphics.newText(font)
+        this.control.text[true]:setf({ menu.textColour, "[x]" }, maxLength, textAlignment)
+
+        this.control.offsetY = -2
+        this.control.width, this.control.height = GetTextDimensions(this.control.text[false])
 
         if menu.textColourHover == menu.textColour then
-            this.textHover = this.text
+            this.control.textHover = this.control.text
         elseif menu.textColourHover ~= nil then
-            this.textHover = love.graphics.newText(font)
-            this.textHover:setf({ menu.textColourHover, itemDefinition.textString }, maxLength, textAlignment)
+            this.control.textHover = {}
+            this.control.textHover[false] = love.graphics.newText(font)
+            this.control.textHover[false]:setf({ menu.textColourHover, "[ ]" }, maxLength, textAlignment)
+            this.control.textHover[true] = love.graphics.newText(font)
+            this.control.textHover[true]:setf({ menu.textColourHover, "[x]" }, maxLength, textAlignment)
         end
+        this.control.onClick = function() this.value = not (this.value) end
+    end
 
-        if this.onClick ~= nil and menu.textColourClick ~= nil then
-            -- Set click text
-            if menu.textColourClick == menu.textColour then
-                this.textClick = this.text
-            elseif menu.textColourClick == menu.textColourHover then
-                this.textClick = this.textHover
-            else
-                this.textClick = love.graphics.newText(font)
-                this.textClick:setf({ menu.textColourClick, itemDefinition.textString }, maxLength, textAlignment)
-            end
+    this.text = love.graphics.newText(font)
+    this.text:setf({ menu.textColour, itemDefinition.textString }, maxLength, textAlignment)
+
+    if menu.textColourHover == menu.textColour then
+        this.textHover = this.text
+    elseif menu.textColourHover ~= nil then
+        this.textHover = love.graphics.newText(font)
+        this.textHover:setf({ menu.textColourHover, itemDefinition.textString }, maxLength, textAlignment)
+    end
+
+    if this.onClick ~= nil and menu.textColourClick ~= nil then
+        -- Set click text
+        if menu.textColourClick == menu.textColour then
+            this.textClick = this.text
+        elseif menu.textColourClick == menu.textColourHover then
+            this.textClick = this.textHover
+        else
+            this.textClick = love.graphics.newText(font)
+            this.textClick:setf({ menu.textColourClick, itemDefinition.textString }, maxLength, textAlignment)
         end
     end
 
-    if type(this.text) == "table" then
-        -- Set width and height from first Text in table
-        this.height = this.text[1]:getHeight()
-        this.width = this.text[1]:getWidth()
-    else
-        -- Set width and height from Text
-        this.height = this.text:getHeight()
-        this.width = this.text:getWidth()
-    end
+    this.width, this.height = GetTextDimensions(this.text)
 
     return this
 end
 
-function MenuItem.SetRange()
-    Hovering.item.parent.value = Hovering.rangePosition
+function GetTextDimensions(text)
+    if text == nil then
+        error('Error setting width and height - text cannot be nil')
+    end
+
+    local width
+    local height
+
+    if type(text) == "table" then
+        -- Set width and height from first Text in table
+        width = text[1]:getWidth()
+        height = text[1]:getHeight()
+    else
+        -- Set width and height from Text
+        width = text:getWidth()
+        height = text:getHeight()
+    end
+    return width, height
 end
