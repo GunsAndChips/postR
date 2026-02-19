@@ -33,40 +33,52 @@ function Menu:New(id, title)
     return this
 end
 
--- Creates range text of the desired font for the two colours provided
--- Range text is a series of dots that are two colours, representing a scalar value
-local function CreateRangeText(font, colour1, colour2)
-    local rangeText = {}
+local function CreateControlText(type, font, colour1, colour2)
+    if type == "boolean" then
+        local booleanControlText = {}
+        booleanControlText[false] = love.graphics.newText(font)
+        booleanControlText[false]:setf({ colour1, "[", colour2, "x", colour1, "]" }, 30, "left")
+        booleanControlText[true] = love.graphics.newText(font)
+        booleanControlText[true]:setf({ colour1, "[x]" }, 30, "left")
 
-    local ranges = {
-        "",
-        ".",
-        "..",
-        "...",
-        "....",
-        ".....",
-        "......",
-        ".......",
-        "........"
-    }
-    ranges.count = #ranges
+        return booleanControlText
+    elseif type == "range" then
+        -- Create range text of the desired font for the two colours provided
+        -- Range text is a series of dots that are two colours, representing a scalar value
+        local rangeText = {}
 
-    for i = 1, ranges.count do
-        local textTable = {
-            colour1,
-            ranges[i],
-            colour2,
-            ranges[ranges.count + 1 - i]
+        local ranges = {
+            "",
+            ".",
+            "..",
+            "...",
+            "....",
+            ".....",
+            "......",
+            ".......",
+            "........"
         }
+        ranges.count = #ranges
 
-        table.insert(rangeText, love.graphics.newText(font, textTable))
+        for i = 1, ranges.count do
+            local textTable = {
+                colour1,
+                ranges[i],
+                colour2,
+                ranges[ranges.count + 1 - i]
+            }
+
+            table.insert(rangeText, love.graphics.newText(font, textTable))
+        end
+
+        rangeText.width = rangeText[1]:getWidth()
+        rangeText.height = rangeText[1]:getHeight()
+        rangeText.length = #ranges - 1
+
+        return rangeText
+    else
+        error("Invalid type '" .. type .. "' provided to function CreateControlText")
     end
-
-    rangeText.width = rangeText[1]:getWidth()
-    rangeText.height = rangeText[1]:getHeight()
-    rangeText.length = #ranges - 1
-
-    return rangeText
 end
 
 -- Fleshes out menu definitions
@@ -230,7 +242,8 @@ function Menu:GetItem(x, y)
                     local rangeDotCount = item.control.text.length
                     rangePosition = math.floor((menuX - item.control.x) / item.control.width * rangeDotCount) + 1
                     if rangePosition < 1 or rangePosition > rangeDotCount + 1 then
-                        error("rangePosition: " .. rangePosition .. " is invalid. It must be between 1 & " .. rangeDotCount)
+                        error("rangePosition: " ..
+                            rangePosition .. " is invalid. It must be between 1 & " .. rangeDotCount)
                     end
                 end
                 return item.control, rangePosition
@@ -293,8 +306,8 @@ function MenuItem:New(menu, itemDefinition, font, maxLength, textAlignment)
     elseif this.type == "range" then
         this.control = {}
         local controlFont = Config.fonts.ui150
-        this.control.text = CreateRangeText(controlFont, menu.textColour, menu.textColourDisabled)
-        this.control.textHover = CreateRangeText(controlFont, menu.textColourHover, menu.textColourDisabled)
+        this.control.text = CreateControlText("range", controlFont, menu.textColour, menu.textColourDisabled)
+        this.control.textHover = CreateControlText("range", controlFont, menu.textColourHover, menu.textColourDisabled)
 
         -- Set offsetY based on the font scale
         if controlFont == Config.fonts.ui150 then
@@ -307,14 +320,9 @@ function MenuItem:New(menu, itemDefinition, font, maxLength, textAlignment)
 
         this.control.onClick = function() this.value = Hovering.rangePosition end
         this.control.width, this.control.height = GetTextDimensions(this.control.text[1])
-
     elseif this.type == "boolean" then
         this.control = {}
-        this.control.text = {}
-        this.control.text[false] = love.graphics.newText(font)
-        this.control.text[false]:setf({ menu.textColour, "[ ]" }, maxLength, textAlignment)
-        this.control.text[true] = love.graphics.newText(font)
-        this.control.text[true]:setf({ menu.textColour, "[x]" }, maxLength, textAlignment)
+        this.control.text = CreateControlText("boolean", font, menu.textColour, menu.backgroundColour)
 
         this.control.offsetY = -2
         this.control.width, this.control.height = GetTextDimensions(this.control.text[false])
@@ -322,11 +330,7 @@ function MenuItem:New(menu, itemDefinition, font, maxLength, textAlignment)
         if menu.textColourHover == menu.textColour then
             this.control.textHover = this.control.text
         elseif menu.textColourHover ~= nil then
-            this.control.textHover = {}
-            this.control.textHover[false] = love.graphics.newText(font)
-            this.control.textHover[false]:setf({ menu.textColourHover, "[ ]" }, maxLength, textAlignment)
-            this.control.textHover[true] = love.graphics.newText(font)
-            this.control.textHover[true]:setf({ menu.textColourHover, "[x]" }, maxLength, textAlignment)
+            this.control.textHover = CreateControlText("boolean", font, menu.textColourHover, menu.backgroundColour)
         end
         this.control.onClick = function() this.value = not (this.value) end
     end
