@@ -84,7 +84,7 @@ end
 -- Fleshes out menu definitions
 -- e.g. sets fonts and x/y positions for items, so we don't have to do it every time we render them
 function Menu:Load()
-    log.debug("Loading menu: " .. self.title.textString)
+    log.debug("Loading menu: ", self.title.textString)
 
     -- Set Title
     local title = self.title
