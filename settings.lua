@@ -34,7 +34,7 @@ function LoadSettings()
 
     local settingsFile = io.open("playersettings.json", "r")
     if not settingsFile then
-        error("An error occurred when opening the settings file.")
+        error("Unable to open playersettings.json")
     end
 
     local settingsFileContents = settingsFile:read("*a")
@@ -43,8 +43,9 @@ function LoadSettings()
         return settings
     end
 
-    log.debug(settingsFileContents)
-    return OverwriteTable(settings, json.decode(settingsFileContents))
+    log.debug("Settings values loaded from JSON:", settingsFileContents)
+
+    Settings = OverwriteTable(settings, json.decode(settingsFileContents))
 end
 
 function SaveSettings()
