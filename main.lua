@@ -40,26 +40,26 @@ local map1 = Map:New(mapDefinition)
 
 -- Load menus
 Menus = {}
-Menus.sound = Menu:New("sound", "Sound Settings")
+Menus.sound = Menu:Initialise("sound", "Sound Settings")
 Menus.sound.itemDefinitions = {
     { textString = "Master", type = "range",  value = Settings.volume.master },
     { textString = "Music",  type = "range",  value = Settings.volume.music },
     { textString = "Back",   type = "button", onClick = function() Menu.Back() end }
 }
 
-Menus.game = Menu:New("game", "Game Settings")
+Menus.game = Menu:Initialise("game", "Game Settings")
 Menus.game.itemDefinitions = {
     { textString = "Use Rotated Y Axis", type = "boolean", value = Settings.movement.useRotatedY },
     { textString = "Back",               type = "button",  onClick = function() Menu.Back() end }
 }
 
-Menus.video = Menu:New("video", "Video Settings")
+Menus.video = Menu:Initialise("video", "Video Settings")
 Menus.video.itemDefinitions = {
     { textString = "Fullscreen", type = "boolean", value = Settings.video.fullscreen },
     { textString = "Back",       type = "button",  onClick = function() Menu.Back() end }
 }
 
-Menus.options = Menu:New("options", "Options")
+Menus.options = Menu:Initialise("options", "Options")
 Menus.options.itemDefinitions = {
     { textString = "Game",  type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.game) end },
     { textString = "Video", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.video) end },
@@ -67,7 +67,7 @@ Menus.options.itemDefinitions = {
     { textString = "Back",  type = "button", onClick = function() Menu.Back() end }
 }
 
-Menus.pause = Menu:New("pause", "Paused")
+Menus.pause = Menu:Initialise("pause", "Paused")
 Menus.pause.itemDefinitions = {
     { textString = "Resume",  type = "button", onClick = function() SetGameState() end },
     { textString = "Options", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.options) end },

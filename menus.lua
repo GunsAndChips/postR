@@ -1,7 +1,7 @@
 Menu = {}
 Menu.__index = Menu
 
-function Menu:New(id, title)
+function Menu:Initialise(id, title)
     if type(id) ~= "string" then
         error("Unable to create menu without id. Please provide a string value.")
     end
@@ -100,7 +100,7 @@ function Menu:Load()
 
     for i = 1, #self.itemDefinitions do
         local itemDefinition = self.itemDefinitions[i]
-        local item = MenuItem:New(self, itemDefinition, Config.fonts.ui, maxItemLength)
+        local item = MenuItem:Load(self, itemDefinition, Config.fonts.ui, maxItemLength)
         item.x = self.marginSize
         item.y = (i - 1) * (item.height + self.textLineSpacing) + 2 * self.marginSize + title.height
 
@@ -284,7 +284,7 @@ end
 MenuItem = {}
 MenuItem.__index = MenuItem
 
-function MenuItem:New(menu, itemDefinition, font, maxLength, textAlignment)
+function MenuItem:Load(menu, itemDefinition, font, maxLength, textAlignment)
     maxLength = maxLength or PIXEL_WIDTH
     textAlignment = textAlignment or "left"
 
