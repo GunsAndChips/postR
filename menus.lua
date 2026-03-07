@@ -222,11 +222,11 @@ end
 
 function Menu:GetItem(x, y)
     if not self.loaded then
-        return nil, nil
+        return
     end
     local menuX, menuY = self.transform:inverseTransformPoint(x, y)
     if menuX < 0 or menuX > self.width or menuY < 0 or menuY > self.height then
-        return nil, nil
+        return
     end
 
     for i = 1, #self.items do
@@ -235,22 +235,22 @@ function Menu:GetItem(x, y)
             if menuX > item.x and menuX < item.x + item.width then
                 return item
             elseif item.control == nil then
-                return nil, nil
+                return
             elseif menuX > item.control.x and menuX < item.control.x + item.control.width and menuY > item.control.y and menuY < item.control.y + item.control.height then
-                local rangePosition = nil
-                if item.type == "range" then
+                if item.type ~= "range" then
+                    return item.control
+                else
                     local rangeDotCount = item.control.text.length
-                    rangePosition = math.floor((menuX - item.control.x) / item.control.width * rangeDotCount) + 1
+                    local rangePosition = math.floor((menuX - item.control.x) / item.control.width * rangeDotCount) + 1
                     if rangePosition < 1 or rangePosition > rangeDotCount + 1 then
-                        error("rangePosition: " ..
-                            rangePosition .. " is invalid. It must be between 1 & " .. rangeDotCount)
+                        error("rangePosition: " .. rangePosition .. " is invalid. It must be between 1 & " .. rangeDotCount)
                     end
+                    return item.control, rangePosition
                 end
-                return item.control, rangePosition
             end
         end
     end
-    return nil, nil
+    return
 end
 
 function ShowHoverText()
@@ -288,7 +288,12 @@ function MenuItem:Load(menu, itemDefinition, font, maxLength, textAlignment)
     maxLength = maxLength or PIXEL_WIDTH
     textAlignment = textAlignment or "left"
 
+    if itemDefinition.id == nil then
+        error("id is missing from itemDefinition " .. (itemDefinition.textString or ""))
+    end
+
     local this = {
+        id = menu.id .. "." .. itemDefinition.id,
         type = itemDefinition.type,
         x = menu.marginSize,
         y = nil,
@@ -332,7 +337,7 @@ function MenuItem:Load(menu, itemDefinition, font, maxLength, textAlignment)
         elseif menu.textColourHover ~= nil then
             this.control.textHover = CreateControlText("boolean", font, menu.textColourHover, menu.backgroundColour)
         end
-        this.control.onClick = function() this.value = not (this.value) end
+        this.control.onClick = function() this:ToggleBooleanValue() end
     end
 
     this.text = love.graphics.newText(font)
@@ -360,6 +365,17 @@ function MenuItem:Load(menu, itemDefinition, font, maxLength, textAlignment)
     this.width, this.height = GetTextDimensions(this.text)
 
     return this
+end
+
+function MenuItem:ToggleBooleanValue()
+    log.debug("toggling setting ", self.id)
+    
+    self.value = not (self.value)
+    if self.id == "video.fullscreen" then
+        love.window.setFullscreen(self.value)
+    elseif self.id == "game.useRotatedY" then
+        Settings.movement.useRotatedY = self.value
+    end
 end
 
 function GetTextDimensions(text)

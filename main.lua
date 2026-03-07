@@ -42,43 +42,47 @@ local map1 = Map:New(mapDefinition)
 Menus = {}
 Menus.sound = Menu:Initialise("sound", "Sound Settings")
 Menus.sound.itemDefinitions = {
-    { textString = "Master", type = "range",  value = Settings.volume.master },
-    { textString = "Music",  type = "range",  value = Settings.volume.music },
-    { textString = "Back",   type = "button", onClick = function() Menu.Back() end }
+    { id = "master", textString = "Master", type = "range",  value = Settings.volume.master },
+    { id = "music",  textString = "Music",  type = "range",  value = Settings.volume.music },
+    { id = "back",   textString = "Back",   type = "button", onClick = function() Menu.Back() end }
 }
 
 Menus.game = Menu:Initialise("game", "Game Settings")
 Menus.game.itemDefinitions = {
-    { textString = "Use Rotated Y Axis", type = "boolean", value = Settings.movement.useRotatedY },
-    { textString = "Back",               type = "button",  onClick = function() Menu.Back() end }
+    { id = "useRotatedY", textString = "Use Rotated Y Axis", type = "boolean", value = Settings.movement.useRotatedY },
+    { id = "back",        textString = "Back",               type = "button",  onClick = function() Menu.Back() end }
 }
 
 Menus.video = Menu:Initialise("video", "Video Settings")
 Menus.video.itemDefinitions = {
-    { textString = "Fullscreen", type = "boolean", value = Settings.video.fullscreen },
-    { textString = "Back",       type = "button",  onClick = function() Menu.Back() end }
+    { id = "fullscreen", textString = "Fullscreen", type = "boolean", value = Settings.video.fullscreen },
+    { id = "back",       textString = "Back",       type = "button",  onClick = function() Menu.Back() end }
 }
 
 Menus.options = Menu:Initialise("options", "Options")
 Menus.options.itemDefinitions = {
-    { textString = "Game",  type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.game) end },
-    { textString = "Video", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.video) end },
-    { textString = "Sound", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.sound) end },
-    { textString = "Back",  type = "button", onClick = function() Menu.Back() end }
+    { id = "game",  textString = "Game",  type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.game) end },
+    { id = "video", textString = "Video", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.video) end },
+    { id = "sound", textString = "Sound", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.sound) end },
+    { id = "back",  textString = "Back",  type = "button", onClick = function() Menu.Back() end }
 }
 
 Menus.pause = Menu:Initialise("pause", "Paused")
 Menus.pause.itemDefinitions = {
-    { textString = "Resume",  type = "button", onClick = function() SetGameState() end },
-    { textString = "Options", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.options) end },
-    { textString = "Quit",    type = "button", onClick = function() Quit() end }
+    { id = "resume",  textString = "Resume",  type = "button", onClick = function() SetGameState() end },
+    { id = "options", textString = "Options", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.options) end },
+    { id = "quit",    textString = "Quit",    type = "button", onClick = function() Quit() end }
 }
 
 function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
 
-    -- don't know if size matters here if fullscreen anyway
-    love.window.setMode(1920, 1080, { vsync = true, msaa = 0, highdpi = true, fullscreen = true })
+    -- Size here determines the default screen size if Fullscreen is disabled
+    local _, _, flags = love.window.getMode()
+    local desktopWidth, desktopHeight = love.window.getDesktopDimensions(flags.display)
+    local startInFullscreen = Settings.video.fullscreen or false
+
+    love.window.setMode(desktopWidth*0.8, desktopHeight*0.8, { vsync = true, msaa = 0, highdpi = true, fullscreen = startInFullscreen, resizable = true })
 
     LoadTransforms()
 
@@ -157,19 +161,12 @@ function love.mousereleased(x, y, button, istouch, presses)
 end
 
 function love.resize(w, h)
-    -- Unload menus to force recalculation of positions etc.
-    for key, value in pairs(Menus) do
-        Menus[key].loaded = false
-    end
+    -- Update fullscreen setting to match the actual state
+    local _
+    Settings.video.fullscreen, _ = love.window.getFullscreen()
 
     log.debug(("Window resized to width: %d and height: %d."):format(w, h))
 end
-
--- function love.mousefocus(focus)
---     if focus then
---         SetGameState(Game.state)
---     end
--- end
 
 function love.focus(focus)
     if not focus then
@@ -288,7 +285,7 @@ function DrawDebugRenderers()
         for i = 1, #debugText do
             debugTextString = debugTextString .. "\n" .. debugText[i]
         end
-        print(debugTextString)
+        log.debug(debugTextString)
     end
 end
 
