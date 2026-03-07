@@ -22,7 +22,7 @@ function Menu:Initialise(id, title)
         minHeight = 120,
         minWidth = 96,
         backgroundColour = { 0.55, 0.55, 0.55 },
-        textColour = { 1, 1, 1 },
+        textColour = { 0.925, 0.925, 0.925 },
         textColourHover = { 0.1, 0.3, 0.1 },
         textColourClick = { 0.1, 0.3, 0.1 },
         textColourDisabled = { 0.69, 0.69, 0.69 },
@@ -88,7 +88,8 @@ function Menu:Load()
 
     -- Set Title
     local title = self.title
-    title.text = love.graphics.newText(Config.fonts.ui, title.textString)
+    title.text = love.graphics.newText(Config.fonts.ui, "")
+    title.text:setf({ self.textColour, title.textString }, PIXEL_WIDTH, "left")
     title.width = title.text:getWidth()
     title.height = title.text:getHeight()
     -- Title X can't be set until the menu width is decided
@@ -277,7 +278,6 @@ function Menu:GetItem(x, y)
             end
         end
     end
-    return
 end
 
 function ShowHoverText()
