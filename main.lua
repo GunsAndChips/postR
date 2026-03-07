@@ -75,7 +75,10 @@ Menus.pause.itemDefinitions = {
 }
 
 function love.load()
+    -- Set image/pixel colours to not blur/antialias
     love.graphics.setDefaultFilter("nearest", "nearest")
+    -- Set lines to not antialias
+    love.graphics.setLineStyle("rough")
 
     -- Size here determines the default screen size if Fullscreen is disabled
     local _, _, flags = love.window.getMode()

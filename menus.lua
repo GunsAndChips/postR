@@ -21,7 +21,7 @@ function Menu:Initialise(id, title)
         loaded = false,
         minHeight = 120,
         minWidth = 96,
-        backgroundColour = { 0.5, 0.5, 0.5 },
+        backgroundColour = { 0.55, 0.55, 0.55 },
         textColour = { 1, 1, 1 },
         textColourHover = { 0.1, 0.3, 0.1 },
         textColourClick = { 0.1, 0.3, 0.1 },
@@ -153,6 +153,14 @@ function Menu:Load()
     self.loaded = true
 end
 
+local function MultiplyColour(colour, multiplier)
+    return {
+        colour[1] * multiplier,
+        colour[2] * multiplier,
+        colour[3] * multiplier
+    }
+end
+
 function Menu:Draw()
     if not self.loaded then
         Menu.Load(self)
@@ -164,6 +172,25 @@ function Menu:Draw()
     -- background
     love.graphics.setColor(self.backgroundColour)
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
+
+    -- drop shadow
+    love.graphics.setLineWidth(1)
+
+    love.graphics.setColor(MultiplyColour(self.backgroundColour, 0.75))
+    love.graphics.line(self.width + 0.5, 1, self.width + 0.5, self.height)
+    love.graphics.line(1, self.height + 0.5, self.width + 1, self.height + 0.5)
+
+    -- bevelled edge (bottom)
+    love.graphics.setLineWidth(2)
+    love.graphics.setColor(MultiplyColour(self.backgroundColour, 1.08))
+    love.graphics.line(0, self.height - 1, self.width, self.height - 1)
+
+    -- bevelled edge (right)
+    love.graphics.setLineWidth(1)
+    love.graphics.setColor(MultiplyColour(self.backgroundColour, 1.16))
+    love.graphics.line(self.width - 0.5, 0, self.width - 0.5, self.height - 1)
+    love.graphics.line(self.width - 1.5, 0, self.width - 1.5, self.height - 2)
+
 
     -- title
     love.graphics.setColor(1, 1, 1)
@@ -369,7 +396,7 @@ end
 
 function MenuItem:ToggleBooleanValue()
     log.debug("toggling setting ", self.id)
-    
+
     self.value = not (self.value)
     if self.id == "video.fullscreen" then
         love.window.setFullscreen(self.value)
