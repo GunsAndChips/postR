@@ -14,7 +14,7 @@ end
 
 PIXEL_WIDTH, PIXEL_HEIGHT = 320, 180
 
-LoadSettings()
+Settings = LoadSettings()
 
 -- Cuts up a tilesheet into individual tiles/quads
 local function CreateQuads(tilesheet, tileWidth, tileHeight)
@@ -89,7 +89,6 @@ function love.load()
 
     LoadTransforms()
 
-    Player = Config.player
     Player.x = PIXEL_WIDTH / 2
     Player.y = PIXEL_HEIGHT / 2
     Player.facing = "right"
@@ -140,7 +139,7 @@ function love.mousepressed(x, y, button, istouch, presses)
 
     if button == 1 then
         if Hovering.item ~= nil then
-            Hovering.clicking = 1
+            Hovering.clicking = button
         else
             Hovering.clicking = false
         end
@@ -180,7 +179,6 @@ function love.focus(focus)
 end
 
 function SetGameState(newState)
-    log.debug("Setting game state!")
     if newState == nil then
         if Game.state == "paused" then
             newState = "play"
@@ -202,7 +200,7 @@ function SetGameState(newState)
         table.insert(Game.visibleMenus, Menus.pause)
     end
     Game.state = newState
-    log.debug("Game state set to: " .. Game.state)
+    log.debug("Game state set to: ", Game.state)
 end
 
 function love.draw()

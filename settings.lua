@@ -45,7 +45,7 @@ function LoadSettings()
 
     log.debug("Settings values loaded from JSON:", settingsFileContents)
 
-    Settings = OverwriteTable(settings, json.decode(settingsFileContents))
+    return OverwriteTable(settings, json.decode(settingsFileContents))
 end
 
 function SaveSettings()
@@ -86,20 +86,6 @@ Config.movement = {
     sprintMultiplier = 1.6
 }
 
-Config.player = {
-    width = 15,
-    height = 28,
-    targeting = {}
-}
-Config.player.targeting = {
-    distance = Config.tile.width * 0.9,
-    height = Config.player.height * 0.2,
-    texture = nil,
-    tile = nil,
-    x = 0,
-    y = 0
-}
-
 Config.renderers = {}
 Config.renderers.debug = {
     map = {
@@ -115,6 +101,21 @@ Config.renderers.debug = {
 
 Config.debug = {
     logging = true
+}
+
+Player = {
+    width = 15,
+    height = 28,
+    targeting = {},
+    action = nil
+}
+Player.targeting = {
+    distance = Config.tile.width * 0.9,
+    height = Player.height * 0.2,
+    texture = nil,
+    tile = nil,
+    x = 0,
+    y = 0
 }
 
 function LoadTransforms()
