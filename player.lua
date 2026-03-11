@@ -75,6 +75,21 @@ function UpdatePlayerTargetingCoords()
     }
 end
 
-function PlayerInteract(dt)
+function Player.Interact(button, dt)
     -- hi
+    log.debug("Starting player interact")
+
+    if Player.action == nil and button ~= nil then
+        if button == 1 then
+            Player.action = "till"
+            Player.actionCooldownSeconds = 4
+        end
+        return
+    end
+
+    if Player.action == "till" then
+        if Player.actionCooldownSeconds > dt then
+            Player.actionCooldownSeconds = Player.actionCooldownSeconds - dt
+        end
+    end
 end

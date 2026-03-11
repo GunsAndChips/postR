@@ -25,8 +25,7 @@ local function CreateQuads(tilesheet, tileWidth, tileHeight)
 
     for i = 0, rows - 1 do
         for j = 0, columns - 1 do
-            local quad = love.graphics.newQuad(j * tileWidth, i * tileHeight, tileWidth, tileHeight,
-                tilesheet:getDimensions())
+            local quad = love.graphics.newQuad(j * (tileWidth + 2) + 1, i * (tileHeight + 2) + 1, tileWidth, tileHeight, tilesheet:getDimensions())
             table.insert(quads, quad)
         end
     end
@@ -116,13 +115,14 @@ end
 function love.update(dt)
     if Game.state == "play" then
         PlayerMove(dt)
-        PlayerInteract(dt)
+        if Player.action ~= nil then
+            Player.Interact(nil, dt)
+        end
     end
 end
 
 function love.keypressed(key, scancode, isrepeat)
     if key == _Key.pause then
-        log.debug("Pause key pressed!")
         local currentMenu = Game.visibleMenus[#Game.visibleMenus]
         -- If the top menu isn't the pause menu, remove it
         if #Game.visibleMenus > 0 and currentMenu.id ~= "pause" then
@@ -142,6 +142,12 @@ function love.mousepressed(x, y, button, istouch, presses)
             Hovering.clicking = button
         else
             Hovering.clicking = false
+        end
+    end
+
+    if Game.state == "play" then
+        if button == 1 or button == 2 then
+            Player.Interact(button, 0)
         end
     end
 end
