@@ -81,11 +81,6 @@ function LoadFonts()
     Config.fonts.ui200 = love.graphics.newFont("/fonts/m6x11.ttf", 32, "normal", dpiScale)
 end
 
-Config.movement = {
-    moveSpeed = 0.07 * 1.6 * 2.5,
-    sprintMultiplier = 1.6
-}
-
 Config.renderers = {}
 Config.renderers.debug = {
     map = {
@@ -107,7 +102,11 @@ Player = {
     width = 15,
     height = 28,
     targeting = {},
-    action = nil
+    action = nil,
+    movement = {
+        moveSpeed = 0.07 * 1.6 * 2.5,
+        sprintMultiplier = 1.6
+    }
 }
 Player.targeting = {
     distance = Config.tile.width * 0.9,

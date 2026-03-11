@@ -8,7 +8,7 @@ function PlayerMove(dt)
     local speed = {}
     speed.x = 0
     speed.y = 0
-    speed.magnitude = Config.movement.moveSpeed
+    speed.magnitude = Player.movement.moveSpeed
 
     -- Set direction for x/y movement
     if love.keyboard.isDown(_Key.right) then
@@ -36,7 +36,7 @@ function PlayerMove(dt)
     -- Movespeed modifiers
     -- Sprint
     if love.keyboard.isDown(_Key.sprint) then
-        speed.magnitude = Config.movement.moveSpeed * Config.movement.sprintMultiplier
+        speed.magnitude = Player.movement.moveSpeed * Player.movement.sprintMultiplier
     end
     -- Make diagonal movespeed same as straightline
     if math.abs(speed.y) + math.abs(speed.x) == 2 then
