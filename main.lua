@@ -20,12 +20,12 @@ Settings = LoadSettings()
 local function CreateQuads(tilesheet, tileWidth, tileHeight)
     local quads = {}
 
-    local rows = math.floor(tilesheet:getHeight() / tileHeight)
-    local columns = math.floor(tilesheet:getWidth() / tileWidth)
+    local rows = math.floor(tilesheet:getHeight() / tileHeight + 2)
+    local columns = math.floor(tilesheet:getWidth() / tileWidth + 2)
 
     for i = 0, rows - 1 do
         for j = 0, columns - 1 do
-            local quad = love.graphics.newQuad(j * (tileWidth + 2) + 1, i * (tileHeight + 2) + 1, tileWidth, tileHeight, tilesheet:getDimensions())
+            local quad = love.graphics.newQuad(j * (tileWidth + 2) + 1, i * (tileHeight + 2) + 1, tileWidth + 1, tileHeight + 1, tilesheet:getDimensions())
             table.insert(quads, quad)
         end
     end
