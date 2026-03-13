@@ -1,3 +1,7 @@
+-- TLfres modified from the original, to add an option to restrict scaling to pixel perfect values
+-- Original sourced from https://love2d.org/wiki/TLfres (specifically this version: https://love2d.org/w/index.php?title=TLfres&oldid=26720)
+-- TLfres is under the ZLIB license: https://opensource.org/license/zlib
+
 local lwGetMode     = _G.love.window.getMode
 local lgPush        = _G.love.graphics.push
 local lgPop         = _G.love.graphics.pop
@@ -45,7 +49,7 @@ end
 -- Zooms and centers to fit width×height into the current window.
 -- 0,0 is at the top-left of the canvas, or the middle if centered is true.
 -- Use love.graphics.push before this and love.graphics.pop after done rendering
-function TLfres.beginRendering(width, height, centered)
+function TLfres.beginRendering(width, height, centered, pixelPerfect)
    if currentlyRendering then
       error("Must call tlfres.endRendering before calling beginRendering.")
       return
@@ -55,6 +59,9 @@ function TLfres.beginRendering(width, height, centered)
 
    local w, h = lwGetMode()
    local scale = min(w/width, h/height)
+   if pixelPerfect then
+      scale = math.floor(scale)
+   end
    lgTranslate((w - width * scale) * 0.5, (h - height * scale) * 0.5)
    lgScale(scale)
    if centered then

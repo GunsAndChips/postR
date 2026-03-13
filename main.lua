@@ -79,6 +79,8 @@ function love.load()
     -- Set lines to not antialias
     love.graphics.setLineStyle("rough")
 
+    love.graphics.setBackgroundColor({0.18, 0.18, 0.18, 1})
+
     -- Size here determines the default screen size if Fullscreen is disabled
     local _, _, flags = love.window.getMode()
     local desktopWidth, desktopHeight = love.window.getDesktopDimensions(flags.display)
@@ -210,7 +212,7 @@ function SetGameState(newState)
 end
 
 function love.draw()
-    TLfres.beginRendering(PIXEL_WIDTH, PIXEL_HEIGHT)
+    TLfres.beginRendering(PIXEL_WIDTH, PIXEL_HEIGHT, false, true)
 
     -- Apply map transform
     love.graphics.push()
