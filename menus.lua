@@ -408,7 +408,7 @@ end
 function GetTextDimensions(text)
     local t = nil
     if text == nil then
-        log.warning('GetTextDimensions called with text set to nil')
+        log.warning('Unable to get dimensions for text that is nil')
         return 0, 0
     elseif type(text) == "table" then
         t = text[1]

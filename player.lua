@@ -82,23 +82,24 @@ function Player.Interact(button, dt)
     -- If there is no action currently in cooldown, and key was pressed
     if a.action == nil then
         if button == nil then
-            log.warning("Player.Interact was called when there is no current action, and no button was pressed. This should not happen.")
+            log.warning("Player Interact function was called when there is no current action, and no button was pressed. This should not happen.")
             return
         elseif button == 1 then
             a.action = actionTypes.till
         else
-            log.warning("Player.Interact was called with a button/key press that has not been implemented.")
+            log.warning("Player Interact function was called with a button/key press that has not been implemented: ", button)
             return
         end
 
         a.cooldown = a.action.baseCooldown
         return
     elseif a.cooldown == nil or a.cooldown <= 0 then
-        log.warning("Player.Interact was called with an ongoing action, but the cooldown for it was nil or <= 0. This is an invalid state.")
+        log.warning("Player Interact function was called with ongoing action: ", a.action.id, ", but with a cooldown that is nil or <= 0. This is an invalid state.")
         a.action = nil
         return
     elseif a.cooldown > dt then
         a.cooldown = a.cooldown - dt
+        log.debug("Player interaction: ", a.action.id, ". Cooldown remaining: ", a.cooldown)
         return
     elseif a.cooldown <= dt then
         a.cooldown = 0

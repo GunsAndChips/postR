@@ -22,5 +22,5 @@ function log.debug(...)
 end
 
 function log.warning(...)
-    printToConsole(" ----- WARNING ----- ", ...)
+    printToConsole("WARNING", ...)
 end
