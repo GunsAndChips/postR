@@ -117,7 +117,7 @@ end
 function love.update(dt)
     if Game.state == "play" then
         PlayerMove(dt)
-        if Player.action ~= nil then
+        if Player.interaction.action ~= nil then
             Player.Interact(nil, dt)
         end
     end

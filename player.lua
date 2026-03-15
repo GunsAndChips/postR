@@ -76,20 +76,33 @@ function UpdatePlayerTargetingCoords()
 end
 
 function Player.Interact(button, dt)
-    -- hi
-    log.debug("Starting player interact")
+    local actionTypes = Config.entity.actions
+    local a = Player.interaction
 
-    if Player.action == nil and button ~= nil then
-        if button == 1 then
-            Player.action = "till"
-            Player.actionCooldownSeconds = 4
+    -- If there is no action currently in cooldown, and key was pressed
+    if a.action == nil then
+        if button == nil then
+            log.warning("Player.Interact was called when there is no current action, and no button was pressed. This should not happen.")
+            return
+        elseif button == 1 then
+            a.action = actionTypes.till
+        else
+            log.warning("Player.Interact was called with a button/key press that has not been implemented.")
+            return
         end
+
+        a.cooldown = a.action.baseCooldown
         return
-    end
-
-    if Player.action == "till" then
-        if Player.actionCooldownSeconds > dt then
-            Player.actionCooldownSeconds = Player.actionCooldownSeconds - dt
-        end
+    elseif a.cooldown == nil or a.cooldown <= 0 then
+        log.warning("Player.Interact was called with an ongoing action, but the cooldown for it was nil or <= 0. This is an invalid state.")
+        a.action = nil
+        return
+    elseif a.cooldown > dt then
+        a.cooldown = a.cooldown - dt
+        return
+    elseif a.cooldown <= dt then
+        a.cooldown = 0
+        a.action = nil
+        return
     end
 end

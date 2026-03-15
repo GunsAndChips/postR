@@ -98,11 +98,23 @@ Config.debug = {
     logging = true
 }
 
+Config.entity = {
+    actions = {
+        till = {
+            --id = "till",
+            baseCooldown = 1
+        }
+    }
+}
+
 Player = {
     width = 15,
     height = 28,
     targeting = {},
-    action = nil,
+    interaction = {
+        action = nil,
+        cooldown = 0
+    },
     movement = {
         baseSpeed = 0.07 * 1.6 * 2.5,
         sprintMultiplier = 1.6
