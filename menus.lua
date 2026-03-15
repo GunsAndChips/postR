@@ -406,21 +406,15 @@ function MenuItem:ToggleBooleanValue()
 end
 
 function GetTextDimensions(text)
+    local t = nil
     if text == nil then
-        error('Error setting width and height - text cannot be nil')
-    end
-
-    local width
-    local height
-
-    if type(text) == "table" then
-        -- Set width and height from first Text in table
-        width = text[1]:getWidth()
-        height = text[1]:getHeight()
+        log.warning('GetTextDimensions called with text set to nil')
+        return 0, 0
+    elseif type(text) == "table" then
+        t = text[1]
     else
-        -- Set width and height from Text
-        width = text:getWidth()
-        height = text:getHeight()
+        t = text
     end
-    return width, height
+
+    return t:getWidth(), t:getHeight()
 end
