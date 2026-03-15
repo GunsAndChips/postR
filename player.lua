@@ -8,7 +8,7 @@ function PlayerMove(dt)
     local speed = {}
     speed.x = 0
     speed.y = 0
-    speed.magnitude = Player.movement.moveSpeed
+    speed.magnitude = Player.movement.baseSpeed
 
     -- Set direction for x/y movement
     if love.keyboard.isDown(_Key.right) then
@@ -36,7 +36,7 @@ function PlayerMove(dt)
     -- Movespeed modifiers
     -- Sprint
     if love.keyboard.isDown(_Key.sprint) then
-        speed.magnitude = Player.movement.moveSpeed * Player.movement.sprintMultiplier
+        speed.magnitude = Player.movement.baseSpeed * Player.movement.sprintMultiplier
     end
     -- Make diagonal movespeed same as straightline
     if math.abs(speed.y) + math.abs(speed.x) == 2 then
@@ -65,7 +65,7 @@ end
 function UpdatePlayerTargetingCoords()
     Player.targeting.x = Player.x + Lookups.facingX[Player.facing] * (Player.width / 2 + Player.targeting.distance)
     -- Set height to target at, to the player's coords + half their height to get to their feet, minus the height
-    Player.targeting.y = Player.y + Player.height/2 - Player.targeting.height
+    Player.targeting.y = Player.y + Player.height / 2 - Player.targeting.height
 
     local tileX, tileY = MapTilesTransform:inverseTransformPoint(Player.targeting.x, Player.targeting.y)
 

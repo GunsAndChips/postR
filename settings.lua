@@ -104,7 +104,7 @@ Player = {
     targeting = {},
     action = nil,
     movement = {
-        moveSpeed = 0.07 * 1.6 * 2.5,
+        baseSpeed = 0.07 * 1.6 * 2.5,
         sprintMultiplier = 1.6
     }
 }
