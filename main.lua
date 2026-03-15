@@ -15,6 +15,7 @@ end
 PIXEL_WIDTH, PIXEL_HEIGHT = 320, 180
 
 Settings = LoadSettings()
+Config.Initialise()
 
 -- Cuts up a tilesheet into individual tiles/quads
 local function CreateQuads(tilesheet, tileWidth, tileHeight)

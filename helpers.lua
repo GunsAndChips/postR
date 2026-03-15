@@ -48,7 +48,10 @@ end
 -- Function to sort Tables by Keys from Lua documentation
 function PairsByKeys(t, f)
     local a = {}
-    for n in pairs(t) do table.insert(a, n) end
+    for n in pairs(t) do
+        table.insert(a, n)
+    end
+
     table.sort(a, f)
     local i = 0                -- iterator variable
     local iter = function()    -- iterator function
@@ -68,3 +71,9 @@ Lookups = {
         left = -1
     }
 }
+
+function AddIdToChildTables(table)
+    for k, v in pairs(table) do
+        v.id = k
+    end
+end

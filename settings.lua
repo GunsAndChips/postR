@@ -129,6 +129,10 @@ Player.targeting = {
     y = 0
 }
 
+function Config.Initialise()
+    AddIdToChildTables(Config.entity.actions)
+end
+
 function LoadTransforms()
     MapTransform = love.math.newTransform()
 
