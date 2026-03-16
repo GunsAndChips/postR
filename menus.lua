@@ -1,15 +1,11 @@
 Menu = {}
 Menu.__index = Menu
 
-function Menu:Initialise(id, title)
-    if type(id) ~= "string" then
-        error("Unable to create menu without id. Please provide a string value.")
-    end
-    title = title or "Menu Title"
+function Menu:Initialise(title)
     local this = {
-        id = id,
+        id = nil,
         title = {
-            textString = title,
+            textString = title or "Menu Title",
             text = nil,
             x = nil,
             y = nil,
@@ -29,6 +25,7 @@ function Menu:Initialise(id, title)
         textLineSpacing = 3,
         marginSize = 6
     }
+    setmetatable(this, self)
 
     return this
 end
@@ -84,7 +81,7 @@ end
 -- Fleshes out menu definitions
 -- e.g. sets fonts and x/y positions for items, so we don't have to do it every time we render them
 function Menu:Load()
-    log.debug("Loading menu: ", self.title.textString)
+    log.debug("Loading menu: ", self.id, " with ", #self.itemDefinitions, " itemDefinitions.")
 
     -- Set Title
     local title = self.title
@@ -102,6 +99,7 @@ function Menu:Load()
     for i = 1, #self.itemDefinitions do
         local itemDefinition = self.itemDefinitions[i]
         local item = MenuItem:Load(self, itemDefinition, Config.fonts.ui, maxItemLength)
+
         item.x = self.marginSize
         item.y = (i - 1) * (item.height + self.textLineSpacing) + 2 * self.marginSize + title.height
 
@@ -164,7 +162,7 @@ end
 
 function Menu:Draw()
     if not self.loaded then
-        Menu.Load(self)
+        self:Load()
     end
 
     love.graphics.push()
@@ -192,7 +190,6 @@ function Menu:Draw()
     love.graphics.line(self.width - 0.5, 0, self.width - 0.5, self.height - 1)
     love.graphics.line(self.width - 1.5, 0, self.width - 1.5, self.height - 2)
 
-
     -- title
     love.graphics.setColor(1, 1, 1)
     love.graphics.draw(self.title.text, self.title.x, self.title.y)
@@ -202,6 +199,10 @@ function Menu:Draw()
         local item = self.items[i]
         local x = item.x
         local displayText = item.text
+
+        if displayText == nil then
+            error("Cannot draw menu item with item.text = nil")
+        end
 
         if Hovering.item == item then
             x = item.x + item.hoverOffsetX
@@ -312,12 +313,12 @@ MenuItem = {}
 MenuItem.__index = MenuItem
 
 function MenuItem:Load(menu, itemDefinition, font, maxLength, textAlignment)
+    if itemDefinition.id == nil then
+        log.warning("id is missing from itemDefinition ", itemDefinition.textString)
+    end
+
     maxLength = maxLength or PIXEL_WIDTH
     textAlignment = textAlignment or "left"
-
-    if itemDefinition.id == nil then
-        error("id is missing from itemDefinition " .. (itemDefinition.textString or ""))
-    end
 
     local this = {
         id = menu.id .. "." .. itemDefinition.id,
@@ -329,9 +330,14 @@ function MenuItem:Load(menu, itemDefinition, font, maxLength, textAlignment)
         onClick = itemDefinition.onClick,
         value = itemDefinition.value,
         menu = menu,
-        hoverOffsetX = 0
+        hoverOffsetX = 0,
+        textString = itemDefinition.textString,
+        text = nil,
+        textHover = nil
     }
     setmetatable(this, self)
+
+    log.debug("Loading menu item: ", this.id)
 
     if this.type == "button" then
         this.hoverOffsetX = 2
@@ -368,13 +374,13 @@ function MenuItem:Load(menu, itemDefinition, font, maxLength, textAlignment)
     end
 
     this.text = love.graphics.newText(font)
-    this.text:setf({ menu.textColour, itemDefinition.textString }, maxLength, textAlignment)
+    this.text:setf({ menu.textColour, this.textString }, maxLength, textAlignment)
 
     if menu.textColourHover == menu.textColour then
         this.textHover = this.text
     elseif menu.textColourHover ~= nil then
         this.textHover = love.graphics.newText(font)
-        this.textHover:setf({ menu.textColourHover, itemDefinition.textString }, maxLength, textAlignment)
+        this.textHover:setf({ menu.textColourHover, this.textString }, maxLength, textAlignment)
     end
 
     if this.onClick ~= nil and menu.textColourClick ~= nil then
@@ -385,7 +391,7 @@ function MenuItem:Load(menu, itemDefinition, font, maxLength, textAlignment)
             this.textClick = this.textHover
         else
             this.textClick = love.graphics.newText(font)
-            this.textClick:setf({ menu.textColourClick, itemDefinition.textString }, maxLength, textAlignment)
+            this.textClick:setf({ menu.textColourClick, this.textString }, maxLength, textAlignment)
         end
     end
 

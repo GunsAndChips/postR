@@ -53,8 +53,8 @@ function PairsByKeys(t, f)
     end
 
     table.sort(a, f)
-    local i = 0                -- iterator variable
-    local iter = function()    -- iterator function
+    local i = 0             -- iterator variable
+    local iter = function() -- iterator function
         i = i + 1
         if a[i] == nil then
             return nil
@@ -73,7 +73,13 @@ Lookups = {
 }
 
 function AddIdToChildTables(table)
-    for k, v in pairs(table) do
-        v.id = k
+    if type(table) ~= "table" then
+        error("Called function to add Id to child tables, but the parent provided is not a table")
+    end
+
+    for key, value in pairs(table) do
+        if type(value) == "table" then
+            value.id = key
+        end
     end
 end
