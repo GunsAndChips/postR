@@ -1,1 +1,1 @@
-{"volume":{"music":7,"master":3},"video":{"fullscreen":true},"movement":{"useRotatedY":true},"Keybinds":{"down":"s","right":"d","left":"a","pause":"escape","sprint":"lshift","up":"w"}}
+{"Keybinds":{"pause":"escape","right":"d","sprint":"lshift","up":"w","down":"s","left":"a"},"volume":{"music":5,"master":2},"video":{"fullscreen":true},"movement":{"useRotatedY":true}}

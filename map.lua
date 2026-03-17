@@ -3,7 +3,7 @@ Map.__index = Map
 
 function Map:New(mapDefinition)
     Config.tile.height = mapDefinition.tileheight
-    Config.tile.width = mapDefinition.tilewidth - (Config.tile.staggerX - 1)
+    Config.tile.width = mapDefinition.tilewidth
 
     local this = {
         tiles = {
