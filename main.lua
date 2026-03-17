@@ -80,7 +80,7 @@ function love.load()
     -- Set lines to not antialias
     love.graphics.setLineStyle("rough")
 
-    love.graphics.setBackgroundColor({0.18, 0.18, 0.18, 1})
+    love.graphics.setBackgroundColor({0.09, 0.09, 0.09, 1})
 
     -- Size here determines the default screen size if Fullscreen is disabled
     local _, _, flags = love.window.getMode()
