@@ -29,7 +29,7 @@ function Map:Render()
 
     for row = 1, self.heightInTiles do
         for col = 1, self.widthInTiles do
-            --Stagger each row to the left? for parallelogram tiling
+            -- Stagger each row to the left for oblique tiling
             local staggerX = -self.tileStaggerX * row + 1
 
             local tileX = (col - 1) * self.tileWidth + staggerX
