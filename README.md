@@ -35,7 +35,7 @@ Windows PC
 
 - Visual Studio Code for code
 - Love2d framework for Lua
-- Aseprite for Graphics & UI
+- ~~Aseprite~~ Paint.NET for Graphics & UI (for now)
 
 ### Genre
 Farming RPG?
