@@ -34,12 +34,13 @@ function LoadSettings()
 
     local settingsFile = io.open("playersettings.json", "r")
     if not settingsFile then
-        error("Unable to open playersettings.json")
+        log.debug("There is no playersettings.json file, using defaults")
+        return settings
     end
 
     local settingsFileContents = settingsFile:read("*a")
     if #settingsFileContents < 2 then
-        log.debug("Settings file is empty, using defaults")
+        log.debug("playersettings.json file is empty, using defaults")
         return settings
     end
 
