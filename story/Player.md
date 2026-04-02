@@ -1,0 +1,1 @@
+The player character lived through the [[Apocalyptic Event]], but doesn't talk about it much.
