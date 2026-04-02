@@ -51,7 +51,7 @@ function love.load()
     local desktopWidth, desktopHeight = love.window.getDesktopDimensions(flags.display)
     local startInFullscreen = Settings.video.fullscreen or false
 
-    love.window.setMode(desktopWidth * 0.8, desktopHeight * 0.8, { vsync = true, msaa = 0, highdpi = true, fullscreen = startInFullscreen, resizable = true })
+    love.window.setMode(desktopWidth * 0.8, desktopHeight * 0.8, { vsync = true, msaa = 0, highdpi = true, fullscreen = startInFullscreen, resizable = true, minwidth = PIXEL_WIDTH, minheight = PIXEL_HEIGHT })
 
     LoadMenus()
     LoadTransforms()

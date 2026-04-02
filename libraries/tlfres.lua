@@ -51,7 +51,7 @@ end
 -- Use love.graphics.push before this and love.graphics.pop after done rendering
 function TLfres.beginRendering(width, height, centered, pixelPerfect)
    if currentlyRendering then
-      error("Must call tlfres.endRendering before calling beginRendering.")
+      error("Must call TLfres.endRendering before calling beginRendering.")
       return
    end
    currentlyRendering = {width, height}
@@ -76,7 +76,7 @@ local _black = {0, 0, 0, 255}
 -- bars. letterboxColor can also be any {r, g, b, a} table.
 function TLfres.endRendering(letterboxColor)
    if not currentlyRendering then
-      error("Must call tlfres.beginRendering before calling endRendering.")
+      error("Must call TLfres.beginRendering before calling endRendering.")
       return
    end
    local width, height = currentlyRendering[1], currentlyRendering[2]
