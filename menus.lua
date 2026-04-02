@@ -1,3 +1,41 @@
+function LoadMenus()
+    -- Load menus
+    Menus = {}
+    Menus.sound = Menu:Initialise("Sound Settings")
+    Menus.sound.itemDefinitions = {
+        { id = "master", textString = "Master", type = "range",  value = Settings.volume.master },
+        { id = "music",  textString = "Music",  type = "range",  value = Settings.volume.music },
+        { id = "back",   textString = "Back",   type = "button", onClick = function() Menu.Back() end }
+    }
+
+    Menus.game = Menu:Initialise("Game Settings")
+    Menus.game.itemDefinitions = {
+        { id = "useRotatedY", textString = "Use Rotated Y Axis", type = "boolean", value = Settings.movement.useRotatedY },
+        { id = "back",        textString = "Back",               type = "button",  onClick = function() Menu.Back() end }
+    }
+
+    Menus.video = Menu:Initialise("Video Settings")
+    Menus.video.itemDefinitions = {
+        { id = "fullscreen", textString = "Fullscreen", type = "boolean", value = Settings.video.fullscreen },
+        { id = "back",       textString = "Back",       type = "button",  onClick = function() Menu.Back() end }
+    }
+
+    Menus.options = Menu:Initialise("Options")
+    Menus.options.itemDefinitions = {
+        { id = "game",  textString = "Game",  type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.game) end },
+        { id = "video", textString = "Video", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.video) end },
+        { id = "sound", textString = "Sound", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.sound) end },
+        { id = "back",  textString = "Back",  type = "button", onClick = function() Menu.Back() end }
+    }
+
+    Menus.pause = Menu:Initialise("Paused")
+    Menus.pause.itemDefinitions = {
+        { id = "resume",  textString = "Resume",  type = "button", onClick = function() SetGameState() end },
+        { id = "options", textString = "Options", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.options) end },
+        { id = "quit",    textString = "Quit",    type = "button", onClick = function() Quit() end }
+    }
+end
+
 Menu = {}
 Menu.__index = Menu
 
