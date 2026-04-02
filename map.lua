@@ -34,16 +34,25 @@ function Map:Render()
 
             local tileX = (col - 1) * self.tileWidth + staggerX
             local tileY = (row - 1) * self.tileHeight
-            local tile = self:GetTile(col, row, 1)
 
-            if tile > 0 then
-                love.graphics.draw(TileSheet, TileQuads[tile], tileX, tileY)
-            end
+            for layer = 1, #self.tiles do
+                local tile = self:GetTile(col, row, layer)
+                local tileId, flipX, flipY, flipD = GetTileFlips(tile)
 
-            tile = self:GetTile(col, row, 2)
+                if tile > 0 then
+                    love.graphics.push()
+                    love.graphics.applyTransform(MapTransform)
 
-            if tile > 0 then
-                love.graphics.draw(TileSheet, TileQuads[tile], tileX, tileY)
+                    -- With oblique tiling, we can only do 180 degree rotations (we either flip horiztonal AND vertical, or neither)
+                    if flipX and flipY then
+                        love.graphics.scale(-1,-1)
+                        love.graphics.translate(- 2 * (tileX + 1) - self.tileWidth, -2 * tileY - self.tileHeight)
+                    end
+
+                    love.graphics.draw(TileSheet, TileQuads[tileId], tileX, tileY)
+
+                    love.graphics.pop()
+                end
             end
         end
     end
@@ -56,4 +65,23 @@ function Map:GetTile(x, y, layer)
     end
 
     return self.tiles[layer][(y - 1) * (self.widthInTiles) + x]
+end
+
+function GetTileFlips(tileGID)
+    local isFlippedHorizontal, isFlippedVertical, isFlippedDiagonal = false, false, false
+
+    if tileGID > 2 ^ 31 then
+        tileGID = tileGID - 2 ^ 31
+        isFlippedHorizontal = true
+    end
+    if tileGID > 2 ^ 30 then
+        tileGID = tileGID - 2 ^ 30
+        isFlippedVertical = true
+    end
+    if tileGID > 2 ^ 29 then
+        tileGID = tileGID - 2 ^ 29
+        isFlippedDiagonal = true
+    end
+
+    return tileGID, isFlippedHorizontal, isFlippedVertical, isFlippedDiagonal
 end

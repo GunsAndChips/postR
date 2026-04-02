@@ -183,10 +183,7 @@ function love.draw()
     TLfres.beginRendering(PIXEL_WIDTH, PIXEL_HEIGHT, false, true)
 
     -- Apply map transform
-    love.graphics.push()
-    love.graphics.applyTransform(MapTransform)
     map1:Render()
-    love.graphics.pop()
 
     -- Player targeting
     local period = 3
