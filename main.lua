@@ -51,7 +51,18 @@ function love.load()
     local desktopWidth, desktopHeight = love.window.getDesktopDimensions(flags.display)
     local startInFullscreen = Settings.video.fullscreen or false
 
-    love.window.setMode(desktopWidth * 0.8, desktopHeight * 0.8, { vsync = true, msaa = 0, highdpi = true, fullscreen = startInFullscreen, resizable = true, minwidth = PIXEL_WIDTH, minheight = PIXEL_HEIGHT })
+    love.window.setMode(
+    desktopWidth * 0.8,
+    desktopHeight * 0.8,
+    {
+        vsync = true,
+        msaa = 0,
+        highdpi = true,
+        fullscreen = startInFullscreen,
+        resizable = true,
+        minwidth = PIXEL_WIDTH,
+        minheight = PIXEL_HEIGHT
+    })
 
     LoadMenus()
     LoadTransforms()
@@ -94,16 +105,19 @@ end
 function love.draw()
     TLfres.beginRendering(PIXEL_WIDTH, PIXEL_HEIGHT, false, true)
 
-    -- Apply map transform
+    -- Draw Map
     map1:Render()
 
     -- Player targeting
-    local period = 3
-    local opacity = math.sin(math.abs(period / 2 - love.timer.getTime() % period) / period / 1.5) + 0.15
-    love.graphics.setColor(1, 1, 1, opacity)
-    if Player.targeting.tile ~= nil then
-        local targetX, targetY = MapTilesTransform:transformPoint(Player.targeting.tile.x, Player.targeting.tile.y)
-        love.graphics.draw(Player.targeting.texture, targetX - Config.tile.staggerX + 1, targetY)
+    if Player.targeting.tileOrigin ~= nil then
+        if map1:GetTile(Player.targeting.tileOrigin.x + 1, Player.targeting.tileOrigin.y + 1, 1) > 0 then
+            local period = 3
+            local opacity = math.sin(math.abs(period / 2 - love.timer.getTime() % period) / period / 1.5) + 0.15
+            love.graphics.setColor(1, 1, 1, opacity)
+
+            local targetX, targetY = MapTilesTransform:transformPoint(Player.targeting.tileOrigin.x, Player.targeting.tileOrigin.y)
+            love.graphics.draw(Player.targeting.texture, targetX - Config.tile.staggerX + 1, targetY)
+        end
     end
 
     -- Player
@@ -241,8 +255,8 @@ function DrawDebugRenderers()
         love.graphics.setColor(1, 0, 0)
         love.graphics.rectangle("fill", Player.targeting.x, Player.targeting.y, 1, 1)
 
-        if Player.targeting.tile ~= nil then
-            local tileX, tileY = MapTilesTransform:transformPoint(Player.targeting.tile.x, Player.targeting.tile.y)
+        if Player.targeting.tileOrigin ~= nil then
+            local tileX, tileY = MapTilesTransform:transformPoint(Player.targeting.tileOrigin.x, Player.targeting.tileOrigin.y)
             love.graphics.rectangle("fill", tileX, tileY, 1, 1)
         end
     end

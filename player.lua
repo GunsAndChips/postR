@@ -69,7 +69,7 @@ function UpdatePlayerTargetingCoords()
 
     local tileX, tileY = MapTilesTransform:inverseTransformPoint(Player.targeting.x, Player.targeting.y)
 
-    Player.targeting.tile = {
+    Player.targeting.tileOrigin = {
         x = math.floor(tileX),
         y = math.floor(tileY)
     }

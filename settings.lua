@@ -125,7 +125,7 @@ Player.targeting = {
     distance = Config.tile.width * 0.9,
     height = Player.height * 0.2,
     texture = nil,
-    tile = nil,
+    tileOrigin = nil,
     x = 0,
     y = 0
 }
