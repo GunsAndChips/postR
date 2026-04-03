@@ -27,6 +27,10 @@ end
 function Map:Render()
     love.graphics.setColor(1, 1, 1)
 
+    -- Apply map transform
+    love.graphics.push()
+    love.graphics.applyTransform(MapTransform)
+
     for row = 1, self.heightInTiles do
         for col = 1, self.widthInTiles do
             -- Stagger each row to the left for oblique tiling
@@ -41,7 +45,6 @@ function Map:Render()
 
                 if tile > 0 then
                     love.graphics.push()
-                    love.graphics.applyTransform(MapTransform)
 
                     -- With oblique tiling, we can only do 180 degree rotations (we either flip horiztonal AND vertical, or neither)
                     if flipX and flipY then
@@ -50,12 +53,12 @@ function Map:Render()
                     end
 
                     love.graphics.draw(TileSheet, TileQuads[tileId], tileX, tileY)
-
                     love.graphics.pop()
                 end
             end
         end
     end
+    love.graphics.pop()
 end
 
 function Map:GetTile(x, y, layer)
