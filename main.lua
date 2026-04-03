@@ -91,6 +91,37 @@ function love.update(dt)
     end
 end
 
+function love.draw()
+    TLfres.beginRendering(PIXEL_WIDTH, PIXEL_HEIGHT, false, true)
+
+    -- Apply map transform
+    map1:Render()
+
+    -- Player targeting
+    local period = 3
+    local opacity = math.sin(math.abs(period / 2 - love.timer.getTime() % period) / period / 1.5) + 0.15
+    love.graphics.setColor(1, 1, 1, opacity)
+    if Player.targeting.tile ~= nil then
+        local targetX, targetY = MapTilesTransform:transformPoint(Player.targeting.tile.x, Player.targeting.tile.y)
+        love.graphics.draw(Player.targeting.texture, targetX - Config.tile.staggerX + 1, targetY)
+    end
+
+    -- Player
+    love.graphics.setColor(0, 0.4, 0.4)
+    love.graphics.rectangle("fill", Player.x - Player.width / 2, Player.y - Player.height / 2, Player.width,
+        Player.height)
+
+    DrawDebugRenderers()
+
+    if #Game.visibleMenus > 0 then
+        for i = 1, #Game.visibleMenus do
+            Menu.Draw(Game.visibleMenus[i])
+        end
+    end
+
+    TLfres.endRendering()
+end
+
 function love.keypressed(key, scancode, isrepeat)
     if key == _Key.pause then
         local currentMenu = Game.visibleMenus[#Game.visibleMenus]
@@ -177,37 +208,6 @@ function SetGameState(newState)
     end
     Game.state = newState
     log.debug("Game state set to: ", Game.state)
-end
-
-function love.draw()
-    TLfres.beginRendering(PIXEL_WIDTH, PIXEL_HEIGHT, false, true)
-
-    -- Apply map transform
-    map1:Render()
-
-    -- Player targeting
-    local period = 3
-    local opacity = math.sin(math.abs(period / 2 - love.timer.getTime() % period) / period / 1.5) + 0.15
-    love.graphics.setColor(1, 1, 1, opacity)
-    if Player.targeting.tile ~= nil then
-        local targetX, targetY = MapTilesTransform:transformPoint(Player.targeting.tile.x, Player.targeting.tile.y)
-        love.graphics.draw(Player.targeting.texture, targetX - Config.tile.staggerX + 1, targetY)
-    end
-
-    -- Player
-    love.graphics.setColor(0, 0.4, 0.4)
-    love.graphics.rectangle("fill", Player.x - Player.width / 2, Player.y - Player.height / 2, Player.width,
-        Player.height)
-
-    DrawDebugRenderers()
-
-    if #Game.visibleMenus > 0 then
-        for i = 1, #Game.visibleMenus do
-            Menu.Draw(Game.visibleMenus[i])
-        end
-    end
-
-    TLfres.endRendering()
 end
 
 function DrawDebugRenderers()
