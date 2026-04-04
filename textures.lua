@@ -7,7 +7,7 @@ function CreateQuads(tilesheet, tileWidth, tileHeight)
 
     for i = 0, rows - 1 do
         for j = 0, columns - 1 do
-            local quad = love.graphics.newQuad(j * (tileWidth + 1), i * (tileHeight + 2), tileWidth, tileHeight, tilesheet:getDimensions())
+            local quad = love.graphics.newQuad(j * (tileWidth + 1), i * (tileHeight + 1), tileWidth, tileHeight, tilesheet:getDimensions())
             table.insert(quads, quad)
         end
     end
