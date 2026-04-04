@@ -82,21 +82,19 @@ function LoadFonts()
     Config.fonts.ui200 = love.graphics.newFont("/fonts/m6x11.ttf", 32, "normal", dpiScale)
 end
 
-Config.renderers = {}
-Config.renderers.debug = {
-    map = {
-        Transform = false,
-        TileTransform = false
-    },
-    player = {
-        targeting = false,
-        facing = false,
-        coords = false
-    }
-}
-
 Config.debug = {
-    logging = true
+    logging = true,
+    renderers = {
+        map = {
+            Transform = false,
+            TileTransform = false
+        },
+        player = {
+            targeting = false,
+            facing = false,
+            coords = false
+        }
+    }
 }
 
 Config.entity = {

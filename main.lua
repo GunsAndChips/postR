@@ -19,11 +19,9 @@ Settings = LoadSettings()
 Config.Initialise()
 
 function love.load()
-    -- Set image/pixel colours to not blur/antialias
-    love.graphics.setDefaultFilter("nearest", "nearest")
-    -- Set lines to not antialias
-    love.graphics.setLineStyle("rough")
-
+    -- Configure love behaviour
+    love.graphics.setDefaultFilter("nearest", "nearest") -- Turn off antialiasing for images
+    love.graphics.setLineStyle("rough") -- Turn off antialiasing for lines
     love.graphics.setBackgroundColor({ 0.09, 0.09, 0.09, 1 })
 
     -- Size here determines the default screen size if Fullscreen is disabled
@@ -211,14 +209,14 @@ end
 function DrawDebugRenderers()
     local debugText = {}
 
-    if Config.renderers.debug.map.Transform then
+    if Config.debug.renderers.map.Transform then
         love.graphics.setColor(1, 0, 0.8)
         love.graphics.push()
         love.graphics.applyTransform(MapTransform)
         love.graphics.rectangle("fill", 0, 0, 1, 1)
         love.graphics.pop()
     end
-    if Config.renderers.debug.map.TileTransform then
+    if Config.debug.renderers.map.TileTransform then
         love.graphics.setColor(1, 0, 0.8)
         love.graphics.push()
         love.graphics.applyTransform(MapTilesTransform)
@@ -229,13 +227,13 @@ function DrawDebugRenderers()
         end
         love.graphics.pop()
     end
-    if Config.renderers.debug.player.facing then
+    if Config.debug.renderers.player.facing then
         love.graphics.setColor(1, 0, 0)
         love.graphics.rectangle("fill", Player.x + Player.width / 2 * Lookups.facingX[Player.facing],
             Player.y - Player.height / 2, 1, 1)
         table.insert(debugText, "Facing: " .. Player.facing)
     end
-    if Config.renderers.debug.player.targeting then
+    if Config.debug.renderers.player.targeting then
         love.graphics.setColor(1, 0, 0)
         love.graphics.rectangle("fill", Player.targeting.x, Player.targeting.y, 1, 1)
 
@@ -244,7 +242,7 @@ function DrawDebugRenderers()
             love.graphics.rectangle("fill", tileX, tileY, 1, 1)
         end
     end
-    if Config.renderers.debug.player.coords then
+    if Config.debug.renderers.player.coords then
         table.insert(debugText, "Player.x: " .. Player.x .. " Player.y: " .. Player.y)
 
         -- Show player x,y in yellow
