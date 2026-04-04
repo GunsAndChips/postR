@@ -92,12 +92,12 @@ function love.draw()
 
     -- Player targeting
     if Player.targeting.tileOrigin ~= nil then
-        if Map1:GetTile(Player.targeting.tileOrigin.x + 1, Player.targeting.tileOrigin.y + 1, 1) > 0 then
+        if Map1:GetTile(Player.targeting.tileOrigin.x, Player.targeting.tileOrigin.y, 1) > 0 then
             local period = 3
             local opacity = math.sin(math.abs(period / 2 - love.timer.getTime() % period) / period / 1.5) + 0.15
             love.graphics.setColor(1, 1, 1, opacity)
 
-            local targetX, targetY = MapTilesTransform:transformPoint(Player.targeting.tileOrigin.x, Player.targeting.tileOrigin.y)
+            local targetX, targetY = MapTilesTransform:transformPoint(Player.targeting.tileOrigin.x - 1, Player.targeting.tileOrigin.y - 1)
             love.graphics.draw(Player.targeting.texture, targetX - Config.tile.staggerX + 1, targetY)
         end
     end

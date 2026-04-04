@@ -70,6 +70,33 @@ function Map:GetTile(x, y, layer)
     return self.tiles[layer][(y - 1) * (self.widthInTiles) + x]
 end
 
+function Map:SetTile(x, y, layer, newTileId)
+    layer = layer or 1
+    if x < 1 or y < 1 or x > self.widthInTiles or y > self.heightInTiles then
+        log.debug("Unable to set tile - out of bounds of the Map")
+        return
+    end
+
+    self.tiles[layer][(y - 1) * (self.widthInTiles) + x] = newTileId
+end
+
+function Map:SetTileIfMatch(x, y, layer, newTileId, tileIdsToMatch)
+    if #tileIdsToMatch < 1 then
+        return
+    end
+
+    log.debug("Getting the value of the tile at coordinates: " .. x .. ", " .. y)
+    local existingTileId = self:GetTile(x, y, layer)
+    log.debug("Checking if the value (" .. existingTileId .. ") is in ", tileIdsToMatch)
+    for i = 0, #tileIdsToMatch do
+        if existingTileId == tileIdsToMatch[i] then
+            self:SetTile(x, y, layer, newTileId)
+            return
+        end
+    end
+    log.debug("Tile's existing value was not in tileIdsToMatch, unable to set tile to " .. newTileId)
+end
+
 function GetTileFlips(tileGID)
     local isFlippedHorizontal, isFlippedVertical, isFlippedDiagonal = false, false, false
 

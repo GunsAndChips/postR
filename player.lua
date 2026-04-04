@@ -70,8 +70,8 @@ function UpdatePlayerTargetingCoords()
     local tileX, tileY = MapTilesTransform:inverseTransformPoint(Player.targeting.x, Player.targeting.y)
 
     Player.targeting.tileOrigin = {
-        x = math.floor(tileX),
-        y = math.floor(tileY)
+        x = math.floor(tileX) + 1,
+        y = math.floor(tileY) + 1
     }
 end
 
@@ -82,10 +82,11 @@ function Player.Interact(button, dt)
     -- If there is no action currently in cooldown, and key was pressed
     if a.action == nil then
         if button == nil then
-            log.warning("Player Interact function was called when there is no current action, and no button was pressed. This should not happen.")
+            log.warning("Player Interact function was called when there is no current action, and no button was pressed. This is an invalid state that should be impossible.")
             return
         elseif button == 1 then
             a.action = actionTypes.till
+            Map1:SetTileIfMatch(Player.targeting.tileOrigin.x, Player.targeting.tileOrigin.y, 1, Config.tile.ids.tilled, { Config.tile.ids.grass })
         else
             log.warning("Player Interact function was called with a button/key press that has not been implemented: ", button)
             return
@@ -94,14 +95,14 @@ function Player.Interact(button, dt)
         a.cooldown = a.action.baseCooldown
         return
     elseif a.cooldown == nil or a.cooldown <= 0 then
-        log.warning("Player Interact function was called with ongoing action: ", a.action.id, ", but with a cooldown that is nil or <= 0. This is an invalid state.")
+        log.warning("Player Interact function was called with ongoing action: ", a.action.id, ", but with a cooldown that is nil or <= 0. This is an invalid state that should be impossible.")
         a.action = nil
         return
     elseif a.cooldown > dt then
         a.cooldown = a.cooldown - dt
-        log.debug("Player interaction: ", a.action.id, ". Cooldown remaining: ", a.cooldown)
         return
     elseif a.cooldown <= dt then
+        log.debug("Player interaction cooldown ended.")
         a.cooldown = 0
         a.action = nil
         return

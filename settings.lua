@@ -70,7 +70,11 @@ Config = {}
 Config.tile = {
     width = 16,
     height = 9,
-    staggerX = 3
+    staggerX = 3,
+    ids = {
+        grass = 1,
+        tilled = 10
+    }
 }
 
 Config.fonts = {}
