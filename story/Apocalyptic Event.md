@@ -1,3 +1,8 @@
+---
+aliases:
+  - apocalypse
+---
+
 Happened a few years (three?) before the game
 
 Took down the internet everywhere
@@ -10,3 +15,4 @@ Options:
 Possible causes (conflicting evidence for each / people have their own theories):
 - EMP
 - Aliens
+- Government conspiracy
