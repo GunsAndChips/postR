@@ -63,21 +63,42 @@ end
 
 function Map:GetTile(x, y, layer)
     layer = layer or 1
-    if x < 1 or y < 1 or x > self.widthInTiles or y > self.heightInTiles then
+    -- Check if tile is out of bounds
+    if self:CheckIfTileIsOutOfBounds(x, y) then
         return -1
     end
 
     return self.tiles[layer][(y - 1) * (self.widthInTiles) + x]
 end
 
-function Map:SetTile(x, y, layer, newTileId)
-    layer = layer or 1
-    if x < 1 or y < 1 or x > self.widthInTiles or y > self.heightInTiles then
-        log.debug("Unable to set tile - out of bounds of the Map")
+function Map:SetTile(x, y, layer, newTileId, clearUpperLayers)
+    -- Check if tile is out of bounds
+    if self:CheckIfTileIsOutOfBounds(x, y) then
         return
     end
 
+    -- Set defaults for optional params
+    layer = layer or 1
+    clearUpperLayers = clearUpperLayers or true
+
     self.tiles[layer][(y - 1) * (self.widthInTiles) + x] = newTileId
+    if clearUpperLayers and layer < #self.tiles then
+        log.debug("Clearing upper layers above layer: " .. layer)
+        for i = layer + 1, #self.tiles do
+            self:SetTile(x, y, i, 0, false)
+        end
+    end
+end
+
+function Map:CheckIfTileIsOutOfBounds(x, y)
+    if self.widthInTiles == nil or self.heightInTiles == nil then
+        log.warning("Unable to check if tile is in bounds of map, as Map does not have widthInTiles or heightInTiles set.")
+        return
+    end
+    if x < 1 or y < 1 or x > self.widthInTiles or y > self.heightInTiles then
+        return true
+    end
+    return false
 end
 
 function Map:SetTileIfMatch(x, y, layer, newTileId, tileIdsToMatch)

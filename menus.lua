@@ -264,7 +264,7 @@ function Menu:Draw()
         love.graphics.draw(displayText, x, item.y)
 
         if item.type == "range" then
-            local controlText = nil
+            local controlText
 
             if Hovering.item == item.control then
                 controlText = item.control.textHover[Hovering.rangePosition + 1]
@@ -274,7 +274,7 @@ function Menu:Draw()
 
             love.graphics.draw(controlText, self.width - self.marginSize - controlText:getWidth(), item.control.y)
         elseif item.type == "boolean" then
-            local controlText = nil
+            local controlText
             if Hovering.item == item.control or Hovering.item == item then
                 controlText = item.control.textHover[item.value]
             else
