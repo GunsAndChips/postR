@@ -21,12 +21,12 @@ Config.Initialise()
 local function CreateQuads(tilesheet, tileWidth, tileHeight)
     local quads = {}
 
-    local rows = math.floor(tilesheet:getHeight() / tileHeight + 2)
-    local columns = math.floor(tilesheet:getWidth() / tileWidth + 2)
+    local rows = math.floor(tilesheet:getHeight() / tileHeight + 1)
+    local columns = math.floor(tilesheet:getWidth() / tileWidth + 1)
 
     for i = 0, rows - 1 do
         for j = 0, columns - 1 do
-            local quad = love.graphics.newQuad(j * (tileWidth + 2) + 1, i * (tileHeight + 2) + 1, tileWidth + 1, tileHeight + 1, tilesheet:getDimensions())
+            local quad = love.graphics.newQuad(j * (tileWidth + 1), i * (tileHeight + 1), tileWidth, tileHeight, tilesheet:getDimensions())
             table.insert(quads, quad)
         end
     end
@@ -88,7 +88,7 @@ function love.load()
     }
 
     TileSheet = love.graphics.newImage("textures/tileset1.png")
-    TileQuads = CreateQuads(TileSheet, Config.tile.width + (Config.tile.staggerX - 1), Config.tile.height)
+    TileQuads = CreateQuads(TileSheet, Config.tile.width + (Config.tile.staggerX), Config.tile.height)
 
     LoadFonts()
 end
