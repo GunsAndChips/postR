@@ -3,6 +3,7 @@ require "settings"
 require "menus"
 require "player"
 require "log"
+require "textures"
 
 -- TLfres for scaling
 local TLfres = require "libraries/tlfres"
@@ -16,27 +17,6 @@ PIXEL_WIDTH, PIXEL_HEIGHT = 320, 180
 
 Settings = LoadSettings()
 Config.Initialise()
-
--- Cuts up a tilesheet into individual tiles/quads
-local function CreateQuads(tilesheet, tileWidth, tileHeight)
-    local quads = {}
-
-    local rows = math.floor(tilesheet:getHeight() / tileHeight + 1)
-    local columns = math.floor(tilesheet:getWidth() / tileWidth + 1)
-
-    for i = 0, rows - 1 do
-        for j = 0, columns - 1 do
-            local quad = love.graphics.newQuad(j * (tileWidth + 1), i * (tileHeight + 1), tileWidth, tileHeight, tilesheet:getDimensions())
-            table.insert(quads, quad)
-        end
-    end
-
-    return quads
-end
-
--- Load map
-local mapDefinition = require "tiled/maptest1"
-local map1 = Map:New(mapDefinition)
 
 function love.load()
     -- Set image/pixel colours to not blur/antialias
@@ -87,6 +67,10 @@ function love.load()
         rangePosition = 1
     }
 
+    -- Load map
+    local mapDefinition = require "tiled/maptest1"
+    Map1 = Map:New(mapDefinition)
+
     TileSheet = love.graphics.newImage("textures/tileset1.png")
     TileQuads = CreateQuads(TileSheet, Config.tile.width + (Config.tile.staggerX), Config.tile.height)
 
@@ -106,11 +90,11 @@ function love.draw()
     TLfres.beginRendering(PIXEL_WIDTH, PIXEL_HEIGHT, false, true)
 
     -- Draw Map
-    map1:Render()
+    Map1:Render()
 
     -- Player targeting
     if Player.targeting.tileOrigin ~= nil then
-        if map1:GetTile(Player.targeting.tileOrigin.x + 1, Player.targeting.tileOrigin.y + 1, 1) > 0 then
+        if Map1:GetTile(Player.targeting.tileOrigin.x + 1, Player.targeting.tileOrigin.y + 1, 1) > 0 then
             local period = 3
             local opacity = math.sin(math.abs(period / 2 - love.timer.getTime() % period) / period / 1.5) + 0.15
             love.graphics.setColor(1, 1, 1, opacity)
