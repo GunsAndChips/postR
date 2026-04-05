@@ -52,7 +52,7 @@ function love.load()
     UpdatePlayerTargetingCoords()
 
     Player.textures.walk = love.graphics.newImage("/textures/Sprite-0001.png")
-    local grid = anim8.newGrid(Player.width, Player.height, Player.textures.walk:getWidth(),Player.textures.walk:getHeight())
+    local grid = anim8.newGrid(Player.width, Player.height, Player.textures.walk:getWidth(), Player.textures.walk:getHeight())
     Player.animations.walk = anim8.newAnimation(grid('1-4', 1), 0.1)
 
     _Key = Settings.Keybinds
@@ -74,7 +74,7 @@ function love.load()
     Map1 = Map:New(mapDefinition)
 
     TileSheet = love.graphics.newImage("textures/tileset1.png")
-    TileQuads = CreateQuads(TileSheet, Config.tile.width + (Config.tile.staggerX), Config.tile.height)
+    TileQuads = CreateQuads(TileSheet, Config.tile.width + (Config.tile.staggerX - 1), Config.tile.height)
 
     LoadFonts()
 end
