@@ -32,7 +32,7 @@ function PlayerMove(dt)
     elseif speed.x > 0 and Player.facing ~= "right" then
         Player.facing = "right"
         Player.animations.walk:flipH()
-    elseif speed.x < 0 and Player.facing ~="left" then
+    elseif speed.x < 0 and Player.facing ~= "left" then
         Player.facing = "left"
         Player.animations.walk:flipH()
     end

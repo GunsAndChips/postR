@@ -48,8 +48,8 @@ function Map:Render()
 
                     -- With oblique tiling, we can only do 180 degree rotations (we either flip horiztonal AND vertical, or neither)
                     if flipX and flipY then
-                        love.graphics.scale(-1,-1)
-                        love.graphics.translate(- 2 * (tileX + 1) - self.tileWidth, -2 * tileY - self.tileHeight)
+                        love.graphics.scale(-1, -1)
+                        love.graphics.translate(-2 * (tileX + 1) - self.tileWidth, -2 * tileY - self.tileHeight)
                     end
 
                     love.graphics.draw(TileSheet, TileQuads[tileId], tileX, tileY)
@@ -68,7 +68,7 @@ function Map:GetTile(x, y, layer)
         return -1
     end
 
-    return self.tiles[layer][(y - 1) * (self.widthInTiles) + x]
+    return self.tiles[layer][(y - 1) * self.widthInTiles + x]
 end
 
 function Map:SetTile(x, y, layer, newTileId, clearUpperLayers)
@@ -81,7 +81,7 @@ function Map:SetTile(x, y, layer, newTileId, clearUpperLayers)
     layer = layer or 1
     clearUpperLayers = clearUpperLayers or true
 
-    self.tiles[layer][(y - 1) * (self.widthInTiles) + x] = newTileId
+    self.tiles[layer][(y - 1) * self.widthInTiles + x] = newTileId
     if clearUpperLayers and layer < #self.tiles then
         log.debug("Clearing upper layers above layer: " .. layer)
         for i = layer + 1, #self.tiles do
