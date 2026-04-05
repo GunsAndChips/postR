@@ -1,3 +1,5 @@
+PIXEL_WIDTH, PIXEL_HEIGHT = 320, 180
+
 require "map"
 require "settings"
 require "menus"
@@ -13,7 +15,8 @@ function love.mouse.getPosition()
     return TLfres.getMousePosition(PIXEL_WIDTH, PIXEL_HEIGHT)
 end
 
-PIXEL_WIDTH, PIXEL_HEIGHT = 320, 180
+-- anim8 for animations
+local anim8 = require "libraries/anim8/anim8"
 
 Settings = LoadSettings()
 Config.Initialise()
@@ -21,7 +24,7 @@ Config.Initialise()
 function love.load()
     -- Configure love behaviour
     love.graphics.setDefaultFilter("nearest", "nearest") -- Turn off antialiasing for images
-    love.graphics.setLineStyle("rough") -- Turn off antialiasing for lines
+    love.graphics.setLineStyle("rough")                  -- Turn off antialiasing for lines
     love.graphics.setBackgroundColor({ 0.09, 0.09, 0.09, 1 })
 
     -- Size here determines the default screen size if Fullscreen is disabled
@@ -30,26 +33,27 @@ function love.load()
     local startInFullscreen = Settings.video.fullscreen or false
 
     love.window.setMode(
-    desktopWidth * 0.8,
-    desktopHeight * 0.8,
-    {
-        vsync = true,
-        msaa = 0,
-        highdpi = true,
-        fullscreen = startInFullscreen,
-        resizable = true,
-        minwidth = PIXEL_WIDTH,
-        minheight = PIXEL_HEIGHT
-    })
+        desktopWidth * 0.8,
+        desktopHeight * 0.8,
+        {
+            vsync = true,
+            msaa = 0,
+            highdpi = true,
+            fullscreen = startInFullscreen,
+            resizable = true,
+            minwidth = PIXEL_WIDTH,
+            minheight = PIXEL_HEIGHT
+        })
 
     LoadMenus()
     LoadTransforms()
 
-    Player.x = PIXEL_WIDTH / 2
-    Player.y = PIXEL_HEIGHT / 2
-    Player.facing = "right"
     Player.targeting.texture = love.graphics.newImage("/textures/targetedTile.png")
     UpdatePlayerTargetingCoords()
+
+    Player.textures.walk = love.graphics.newImage("/textures/Sprite-0001.png")
+    local grid = anim8.newGrid(Player.width, Player.height, Player.textures.walk:getWidth(),Player.textures.walk:getHeight())
+    Player.animations.walk = anim8.newAnimation(grid('1-4', 1), 0.1)
 
     _Key = Settings.Keybinds
 
@@ -102,10 +106,8 @@ function love.draw()
         end
     end
 
-    -- Player
-    love.graphics.setColor(0, 0.4, 0.4)
-    love.graphics.rectangle("fill", Player.x - Player.width / 2, Player.y - Player.height / 2, Player.width,
-        Player.height)
+    love.graphics.setColor(1, 1, 1)
+    Player.animations.walk:draw(Player.textures.walk, Player.x - Player.width / 2, Player.y - Player.height / 2)
 
     DrawDebugRenderers()
 

@@ -111,8 +111,11 @@ Config.entity = {
 }
 
 Player = {
-    width = 15,
-    height = 28,
+    x = PIXEL_WIDTH / 2,
+    y = PIXEL_HEIGHT / 2,
+    width = 16,
+    height = 32,
+    facing = "right",
     targeting = {},
     interaction = {
         action = nil,
@@ -121,6 +124,12 @@ Player = {
     movement = {
         baseSpeed = 0.07 * 1.6 * 2.5,
         sprintMultiplier = 1.6
+    },
+    textures = {
+        walk = {}
+    },
+    animations = {
+        walk = nil
     }
 }
 Player.targeting = {

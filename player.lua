@@ -2,6 +2,7 @@ require "helpers"
 
 function PlayerMove(dt)
     if not love.keyboard.isDown(_Key.up, _Key.down, _Key.left, _Key.right) then
+        Player.animations.walk:gotoFrame(1)
         return
     end
 
@@ -26,12 +27,18 @@ function PlayerMove(dt)
 
     -- Return if no movement
     if speed.y == 0 and speed.x == 0 then
+        Player.animations.walk:gotoFrame(1)
         return
-    elseif speed.x > 0 then
+    elseif speed.x > 0 and Player.facing ~= "right" then
         Player.facing = "right"
-    elseif speed.x < 0 then
+        Player.animations.walk:flipH()
+    elseif speed.x < 0 and Player.facing ~="left" then
         Player.facing = "left"
+        Player.animations.walk:flipH()
     end
+
+    -- Animate walking
+    Player.animations.walk:update(dt)
 
     -- Movespeed modifiers
     -- Sprint
