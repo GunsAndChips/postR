@@ -10,16 +10,16 @@ function Map:New(mapDefinition)
             mapDefinition.layers[1].data,
             mapDefinition.layers[2].data
         },
-        widthInTiles = mapDefinition.width,
-        heightInTiles = mapDefinition.height,
-        tileHeight = Config.tile.height,
-        tileWidth = Config.tile.width,
-        tileStaggerX = mapDefinition.skewx
+        width = mapDefinition.width,
+        height = mapDefinition.height,
+        tileHeight = mapDefinition.tileheight,
+        tileWidth = mapDefinition.tilewidth,
+        skewX = mapDefinition.skewx
     }
     setmetatable(this, self)
 
-    this.screenWidth = (this.widthInTiles) * this.tileWidth
-    this.screenHeight = (this.heightInTiles) * this.tileHeight
+    this.screenWidth = (this.width) * this.tileWidth
+    this.screenHeight = (this.height) * this.tileHeight
 
     return this
 end
@@ -31,10 +31,10 @@ function Map:Render()
     love.graphics.push()
     love.graphics.applyTransform(MapTransform)
 
-    for row = 1, self.heightInTiles do
-        for col = 1, self.widthInTiles do
+    for row = 1, self.height do
+        for col = 1, self.width do
             -- Stagger each row to the left for oblique tiling
-            local staggerX = self.tileStaggerX * row + 1
+            local staggerX = self.skewX * row + 1
 
             local tileX = (col - 1) * self.tileWidth + staggerX
             local tileY = (row - 1) * self.tileHeight
@@ -68,7 +68,7 @@ function Map:GetTile(x, y, layer)
         return -1
     end
 
-    return self.tiles[layer][(y - 1) * self.widthInTiles + x]
+    return self.tiles[layer][(y - 1) * self.width + x]
 end
 
 function Map:SetTile(x, y, layer, newTileId, clearUpperLayers)
@@ -81,7 +81,7 @@ function Map:SetTile(x, y, layer, newTileId, clearUpperLayers)
     layer = layer or 1
     clearUpperLayers = clearUpperLayers or true
 
-    self.tiles[layer][(y - 1) * self.widthInTiles + x] = newTileId
+    self.tiles[layer][(y - 1) * self.width + x] = newTileId
     if clearUpperLayers and layer < #self.tiles then
         log.debug("Clearing upper layers above layer: " .. layer)
         for i = layer + 1, #self.tiles do
@@ -91,11 +91,11 @@ function Map:SetTile(x, y, layer, newTileId, clearUpperLayers)
 end
 
 function Map:CheckIfTileIsOutOfBounds(x, y)
-    if self.widthInTiles == nil or self.heightInTiles == nil then
-        log.warning("Unable to check if tile is in bounds of map, as Map does not have widthInTiles or heightInTiles set.")
+    if self.width == nil or self.height == nil then
+        log.warning("Unable to check if tile is in bounds of map, as Map does not have width or height set.")
         return
     end
-    if x < 1 or y < 1 or x > self.widthInTiles or y > self.heightInTiles then
+    if x < 1 or y < 1 or x > self.width or y > self.height then
         return true
     end
     return false
