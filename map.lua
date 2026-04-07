@@ -121,16 +121,16 @@ end
 function GetTileFlips(tileGID)
     local isFlippedHorizontal, isFlippedVertical, isFlippedDiagonal = false, false, false
 
-    if tileGID > 2 ^ 31 then
-        tileGID = tileGID - 2 ^ 31
+    if tileGID > 2147483648 then
+        tileGID = tileGID - 2147483648 -- 2 ^ 31
         isFlippedHorizontal = true
     end
-    if tileGID > 2 ^ 30 then
-        tileGID = tileGID - 2 ^ 30
+    if tileGID > 1073741824 then
+        tileGID = tileGID - 1073741824 -- 2 ^ 30
         isFlippedVertical = true
     end
-    if tileGID > 2 ^ 29 then
-        tileGID = tileGID - 2 ^ 29
+    if tileGID > 536870912 then
+        tileGID = tileGID - 536870912 -- 2 ^ 29
         isFlippedDiagonal = true
     end
 

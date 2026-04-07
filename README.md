@@ -35,12 +35,13 @@ Windows PC
 
 - Visual Studio Code for code
 - Love2d framework for Lua
-- ~~Aseprite~~ Paint.NET for Graphics & UI (for now)
+- Paint.NET & Aseprite for Pixel Art
 
 ### Genre
 Farming RPG?
 Singleplayer
 Relaxing
+Community-focused
 
 ### Target Audience
 Me
