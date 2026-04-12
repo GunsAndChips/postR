@@ -4,7 +4,7 @@ require "map"
 require "settings"
 require "menus"
 require "player"
-require "debug"
+require "_debug"
 require "textures"
 
 -- TLfres for scaling
@@ -179,7 +179,7 @@ function love.resize(w, h)
     local _
     Settings.video.fullscreen, _ = love.window.getFullscreen()
 
-    log.debug(("Window resized to width: %d and height: %d."):format(w, h))
+    --log.debug(("Window resized to width: %d and height: %d."):format(w, h))
 end
 
 function love.focus(focus)
