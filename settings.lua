@@ -72,8 +72,8 @@ Config.tile = {
     height = 9,
     staggerX = 3,
     ids = {
-        grass = 1,
-        tilled = 10
+        grass = 2,
+        tilled = 4
     }
 }
 

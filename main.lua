@@ -73,8 +73,8 @@ function love.load()
     local mapDefinition = require "tiled/maptest1"
     Map1 = Map:New(mapDefinition)
 
-    TileSheet = love.graphics.newImage("textures/tileset1.png")
-    TileQuads = CreateQuads(TileSheet, Config.tile.width + (Config.tile.staggerX - 1), Config.tile.height)
+    TileSheet = love.graphics.newImage("textures/Sprite-0003.png")
+    TileQuads = CreateQuads(TileSheet, Config.tile.width + (Config.tile.staggerX - 1), Config.tile.height, 1)
 
     LoadFonts()
 end
@@ -96,7 +96,14 @@ function love.draw()
 
     -- Player targeting
     if Player.targeting.tileOrigin ~= nil then
-        if Map1:GetTile(Player.targeting.tileOrigin.x, Player.targeting.tileOrigin.y, 1) > 0 then
+        local excludedTileIds = {
+            [-1] = true,
+            [0] = true,
+            [8] = true,
+            [10] = true
+        }
+
+        if not excludedTileIds[Map1:GetTile(Player.targeting.tileOrigin.x, Player.targeting.tileOrigin.y, 1)] then
             local period = 3
             local opacity = math.sin(math.abs(period / 2 - love.timer.getTime() % period) / period / 1.5) + 0.15
             love.graphics.setColor(1, 1, 1, opacity)
@@ -222,8 +229,8 @@ function DrawDebugRenderers()
         love.graphics.setColor(1, 0, 0.8)
         love.graphics.push()
         love.graphics.applyTransform(MapTilesTransform)
-        for i = 0, 10 do
-            for j = 0, 10 do
+        for i = 0, 30 do
+            for j = 0, 30 do
                 love.graphics.rectangle("fill", i, j, 1 / Config.tile.width, 1 / Config.tile.height)
             end
         end
