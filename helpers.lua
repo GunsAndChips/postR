@@ -1,5 +1,4 @@
-require "log"
-
+-- require "log"
 -- function CloneTable(_table, allTablesSeen, depth)
 --     allTablesSeen = allTablesSeen or {}
 --     depth = depth or 0
@@ -74,7 +73,7 @@ Lookups = {
 
 function AddIdToChildTables(table)
     if type(table) ~= "table" then
-        error("Called function to add Id to child tables, but the parent provided is not a table")
+        error("Called function to add Id to child tables, but the parameter provided is not a table")
     end
 
     for key, value in pairs(table) do
