@@ -18,7 +18,8 @@ function SettingsClass:New()
             music = 2
         },
         video = {
-            fullscreen = true
+            fullscreen = true,
+            pixelPerfectMovement = true
         },
         movement = {
             useRotatedY = true

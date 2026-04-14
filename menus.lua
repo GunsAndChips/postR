@@ -16,8 +16,9 @@ function LoadMenus()
 
     Menus.video = Menu:Initialise("Video Settings")
     Menus.video.itemDefinitions = {
-        { id = "fullscreen", textString = "Fullscreen", type = "boolean", value = Settings.video.fullscreen },
-        { id = "back",       textString = "Back",       type = "button",  onClick = function() Menu.Back() end }
+        { id = "fullscreen",   textString = "Fullscreen",             type = "boolean", value = Settings.video.fullscreen },
+        { id = "pixelPerfect", textString = "Pixel Perfect Movement", type = "boolean", value = Settings.video.pixelPerfectMovement },
+        { id = "back",         textString = "Back",                   type = "button",  onClick = function() Menu.Back() end }
     }
 
     Menus.options = Menu:Initialise("Options")
@@ -58,7 +59,7 @@ function Menu:Initialise(title)
         backgroundColour = { 0.55, 0.55, 0.55 },
         textColour = { 0.925, 0.925, 0.925 },
         textColourHover = { 0.1, 0.3, 0.1 },
-        textColourClick = { 0.1, 0.3, 0.1 },
+        textColourClick = nil,
         textColourDisabled = { 0.69, 0.69, 0.69 },
         textLineSpacing = 3,
         marginSize = 6
@@ -267,7 +268,11 @@ function Menu:Draw()
             local controlText
 
             if Hovering.item == item.control then
+                -- If you're hovering the Control, adjust range accordingly
                 controlText = item.control.textHover[Hovering.rangePosition + 1]
+            elseif Hovering.item == item then
+                -- If you're hovering the menu item itself, show 0
+                controlText = item.control.textHover[1]
             else
                 controlText = item.control.text[item.value + 1]
             end
@@ -280,7 +285,12 @@ function Menu:Draw()
             else
                 controlText = item.control.text[item.value]
             end
-            love.graphics.draw(controlText, self.width - self.marginSize - controlText:getWidth(), item.control.y)
+
+            if controlText == nil then
+                log.warning("Attempted to draw controlText but it was nil")
+            else
+                love.graphics.draw(controlText, self.width - self.marginSize - controlText:getWidth(), item.control.y)
+            end
         end
     end
 
@@ -371,7 +381,8 @@ function MenuItem:Load(menu, itemDefinition, font, maxLength, textAlignment)
         hoverOffsetX = 0,
         textString = itemDefinition.textString,
         text = nil,
-        textHover = nil
+        textHover = nil,
+        control = nil
     }
     setmetatable(this, self)
 
@@ -399,38 +410,24 @@ function MenuItem:Load(menu, itemDefinition, font, maxLength, textAlignment)
     elseif this.type == "boolean" then
         this.control = {}
         this.control.text = CreateControlText("boolean", font, menu.textColour, menu.backgroundColour)
+        this.control.textHover = CreateControlText("boolean", font, menu.textColourHover, menu.backgroundColour)
 
         this.control.offsetY = -2
         this.control.width, this.control.height = GetTextDimensions(this.control.text[false])
 
-        if menu.textColourHover == menu.textColour then
-            this.control.textHover = this.control.text
-        elseif menu.textColourHover ~= nil then
-            this.control.textHover = CreateControlText("boolean", font, menu.textColourHover, menu.backgroundColour)
-        end
         this.control.onClick = function() this:ToggleBooleanValue() end
     end
 
     this.text = love.graphics.newText(font)
     this.text:setf({ menu.textColour, this.textString }, maxLength, textAlignment)
 
-    if menu.textColourHover == menu.textColour then
-        this.textHover = this.text
-    elseif menu.textColourHover ~= nil then
-        this.textHover = love.graphics.newText(font)
-        this.textHover:setf({ menu.textColourHover, this.textString }, maxLength, textAlignment)
-    end
+    this.textHover = love.graphics.newText(font)
+    this.textHover:setf({ menu.textColourHover, this.textString }, maxLength, textAlignment)
 
+    -- Set onClick text
     if this.onClick ~= nil and menu.textColourClick ~= nil then
-        -- Set click text
-        if menu.textColourClick == menu.textColour then
-            this.textClick = this.text
-        elseif menu.textColourClick == menu.textColourHover then
-            this.textClick = this.textHover
-        else
-            this.textClick = love.graphics.newText(font)
-            this.textClick:setf({ menu.textColourClick, this.textString }, maxLength, textAlignment)
-        end
+        this.textClick = love.graphics.newText(font)
+        this.textClick:setf({ menu.textColourClick, this.textString }, maxLength, textAlignment)
     end
 
     this.width, this.height = GetTextDimensions(this.text)
@@ -446,6 +443,8 @@ function MenuItem:ToggleBooleanValue()
         love.window.setFullscreen(self.value)
     elseif self.id == "game.useRotatedY" then
         Settings.movement.useRotatedY = self.value
+    elseif self.id == "video.pixelPerfect" then
+        Settings.video.pixelPerfectMovement = self.value
     end
 end
 

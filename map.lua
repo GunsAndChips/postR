@@ -24,12 +24,22 @@ function Map:New(mapDefinition)
     return this
 end
 
+local FlooredMapTransform = love.math.newTransform()
+
 function Map:Render()
     love.graphics.setColor(1, 1, 1)
 
     -- Apply map transform
     love.graphics.push()
-    love.graphics.applyTransform(MapTransform)
+    if Settings.video.pixelPerfectMovement then
+        local e1_1, e1_2, e1_3, e1_4, e2_1, e2_2, e2_3, e2_4, e3_1, e3_2, e3_3, e3_4, e4_1, e4_2, e4_3, e4_4 = MapTransform:getMatrix()
+
+        FlooredMapTransform:setMatrix("row", e1_1, e1_2, e1_3, math.floor(e1_4 + 0.5), e2_1, e2_2, e2_3, math.floor(e2_4 + 0.5), e3_1, e3_2, e3_3, e3_4, e4_1, e4_2, e4_3, e4_4)
+        love.graphics.applyTransform(FlooredMapTransform)
+    else
+        love.graphics.applyTransform(MapTransform)
+    end
+
 
     for row = 1, self.height do
         for col = 1, self.width do
