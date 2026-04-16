@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Apocalyptic Event.md",
+                "file": "Player.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Apocalyptic Event"
+              "title": "Player"
             }
           }
         ]
@@ -199,7 +199,7 @@
       "bases:Create new base": false
     }
   },
-  "active": "4bc08cd98b43394d",
+  "active": "dc97256123cb175c",
   "lastOpenFiles": [
     "Apocalyptic Event.md",
     "Setting.md",
