@@ -50,7 +50,7 @@ function LoadSettings()
     return OverwriteTable(settings, json.decode(settingsFileContents))
 end
 
-function SaveSettings()
+function SaveSettingsToFile()
     if Menus.sound.loaded == true then
         Settings.volume.master = Menus.sound.items[1].value
         Settings.volume.music = Menus.sound.items[2].value

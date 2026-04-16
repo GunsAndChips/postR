@@ -351,7 +351,7 @@ function GetClickingIfHovering()
 end
 
 function Menu.Back()
-    SaveSettings()
+    SaveSettingsToFile()
 
     -- Remove the top menu
     table.remove(Game.visibleMenus)

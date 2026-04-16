@@ -141,7 +141,7 @@ end
 
 function love.mousepressed(x, y, button, istouch, presses)
     -- Overwrite x and y using the TLFres library's function
-    local x, y = love.mouse.getPosition()
+    x, y = love.mouse.getPosition()
 
     if button == 1 then
         if Hovering.item ~= nil then
@@ -216,6 +216,6 @@ function SetGameState(newState)
 end
 
 function Quit()
-    SaveSettings()
+    SaveSettingsToFile()
     love.event.quit()
 end
