@@ -27,18 +27,22 @@
 --     return copy
 -- end
 
+-- TODO: fix this function because it copies entire subtables of the OverwriteTable, not each field within
 function OverwriteTable(table, overwriteWith)
     local newTable = {}
     for key in pairs(table) do
         if overwriteWith[key] ~= nil then
             newTable[key] = overwriteWith[key]
+            log.debug("Set ", key, " from json file")
         else
             newTable[key] = table[key]
+            log.debug("Set ", key, " from defaults")
         end
     end
     for key in pairs(overwriteWith) do
         if newTable[key] == nil then
             newTable[key] = overwriteWith[key]
+            log.debug("2. Set ", key, " from json file")
         end
     end
     return newTable
