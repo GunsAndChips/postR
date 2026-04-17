@@ -16,9 +16,9 @@ function LoadMenus()
 
     Menus.video = Menu:Initialise("Video Settings")
     Menus.video.itemDefinitions = {
-        { id = "fullscreen",   textString = "Fullscreen",             type = "boolean", value = Settings.video.fullscreen },
-        { id = "pixelPerfect", textString = "Pixel Perfect Movement", type = "boolean", value = Settings.video.pixelPerfectMovement },
-        { id = "back",         textString = "Back",                   type = "button",  onClick = function() Menu.Back() end }
+        { id = "fullscreen",   textString = "Fullscreen",           type = "boolean", value = Settings.video.fullscreen },
+        { id = "pixelPerfect", textString = "Pixel Perfect Player", type = "boolean", value = Settings.video.pixelPerfectMovement },
+        { id = "back",         textString = "Back",                 type = "button",  onClick = function() Menu.Back() end }
     }
 
     Menus.options = Menu:Initialise("Options")

@@ -19,7 +19,7 @@ function SettingsClass:New()
         },
         video = {
             fullscreen = true,
-            pixelPerfectMovement = true
+            pixelPerfectMovement = false
         },
         movement = {
             useRotatedY = true
