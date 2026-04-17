@@ -1,35 +1,35 @@
 function LoadMenus()
     -- Load menus
     Menus = {}
-    Menus.sound = Menu:Initialise("Sound Settings")
+    Menus.sound = MenuClass:Initialise("Sound Settings")
     Menus.sound.itemDefinitions = {
         { id = "master", textString = "Master", type = "range",  value = Settings.volume.master },
         { id = "music",  textString = "Music",  type = "range",  value = Settings.volume.music },
-        { id = "back",   textString = "Back",   type = "button", onClick = function() Menu.Back() end }
+        { id = "back",   textString = "Back",   type = "button", onClick = function() MenuClass.Back() end }
     }
 
-    Menus.game = Menu:Initialise("Game Settings")
+    Menus.game = MenuClass:Initialise("Game Settings")
     Menus.game.itemDefinitions = {
         { id = "useRotatedY", textString = "Use Rotated Y Axis", type = "boolean", value = Settings.movement.useRotatedY },
-        { id = "back",        textString = "Back",               type = "button",  onClick = function() Menu.Back() end }
+        { id = "back",        textString = "Back",               type = "button",  onClick = function() MenuClass.Back() end }
     }
 
-    Menus.video = Menu:Initialise("Video Settings")
+    Menus.video = MenuClass:Initialise("Video Settings")
     Menus.video.itemDefinitions = {
         { id = "fullscreen",   textString = "Fullscreen",           type = "boolean", value = Settings.video.fullscreen },
         { id = "pixelPerfect", textString = "Pixel Perfect Player", type = "boolean", value = Settings.video.pixelPerfectMovement },
-        { id = "back",         textString = "Back",                 type = "button",  onClick = function() Menu.Back() end }
+        { id = "back",         textString = "Back",                 type = "button",  onClick = function() MenuClass.Back() end }
     }
 
-    Menus.options = Menu:Initialise("Options")
+    Menus.options = MenuClass:Initialise("Options")
     Menus.options.itemDefinitions = {
         { id = "game",  textString = "Game",  type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.game) end },
         { id = "video", textString = "Video", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.video) end },
         { id = "sound", textString = "Sound", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.sound) end },
-        { id = "back",  textString = "Back",  type = "button", onClick = function() Menu.Back() end }
+        { id = "back",  textString = "Back",  type = "button", onClick = function() MenuClass.Back() end }
     }
 
-    Menus.pause = Menu:Initialise("Paused")
+    Menus.pause = MenuClass:Initialise("Paused")
     Menus.pause.itemDefinitions = {
         { id = "resume",  textString = "Resume",  type = "button", onClick = function() SetGameState() end },
         { id = "options", textString = "Options", type = "button", onClick = function() table.insert(Game.visibleMenus, Menus.options) end },
@@ -37,10 +37,10 @@ function LoadMenus()
     }
 end
 
-Menu = {}
-Menu.__index = Menu
+MenuClass = {}
+MenuClass.__index = MenuClass
 
-function Menu:Initialise(title)
+function MenuClass:Initialise(title)
     local this = {
         id = nil,
         title = {
@@ -119,7 +119,7 @@ end
 
 -- Fleshes out menu definitions
 -- e.g. sets fonts and x/y positions for items, so we don't have to do it every time we render them
-function Menu:Load()
+function MenuClass:Load()
     log.debug("Loading menu: ", self.id, " with ", #self.itemDefinitions, " itemDefinitions.")
 
     -- Set Title
@@ -137,7 +137,7 @@ function Menu:Load()
 
     for i = 1, #self.itemDefinitions do
         local itemDefinition = self.itemDefinitions[i]
-        local item = MenuItem:Load(self, itemDefinition, Config.fonts.ui, maxItemLength)
+        local item = MenuItemClass:Load(self, itemDefinition, Config.fonts.ui, maxItemLength)
 
         item.x = self.marginSize
         item.y = (i - 1) * (item.height + self.textLineSpacing) + 2 * self.marginSize + title.height
@@ -199,7 +199,7 @@ local function MultiplyColour(colour, multiplier)
     }
 end
 
-function Menu:Draw()
+function MenuClass:Draw()
     if not self.loaded then
         self:Load()
     end
@@ -297,7 +297,7 @@ function Menu:Draw()
     love.graphics.pop()
 end
 
-function Menu:GetItem(x, y)
+function MenuClass:GetItem(x, y)
     if not self.loaded then
         return
     end
@@ -336,7 +336,7 @@ function ShowHoverText()
 
     local pixelX, pixelY = love.mouse.getPosition()
     local menu = Game.visibleMenus[#Game.visibleMenus]
-    Hovering.item, Hovering.rangePosition = Menu.GetItem(menu, pixelX, pixelY)
+    Hovering.item, Hovering.rangePosition = MenuClass.GetItem(menu, pixelX, pixelY)
     Hovering.clicking = GetClickingIfHovering()
 end
 
@@ -350,17 +350,17 @@ function GetClickingIfHovering()
     end
 end
 
-function Menu.Back()
+function MenuClass.Back()
     SaveSettingsToFile()
 
     -- Remove the top menu
     table.remove(Game.visibleMenus)
 end
 
-MenuItem = {}
-MenuItem.__index = MenuItem
+MenuItemClass = {}
+MenuItemClass.__index = MenuItemClass
 
-function MenuItem:Load(menu, itemDefinition, font, maxLength, textAlignment)
+function MenuItemClass:Load(menu, itemDefinition, font, maxLength, textAlignment)
     if itemDefinition.id == nil then
         log.warning("id is missing from itemDefinition ", itemDefinition.textString)
     end
@@ -435,7 +435,7 @@ function MenuItem:Load(menu, itemDefinition, font, maxLength, textAlignment)
     return this
 end
 
-function MenuItem:ToggleBooleanValue()
+function MenuItemClass:ToggleBooleanValue()
     log.debug("toggling setting ", self.id)
 
     self.value = not (self.value)

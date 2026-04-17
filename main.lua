@@ -120,7 +120,7 @@ function love.draw()
 
     if #Game.visibleMenus > 0 then
         for i = 1, #Game.visibleMenus do
-            Menu.Draw(Game.visibleMenus[i])
+            MenuClass.Draw(Game.visibleMenus[i])
         end
     end
 
@@ -132,7 +132,7 @@ function love.keypressed(key, scancode, isrepeat)
         local currentMenu = Game.visibleMenus[#Game.visibleMenus]
         -- If the top menu isn't the pause menu, remove it
         if #Game.visibleMenus > 0 and currentMenu.id ~= "pause" then
-            Menu.Back()
+            MenuClass.Back()
         else
             SetGameState()
         end
