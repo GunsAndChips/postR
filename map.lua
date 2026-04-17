@@ -1,15 +1,12 @@
-Map = {}
-Map.__index = Map
+MapClass = {}
+MapClass.__index = MapClass
 
-function Map:New(mapDefinition)
+function MapClass:New(mapDefinition)
     Config.tile.height = mapDefinition.tileheight
     Config.tile.width = mapDefinition.tilewidth
 
     local this = {
-        tiles = {
-            mapDefinition.layers[1].data,
-            mapDefinition.layers[2].data
-        },
+        layers = mapDefinition.layers,
         width = mapDefinition.width,
         height = mapDefinition.height,
         tileHeight = mapDefinition.tileheight,
@@ -26,7 +23,7 @@ end
 
 local FlooredMapTransform = love.math.newTransform()
 
-function Map:Render()
+function MapClass:Render()
     love.graphics.setColor(1, 1, 1)
 
     -- Apply map transform
@@ -49,7 +46,7 @@ function Map:Render()
             local tileX = (col - 1) * self.tileWidth + staggerX
             local tileY = (row - 1) * self.tileHeight
 
-            for layer = 1, #self.tiles do
+            for layer = 1, #self.layers do
                 local tile = self:GetTile(col, row, layer)
                 local tileId, flipX, flipY, flipD = GetTileFlips(tile)
 
@@ -71,17 +68,17 @@ function Map:Render()
     love.graphics.pop()
 end
 
-function Map:GetTile(x, y, layer)
+function MapClass:GetTile(x, y, layer)
     layer = layer or 1
     -- Check if tile is out of bounds
     if self:CheckIfTileIsOutOfBounds(x, y) then
         return -1
     end
 
-    return self.tiles[layer][(y - 1) * self.width + x]
+    return self.layers[layer].data[(y - 1) * self.width + x]
 end
 
-function Map:SetTile(x, y, layer, newTileId, clearUpperLayers)
+function MapClass:SetTile(newTileId, x, y, layer, clearUpperLayers)
     -- Check if tile is out of bounds
     if self:CheckIfTileIsOutOfBounds(x, y) then
         return
@@ -91,16 +88,16 @@ function Map:SetTile(x, y, layer, newTileId, clearUpperLayers)
     layer = layer or 1
     clearUpperLayers = clearUpperLayers or true
 
-    self.tiles[layer][(y - 1) * self.width + x] = newTileId
-    if clearUpperLayers and layer < #self.tiles then
+    self.layers[layer].data[(y - 1) * self.width + x] = newTileId
+    if clearUpperLayers and layer < #self.layers then
         log.debug("Clearing upper layers above layer: " .. layer)
-        for i = layer + 1, #self.tiles do
-            self:SetTile(x, y, i, 0, false)
+        for i = layer + 1, #self.layers do
+            self:SetTile(0, x, y, i, false)
         end
     end
 end
 
-function Map:CheckIfTileIsOutOfBounds(x, y)
+function MapClass:CheckIfTileIsOutOfBounds(x, y)
     if self.width == nil or self.height == nil then
         log.warning("Unable to check if tile is in bounds of map, as Map does not have width or height set.")
         return
@@ -111,7 +108,7 @@ function Map:CheckIfTileIsOutOfBounds(x, y)
     return false
 end
 
-function Map:SetTileIfMatch(x, y, layer, newTileId, tileIdsToMatch)
+function MapClass:SetTileIfMatch(x, y, layer, newTileId, tileIdsToMatch)
     if #tileIdsToMatch < 1 then
         return
     end
@@ -121,7 +118,7 @@ function Map:SetTileIfMatch(x, y, layer, newTileId, tileIdsToMatch)
     log.debug("Checking if the value (" .. existingTileId .. ") is in ", tileIdsToMatch)
     for i = 0, #tileIdsToMatch do
         if existingTileId == tileIdsToMatch[i] then
-            self:SetTile(x, y, layer, newTileId)
+            self:SetTile(newTileId, x, y, layer)
             return
         end
     end

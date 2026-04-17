@@ -71,7 +71,7 @@ function love.load()
 
     -- Load map
     local mapDefinition = require "tiled/maptest1"
-    Map1 = Map:New(mapDefinition)
+    Map1 = MapClass:New(mapDefinition)
 
     TileSheet = love.graphics.newImage("textures/Sprite-0003.png")
     TileQuads = CreateQuads(TileSheet, Config.tile.width + (Config.tile.staggerX - 1), Config.tile.height, 1)
@@ -178,8 +178,6 @@ function love.resize(w, h)
     -- Update fullscreen setting to match the actual state
     local _
     Settings.video.fullscreen, _ = love.window.getFullscreen()
-
-    --log.debug(("Window resized to width: %d and height: %d."):format(w, h))
 end
 
 function love.focus(focus)
