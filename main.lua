@@ -71,10 +71,14 @@ function love.load()
 
     -- Load map
     local mapDefinition = require "tiled/maptest1"
-    Map1 = MapClass:New(mapDefinition)
+    local map1 = MapClass:New(mapDefinition)
 
-    TileSheet = love.graphics.newImage("textures/Sprite-0003.png")
-    TileQuads = CreateQuads(TileSheet, Config.tile.width + (Config.tile.staggerX - 1), Config.tile.height, 1)
+    local tileSheet = love.graphics.newImage("textures/Sprite-0003.png")
+    TileQuads = CreateQuads(tileSheet, map1.tileWidth - (map1.skewX + 1), map1.tileHeight, 1)
+
+    -- TODO: make these no longer globals
+    TileSheet = tileSheet
+    Map1 = map1
 
     LoadFonts()
 end
