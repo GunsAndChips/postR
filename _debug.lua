@@ -68,6 +68,19 @@ function DrawDebugRenderers()
         love.graphics.setColor(1, 1, 0)
         love.graphics.rectangle("fill", Player.x, Player.y, 1, 1)
     end
+    if Config.debug.renderers.menu.hovering then
+        if Hovering.item ~= nil and Hovering.item.x ~= nil and Hovering.item.y ~= nil then
+            local menuX, menuY = Game.visibleMenus[#Game.visibleMenus].transform:transformPoint(Hovering.item.x, Hovering.item.y)
+
+            local sizeX, sizeY = 1, 1
+            if Hovering.item.width ~= nil and Hovering.item.height ~= nil then
+                sizeX, sizeY = Hovering.item.width, Hovering.item.height
+            end
+
+            love.graphics.setColor(1, 0, 0, 0.3)
+            love.graphics.rectangle("fill", menuX, menuY, sizeX, sizeY)
+        end
+    end
 
     if #debugText > 0 and Game.state ~= "paused" then
         local debugTextString = ""

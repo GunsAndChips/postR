@@ -107,8 +107,6 @@ local function CreateControlText(type, font, colour1, colour2)
             table.insert(rangeText, love.graphics.newText(font, textTable))
         end
 
-        rangeText.width = rangeText[1]:getWidth()
-        rangeText.height = rangeText[1]:getHeight()
         rangeText.length = #ranges - 1
 
         return rangeText
@@ -166,7 +164,7 @@ function MenuClass:Load()
 
     -- Set menu width to fit all items on it, without going below the minWidth
     self.width = math.max(largestItemWidth + 2 * self.marginSize, self.minWidth)
-    -- Set menu width to not go over max width, which is the screen size minus a margin on each size (rounded down to the nearest even number)
+    -- Set menu width to not go over max width, which is the screen size minus a margin on each side
     self.width = math.floor(math.min(self.width, PIXEL_WIDTH - 2 * self.marginSize))
     -- Set menu width to always be even
     if self.width % 2 == 1 then
@@ -279,9 +277,10 @@ function MenuClass:Draw()
                 controlText = item.control.textHover[1]
             else
                 controlText = item.control.text[item.value + 1]
+                log.debug(item.value)
             end
 
-            love.graphics.draw(controlText, self.width - self.marginSize - controlText:getWidth(), item.control.y)
+            love.graphics.draw(controlText, item.control.x, item.control.y)
         elseif item.type == "boolean" then
             local controlText
             if Hovering.item == item.control or Hovering.item == item then
@@ -293,7 +292,7 @@ function MenuClass:Draw()
             if controlText == nil then
                 log.warning("Attempted to draw controlText but it was nil")
             else
-                love.graphics.draw(controlText, self.width - self.marginSize - controlText:getWidth(), item.control.y)
+                love.graphics.draw(controlText, item.control.x, item.control.y)
             end
         end
     end
@@ -321,10 +320,13 @@ function MenuClass:GetItem(x, y)
                 if item.type ~= "range" then
                     return item.control
                 else
-                    local rangeDotCount = item.control.text.length
-                    local rangePosition = math.floor((menuX - item.control.x) / item.control.width * rangeDotCount) + 1
-                    if rangePosition < 1 or rangePosition > rangeDotCount + 1 then
-                        error("rangePosition: " .. rangePosition .. " is invalid. It must be between 1 & " .. rangeDotCount)
+                    local dot = item.control.text.length
+                    log.debug("icw: ", item.control.width)
+                    log.debug("menux: ", menuX)
+                    log.debug("icx: ", item.control.x)
+                    local rangePosition = math.floor((menuX - item.control.x) / (item.control.width - 3) * dot + 1)
+                    if rangePosition < 1 or rangePosition > dot then
+                        return nil
                     end
                     return item.control, rangePosition
                 end
@@ -409,8 +411,9 @@ function MenuItemClass:Load(menu, itemDefinition, font, maxLength, textAlignment
             this.control.offsetY = 0
         end
 
+        this.control.width, this.control.height = this.control.text[1]:getWidth(), this.control.text[1]:getHeight()
+
         this.control.onClick = function() this.value = Hovering.rangePosition end
-        this.control.width, this.control.height = GetTextDimensions(this.control.text[1])
     elseif this.type == "boolean" then
         this.control = {}
         this.control.text = CreateControlText("boolean", font, menu.textColour, menu.backgroundColour)

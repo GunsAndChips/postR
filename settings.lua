@@ -98,6 +98,9 @@ Config.debug = {
             targeting = false,
             facing = false,
             coords = false
+        },
+        menu = {
+            hovering = false
         }
     }
 }

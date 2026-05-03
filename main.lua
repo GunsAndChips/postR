@@ -120,13 +120,13 @@ function love.draw()
     love.graphics.setColor(1, 1, 1)
     Player.animations.walk:draw(Player.textures.walk, Player.x - Player.width / 2, Player.y - Player.height / 2)
 
-    DrawDebugRenderers()
-
     if #Game.visibleMenus > 0 then
         for i = 1, #Game.visibleMenus do
             MenuClass.Draw(Game.visibleMenus[i])
         end
     end
+
+    DrawDebugRenderers()
 
     TLfres.endRendering()
 end
