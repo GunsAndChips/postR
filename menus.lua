@@ -167,10 +167,14 @@ function MenuClass:Load()
     -- Set menu width to fit all items on it, without going below the minWidth
     self.width = math.max(largestItemWidth + 2 * self.marginSize, self.minWidth)
     -- Set menu width to not go over max width, which is the screen size minus a margin on each size (rounded down to the nearest even number)
-    self.width = math.min(self.width, PIXEL_WIDTH - 2 * self.marginSize)
+    self.width = math.floor(math.min(self.width, PIXEL_WIDTH - 2 * self.marginSize))
+    -- Set menu width to always be even
+    if self.width % 2 == 1 then
+        self.width = self.width + 1
+    end
 
     -- Set title x centred on the Menu
-    title.x = math.floor(self.width / 2 - title.width / 2)
+    title.x = math.floor(self.width / 2 - title.width / 2 + 0.5)
 
     -- Check for itemsWithControls to load
     if #itemsWithControls > 0 then
@@ -182,11 +186,11 @@ function MenuClass:Load()
     end
 
     -- TODO: make menu height dynamic to fit all items contained in that menu
-    self.height = self.minHeight
+    self.height = math.floor(self.minHeight)
 
     -- Set transform
     self.transform = love.math.newTransform()
-    self.transform:translate(PIXEL_WIDTH / 2 - self.width / 2, PIXEL_HEIGHT / 2 - self.height / 2)
+    self.transform:translate(math.floor(PIXEL_WIDTH / 2 - self.width / 2), math.floor(PIXEL_HEIGHT / 2 - self.height / 2))
 
     self.loaded = true
 end
